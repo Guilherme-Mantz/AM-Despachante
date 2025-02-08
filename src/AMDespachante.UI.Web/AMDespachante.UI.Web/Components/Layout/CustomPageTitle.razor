@@ -1,0 +1,12 @@
+﻿@code {
+
+    [Parameter]
+    public string Titulo { get; set; }
+
+}
+
+@{
+    var tituloCompleto = $"AM Despachante | {Titulo}";
+}
+
+<PageTitle>@tituloCompleto</PageTitle>

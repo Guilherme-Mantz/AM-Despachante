@@ -1,0 +1,86 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - Presentation", "1 - Presentation", "{C2A0332D-99D0-47B9-A85F-5182065D7E06}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - Services", "2 - Services", "{747F8369-1D8A-44A1-86E4-23816A3009B0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 - Application", "3 - Application", "{9D86DBD7-4323-4190-8EE5-8A023A742862}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 - Domain", "4 - Domain", "{03D9135F-9ABA-4400-B7B1-CE0E74D3E0A7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5 - Infra", "5 - Infra", "{CF844A15-8DCD-4D2C-A360-12C0354D8EBB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5.1 - Data", "5.1 - Data", "{CB4783ED-8249-42BA-A844-0D2394640BE1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMDespachante.Infra.Data", "src\AMDespachante.Infra.Data\AMDespachante.Infra.Data.csproj", "{0EE5DAA4-2127-4C8A-BAF4-5FE3C44B87A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMDespachante.Domain", "src\AMDespachante.Domain\AMDespachante.Domain.csproj", "{F3B15FAE-2486-4A98-A880-384CB7DFE2E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMDespachante.Domain.Core", "src\AMDespachante.Domain.Core\AMDespachante.Domain.Core.csproj", "{27066AB1-618D-4E8C-A102-132BA11A289F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMDespachante.Application", "src\AMDespachante.Application\AMDespachante.Application.csproj", "{12B7D856-1872-41D5-A1EB-784E1C6A8650}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMDespachante.UI.Web", "src\AMDespachante.UI.Web\AMDespachante.UI.Web\AMDespachante.UI.Web.csproj", "{E1C79969-22B6-4B50-A733-81C644C850CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMDespachante.UI.Web.Client", "src\AMDespachante.UI.Web\AMDespachante.UI.Web.Client\AMDespachante.UI.Web.Client.csproj", "{BC407A84-E54F-435D-9418-CC467BBF0441}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5.2 - CrossCutting", "5.2 - CrossCutting", "{594EAB32-FCF9-410E-A9B3-AE6ACF6DADCF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5.3 - EventSourcing", "5.3 - EventSourcing", "{C5BF2DC7-4976-4694-8EC4-110C28E00C5D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMDespachante.EventSourcing", "src\AMDespachante.EventSourcing\AMDespachante.EventSourcing.csproj", "{FA9C9059-43D8-4C37-82B6-F739650F5050}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0EE5DAA4-2127-4C8A-BAF4-5FE3C44B87A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EE5DAA4-2127-4C8A-BAF4-5FE3C44B87A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EE5DAA4-2127-4C8A-BAF4-5FE3C44B87A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EE5DAA4-2127-4C8A-BAF4-5FE3C44B87A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3B15FAE-2486-4A98-A880-384CB7DFE2E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3B15FAE-2486-4A98-A880-384CB7DFE2E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3B15FAE-2486-4A98-A880-384CB7DFE2E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3B15FAE-2486-4A98-A880-384CB7DFE2E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27066AB1-618D-4E8C-A102-132BA11A289F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27066AB1-618D-4E8C-A102-132BA11A289F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27066AB1-618D-4E8C-A102-132BA11A289F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27066AB1-618D-4E8C-A102-132BA11A289F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12B7D856-1872-41D5-A1EB-784E1C6A8650}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12B7D856-1872-41D5-A1EB-784E1C6A8650}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12B7D856-1872-41D5-A1EB-784E1C6A8650}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12B7D856-1872-41D5-A1EB-784E1C6A8650}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1C79969-22B6-4B50-A733-81C644C850CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1C79969-22B6-4B50-A733-81C644C850CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1C79969-22B6-4B50-A733-81C644C850CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1C79969-22B6-4B50-A733-81C644C850CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC407A84-E54F-435D-9418-CC467BBF0441}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC407A84-E54F-435D-9418-CC467BBF0441}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC407A84-E54F-435D-9418-CC467BBF0441}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC407A84-E54F-435D-9418-CC467BBF0441}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA9C9059-43D8-4C37-82B6-F739650F5050}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA9C9059-43D8-4C37-82B6-F739650F5050}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA9C9059-43D8-4C37-82B6-F739650F5050}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA9C9059-43D8-4C37-82B6-F739650F5050}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CB4783ED-8249-42BA-A844-0D2394640BE1} = {CF844A15-8DCD-4D2C-A360-12C0354D8EBB}
+		{0EE5DAA4-2127-4C8A-BAF4-5FE3C44B87A5} = {CB4783ED-8249-42BA-A844-0D2394640BE1}
+		{F3B15FAE-2486-4A98-A880-384CB7DFE2E2} = {03D9135F-9ABA-4400-B7B1-CE0E74D3E0A7}
+		{27066AB1-618D-4E8C-A102-132BA11A289F} = {03D9135F-9ABA-4400-B7B1-CE0E74D3E0A7}
+		{12B7D856-1872-41D5-A1EB-784E1C6A8650} = {9D86DBD7-4323-4190-8EE5-8A023A742862}
+		{E1C79969-22B6-4B50-A733-81C644C850CF} = {C2A0332D-99D0-47B9-A85F-5182065D7E06}
+		{BC407A84-E54F-435D-9418-CC467BBF0441} = {C2A0332D-99D0-47B9-A85F-5182065D7E06}
+		{594EAB32-FCF9-410E-A9B3-AE6ACF6DADCF} = {CF844A15-8DCD-4D2C-A360-12C0354D8EBB}
+		{C5BF2DC7-4976-4694-8EC4-110C28E00C5D} = {CF844A15-8DCD-4D2C-A360-12C0354D8EBB}
+		{FA9C9059-43D8-4C37-82B6-F739650F5050} = {C5BF2DC7-4976-4694-8EC4-110C28E00C5D}
+	EndGlobalSection
+EndGlobal
