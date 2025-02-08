@@ -1,5 +1,6 @@
 using AMDespachante.UI.Web.Components;
 using AMDespachante.UI.Web.Configuraiton;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,10 @@ builder.Services.AddIdentityConfig();
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
 
 builder.Services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<Program>());
+
+builder.Services.AddMudServices();
+
+builder.Services.AddHttpClient();
 
 builder.Services.ResolveDependencies();
 

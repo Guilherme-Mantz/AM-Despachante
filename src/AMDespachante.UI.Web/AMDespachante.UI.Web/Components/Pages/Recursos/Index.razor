@@ -1,9 +1,136 @@
 ﻿@page "/recursos"
 
+@using System.Net.Http.Json
+
+@inject HttpClient httpClient
+
 <CustomPageTitle Titulo="Recursos" />
 
-<h3>Index</h3>
+<MudDataGrid T="Element" MultiSelection="true" Items="@Elements" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@_quickFilter"
+             Hideable="true" RowClick="@RowClicked" RowContextMenuClick="RowRightClicked" SelectedItemsChanged="@SelectedItemsChanged">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <Columns>
+        <SelectColumn T="Element" />
+        <PropertyColumn Property="x => x.Number" Title="Nr" Sortable="false" Filterable="false" />
+        <PropertyColumn Property="x => x.Sign" />
+        <PropertyColumn Property="x => x.Name" SortBy="@_sortBy" />
+        <PropertyColumn Property="x => x.Position" />
+        <PropertyColumn Property="x => x.Molar" Title="Molar mass" />
+        <PropertyColumn Property="x => x.Group" Title="Category" />
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="Element" />
+    </PagerContent>
+</MudDataGrid>
 
 @code {
+    private IEnumerable<Element> Elements = new List<Element>();
+    private string _searchString;
+    private bool _sortNameByLength;
+    private List<string> _events = new();
+    // custom sort by name length
+    private Func<Element, object> _sortBy => x =>
+    {
+        if (_sortNameByLength)
+            return x.Name.Length;
+        else
+            return x.Name;
+    };
+    // quick filter - filter globally across multiple columns with the same input
+    private Func<Element, bool> _quickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
 
+        if (x.Sign.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if ($"{x.Number} {x.Position} {x.Molar}".Contains(_searchString))
+            return true;
+
+        return false;
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Elements = new List<Element>
+    {
+        new Element
+        {
+            Group = "Metais Alcalinos",
+            Position = 1,
+            Name = "Lítio",
+            Number = 3,
+            Sign = "Li",
+            Molar = 6.941,
+            Electrons = new List<int> { 2, 1 }
+        },
+        new Element
+        {
+            Group = "Metais Alcalinos",
+            Position = 2,
+            Name = "Sódio",
+            Number = 11,
+            Sign = "Na",
+            Molar = 22.990,
+            Electrons = new List<int> { 2, 8, 1 }
+        },
+        new Element
+        {
+            Group = "Gases Nobres",
+            Position = 18,
+            Name = "Hélio",
+            Number = 2,
+            Sign = "He",
+            Molar = 4.002,
+            Electrons = new List<int> { 2 }
+        },
+        new Element
+        {
+            Group = "Halogênios",
+            Position = 17,
+            Name = "Cloro",
+            Number = 17,
+            Sign = "Cl",
+            Molar = 35.453,
+            Electrons = new List<int> { 2, 8, 7 }
+        },
+        new Element
+        {
+            Group = "Metais de Transição",
+            Position = 11,
+            Name = "Cobre",
+            Number = 29,
+            Sign = "Cu",
+            Molar = 63.546,
+            Electrons = new List<int> { 2, 8, 18, 1 }
+        }
+    };
+
+        await Task.CompletedTask; // Mantemos o método assíncrono para compatibilidade
+    }
+
+    // events
+    void RowClicked(DataGridRowClickEventArgs<Element> args)
+    {
+        _events.Insert(0, $"Event = RowClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
+    }
+
+    void RowRightClicked(DataGridRowClickEventArgs<Element> args)
+    {
+        _events.Insert(0, $"Event = RowRightClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
+    }
+
+    void SelectedItemsChanged(HashSet<Element> items)
+    {
+        _events.Insert(0, $"Event = SelectedItemsChanged, Data = {System.Text.Json.JsonSerializer.Serialize(items)}");
+    }
 }
