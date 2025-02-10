@@ -3,6 +3,8 @@ using AMDespachante.Domain.Interfaces;
 using AMDespachante.Domain.Models;
 using AMDespachante.Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using Polly;
+using System.Linq.Dynamic.Core;
 
 namespace AMDespachante.Infra.Data.Repository
 {
@@ -18,6 +20,34 @@ namespace AMDespachante.Infra.Data.Repository
         }
 
         public IUnitOfWork UnitOfWork => _db;
+
+
+        public async Task<PagedResult> GetPagedAsync(int page, int pageSize, string searchTerm)
+        {
+            var query = _db.Recursos.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(r =>
+                    EF.Functions.Like(r.Nome, $"%{searchTerm}%") ||
+                    EF.Functions.Like(r.Email, $"%{searchTerm}%") ||
+                    EF.Functions.Like(r.Cpf, $"%{searchTerm}%")
+                );
+            }
+
+            var totalCount = await query.CountAsync();
+            var data = await query
+                .OrderBy(r => r.Id)
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult
+            {
+                Queryable = data.AsQueryable(),
+                PageCount = totalCount
+            };
+        }
 
         public async Task<IEnumerable<Recurso>> GetAll() => await _dbSet.AsNoTracking().ToListAsync();
 
@@ -39,5 +69,6 @@ namespace AMDespachante.Infra.Data.Repository
         }
 
         public void Dispose() => _db.Dispose();
+
     }
 }

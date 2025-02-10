@@ -1,136 +1,85 @@
 ﻿@page "/recursos"
 
-@using System.Net.Http.Json
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+@inject IRecursoAppService RecursoAppService
 
-@inject HttpClient httpClient
+@rendermode InteractiveServer
 
 <CustomPageTitle Titulo="Recursos" />
 
-<MudDataGrid T="Element" MultiSelection="true" Items="@Elements" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@_quickFilter"
-             Hideable="true" RowClick="@RowClicked" RowContextMenuClick="RowRightClicked" SelectedItemsChanged="@SelectedItemsChanged">
+<MudTable ServerData="ServerReload" Hover="true" Striped="true" @ref="table"
+           NoRecordsContent="@(new RenderFragment(builder =>
+          {
+              builder.AddContent(0, new MarkupString("<MudText>Nenhum registro encontrado</MudText>"));
+          }))"
+          LoadingContent="@(new RenderFragment(builder =>
+          {
+              builder.AddContent(0, new MarkupString("<MudText>Carregando...</MudText>"));
+          }))"
+          PagerContent="@(new RenderFragment(builder =>
+          {
+              builder.AddContent(0, new MarkupString("<MudTablePager />"));
+          }))">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Periodic Elements</MudText>
+        <MudText Typo="Typo.h6">Recursos</MudText>
         <MudSpacer />
-        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
-    <Columns>
-        <SelectColumn T="Element" />
-        <PropertyColumn Property="x => x.Number" Title="Nr" Sortable="false" Filterable="false" />
-        <PropertyColumn Property="x => x.Sign" />
-        <PropertyColumn Property="x => x.Name" SortBy="@_sortBy" />
-        <PropertyColumn Property="x => x.Position" />
-        <PropertyColumn Property="x => x.Molar" Title="Molar mass" />
-        <PropertyColumn Property="x => x.Group" Title="Category" />
-    </Columns>
-    <PagerContent>
-        <MudDataGridPager T="Element" />
-    </PagerContent>
-</MudDataGrid>
+
+    <HeaderContent>
+        <MudTh>Nome</MudTh>
+        <MudTh>E-mail</MudTh>
+        <MudTh>CPF</MudTh>
+        <!-- Add other properties from RecursoViewModel -->
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Nome</MudTd>
+        <MudTd>@context.Email</MudTd>
+        <MudTd>@context.Cpf</MudTd>
+        <!-- Map other properties -->
+    </RowTemplate>
+
+    
+</MudTable>
 
 @code {
-    private IEnumerable<Element> Elements = new List<Element>();
-    private string _searchString;
-    private bool _sortNameByLength;
-    private List<string> _events = new();
-    // custom sort by name length
-    private Func<Element, object> _sortBy => x =>
+
+    private MudTable<RecursoViewModel> table;
+    private int totalItems;
+    private string searchString = null;
+    private int selectedRowNumber = -1;
+
+    private async Task<TableData<RecursoViewModel>> ServerReload(TableState state, CancellationToken token)
     {
-        if (_sortNameByLength)
-            return x.Name.Length;
-        else
-            return x.Name;
-    };
-    // quick filter - filter globally across multiple columns with the same input
-    private Func<Element, bool> _quickFilter => x =>
-    {
-        if (string.IsNullOrWhiteSpace(_searchString))
-            return true;
-
-        if (x.Sign.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (x.Name.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if ($"{x.Number} {x.Position} {x.Molar}".Contains(_searchString))
-            return true;
-
-        return false;
-    };
-
-    protected override async Task OnInitializedAsync()
-    {
-        Elements = new List<Element>
-    {
-        new Element
+        try
         {
-            Group = "Metais Alcalinos",
-            Position = 1,
-            Name = "Lítio",
-            Number = 3,
-            Sign = "Li",
-            Molar = 6.941,
-            Electrons = new List<int> { 2, 1 }
-        },
-        new Element
-        {
-            Group = "Metais Alcalinos",
-            Position = 2,
-            Name = "Sódio",
-            Number = 11,
-            Sign = "Na",
-            Molar = 22.990,
-            Electrons = new List<int> { 2, 8, 1 }
-        },
-        new Element
-        {
-            Group = "Gases Nobres",
-            Position = 18,
-            Name = "Hélio",
-            Number = 2,
-            Sign = "He",
-            Molar = 4.002,
-            Electrons = new List<int> { 2 }
-        },
-        new Element
-        {
-            Group = "Halogênios",
-            Position = 17,
-            Name = "Cloro",
-            Number = 17,
-            Sign = "Cl",
-            Molar = 35.453,
-            Electrons = new List<int> { 2, 8, 7 }
-        },
-        new Element
-        {
-            Group = "Metais de Transição",
-            Position = 11,
-            Name = "Cobre",
-            Number = 29,
-            Sign = "Cu",
-            Molar = 63.546,
-            Electrons = new List<int> { 2, 8, 18, 1 }
+            var response = await RecursoAppService.GetPagedAsync(
+                page: state.Page,
+                pageSize: state.PageSize,
+                searchTerm: searchString
+            );
+            
+            totalItems = response.PageCount;
+
+            return new TableData<RecursoViewModel>()
+                {
+                    TotalItems = totalItems,
+                    Items = response.Queryable.ToArray()
+                };
         }
-    };
-
-        await Task.CompletedTask; // Mantemos o método assíncrono para compatibilidade
+        catch (Exception ex)
+        {
+            //TODO: TOAST
+            Console.WriteLine($"Erro ao carregar dados: {ex.Message}");
+            return new TableData<RecursoViewModel>();
+        }
     }
 
-    // events
-    void RowClicked(DataGridRowClickEventArgs<Element> args)
+    private void OnSearch(string text)
     {
-        _events.Insert(0, $"Event = RowClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
-    }
-
-    void RowRightClicked(DataGridRowClickEventArgs<Element> args)
-    {
-        _events.Insert(0, $"Event = RowRightClick, Index = {args.RowIndex}, Data = {System.Text.Json.JsonSerializer.Serialize(args.Item)}");
-    }
-
-    void SelectedItemsChanged(HashSet<Element> items)
-    {
-        _events.Insert(0, $"Event = SelectedItemsChanged, Data = {System.Text.Json.JsonSerializer.Serialize(items)}");
+        searchString = text;
+        table.ReloadServerData();
     }
 }

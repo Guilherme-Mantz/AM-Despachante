@@ -5,6 +5,10 @@ using AMDespachante.Infra.Data.Context;
 using AMDespachante.Domain.Core.Communication.Mediator;
 using AMDespachante.Domain.Core.User;
 using AMDespachante.Application.AutoMapper;
+using AMDespachante.Application.Interfaces;
+using AMDespachante.Application.Services;
+using AMDespachante.Domain.Interfaces;
+using AMDespachante.Infra.Data.Repository;
 
 namespace AMDespachante.UI.Web.Configuraiton
 {
@@ -22,6 +26,7 @@ namespace AMDespachante.UI.Web.Configuraiton
             services.AddAutoMapper(typeof(AutomaperConfig));
 
             //Services
+            services.AddScoped<IRecursoAppService, RecursoAppService>();
 
             //Events
 
@@ -29,6 +34,7 @@ namespace AMDespachante.UI.Web.Configuraiton
 
             //Repostories
             services.AddScoped<AmDespachanteContext>();
+            services.AddScoped<IRecursoRepository, RecursoRepository>();
 
             // Event Sourcing
             services.AddScoped<IEventSourcingRepository, EventSourcingRepository>();

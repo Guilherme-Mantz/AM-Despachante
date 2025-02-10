@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using AMDespachante.Application.ViewModels;
+using AMDespachante.Domain.Models;
+using AutoMapper;
 
 namespace AMDespachante.Application.AutoMapper
 {
@@ -6,7 +8,7 @@ namespace AMDespachante.Application.AutoMapper
     {
         public AutomaperConfig()
         {
-
+            CreateMap<RecursoViewModel, Recurso>().ReverseMap();
         }
     }
 }

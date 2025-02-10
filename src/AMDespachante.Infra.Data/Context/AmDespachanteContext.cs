@@ -44,7 +44,7 @@ public class AmDespachanteContext : DbContext, IUnitOfWork
         foreach (var property in modelBuilder.Model.GetEntityTypes()
             .SelectMany(e => e.GetProperties()
                 .Where(p => p.ClrType == typeof(string))))
-            property.SetColumnType("varchar(200)");
+            property.SetColumnType("nvarchar(200)");
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AmDespachanteContext).Assembly);
 

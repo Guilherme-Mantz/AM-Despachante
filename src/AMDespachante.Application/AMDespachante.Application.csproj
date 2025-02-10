@@ -11,9 +11,7 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\" />
-    <Folder Include="ViewModels\" />
-    <Folder Include="Services\" />
+    <ProjectReference Include="..\AMDespachante.Domain\AMDespachante.Domain.csproj" />
   </ItemGroup>
 
 </Project>
