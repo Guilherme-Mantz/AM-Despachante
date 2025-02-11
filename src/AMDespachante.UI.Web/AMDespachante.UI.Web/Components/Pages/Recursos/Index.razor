@@ -4,23 +4,9 @@
 @using AMDespachante.Application.ViewModels
 @inject IRecursoAppService RecursoAppService
 
-@rendermode InteractiveServer
-
 <CustomPageTitle Titulo="Recursos" />
 
-<MudTable ServerData="ServerReload" Hover="true" Striped="true" @ref="table"
-           NoRecordsContent="@(new RenderFragment(builder =>
-          {
-              builder.AddContent(0, new MarkupString("<MudText>Nenhum registro encontrado</MudText>"));
-          }))"
-          LoadingContent="@(new RenderFragment(builder =>
-          {
-              builder.AddContent(0, new MarkupString("<MudText>Carregando...</MudText>"));
-          }))"
-          PagerContent="@(new RenderFragment(builder =>
-          {
-              builder.AddContent(0, new MarkupString("<MudTablePager />"));
-          }))">
+<MudTable ServerData="ServerReload" Hover="true" Striped="true" @ref="table">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Recursos</MudText>
         <MudSpacer />
@@ -41,15 +27,25 @@
         <!-- Map other properties -->
     </RowTemplate>
 
-    
+    <NoRecordsContent>
+        <MudText>Nenhum registro encontrado</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Carregando...</MudText>
+    </LoadingContent>
+
+    <PagerContent>
+        <MudTablePager RowsPerPageString="Registros por página:"
+                       InfoFormat="{first_item}-{last_item} de {all_items}"
+                       PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+    </PagerContent>
+
 </MudTable>
 
 @code {
 
     private MudTable<RecursoViewModel> table;
-    private int totalItems;
     private string searchString = null;
-    private int selectedRowNumber = -1;
 
     private async Task<TableData<RecursoViewModel>> ServerReload(TableState state, CancellationToken token)
     {
@@ -60,12 +56,10 @@
                 pageSize: state.PageSize,
                 searchTerm: searchString
             );
-            
-            totalItems = response.PageCount;
 
             return new TableData<RecursoViewModel>()
                 {
-                    TotalItems = totalItems,
+                    TotalItems = response.PageCount,
                     Items = response.Queryable.ToArray()
                 };
         }

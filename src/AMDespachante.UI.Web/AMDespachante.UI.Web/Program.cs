@@ -23,6 +23,8 @@ builder.Services.AddDatabaseConfiguration(builder.Configuration);
 builder.Services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<Program>());
 
 builder.Services.AddMudServices();
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 
 builder.Services.AddHttpClient();
 
