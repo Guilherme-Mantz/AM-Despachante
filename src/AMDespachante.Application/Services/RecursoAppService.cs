@@ -19,9 +19,9 @@ namespace AMDespachante.Application.Services
             _mapper = mapper;
             _repository = repository;
         }
-        public async Task<PagedResult<RecursoViewModel>> GetPagedAsync(int page, int pageSize, string searchTerm = null)
+        public async Task<PagedResult<RecursoViewModel>> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null)
         {
-            var pagedResult = await _repository.GetPagedAsync(page, pageSize, searchTerm);
+            var pagedResult = await _repository.GetPagedAsync(page, pageSize, sortOrder, searchTerm, sortField);
 
             return new PagedResult<RecursoViewModel>
             {

@@ -1,7 +1,15 @@
-﻿namespace AMDespachante.Domain.Enums;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
+
+namespace AMDespachante.Domain.Enums;
 
 public enum CargoEnum
 {
-    ADMIN = 0, 
-    FUNCIONARIO = 1,
+    [Description("Administrador")]
+    [Display(Name = "Administrador")]
+    ADMIN = 0,
+
+    [Description("Funcionário")]
+    [Display(Name = "Funcionário")]
+    FUNCIONARIO = 1
 }

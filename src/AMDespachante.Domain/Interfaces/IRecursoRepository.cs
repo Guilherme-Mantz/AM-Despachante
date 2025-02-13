@@ -11,5 +11,5 @@ public interface IRecursoRepository : IRepository<Recurso>
     void Add(Recurso recurso);
     void Update(Recurso recurso);
     void Delete(Recurso recurso);
-    Task<PagedResult> GetPagedAsync(int page, int pageSize, string searchTerm);
+    Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null);
 }

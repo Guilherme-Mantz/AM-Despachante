@@ -1,10 +1,13 @@
 ﻿using AMDespachante.Domain.Core.Data;
+using AMDespachante.Domain.Enums;
+using AMDespachante.Domain.Extensions;
 using AMDespachante.Domain.Interfaces;
 using AMDespachante.Domain.Models;
 using AMDespachante.Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Polly;
 using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 
 namespace AMDespachante.Infra.Data.Repository
 {
@@ -22,22 +25,31 @@ namespace AMDespachante.Infra.Data.Repository
         public IUnitOfWork UnitOfWork => _db;
 
 
-        public async Task<PagedResult> GetPagedAsync(int page, int pageSize, string searchTerm)
+        public async Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null)
         {
             var query = _db.Recursos.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
+                var cargoEnum = Enum.GetValues<CargoEnum>()
+                    .FirstOrDefault(c => c.GetEnumDisplayName()
+                    .Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+
                 query = query.Where(r =>
                     EF.Functions.Like(r.Nome, $"%{searchTerm}%") ||
                     EF.Functions.Like(r.Email, $"%{searchTerm}%") ||
-                    EF.Functions.Like(r.Cpf, $"%{searchTerm}%")
+                    EF.Functions.Like(r.Cpf, $"%{searchTerm}%") ||
+                    (cargoEnum != default && r.Cargo == cargoEnum)
                 );
             }
 
+            query = sortOrder == "asc"
+                ? query.OrderBy(GetSortProperty(sortField))
+                : query.OrderByDescending(GetSortProperty(sortField));
+
             var totalCount = await query.CountAsync();
+
             var data = await query
-                .OrderBy(r => r.Id)
                 .Skip(page * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -70,5 +82,16 @@ namespace AMDespachante.Infra.Data.Repository
 
         public void Dispose() => _db.Dispose();
 
+        private Expression<Func<Recurso, object>> GetSortProperty(string sortField)
+        {
+            return sortField?.ToLower() switch
+            {
+                "nome" => x => x.Nome,
+                "email" => x => x.Email,
+                "cpf" => x => x.Cpf,
+                "cargo" => x => x.Cargo,
+                _ => x => x.Nome
+            };
+        }
     }
 }

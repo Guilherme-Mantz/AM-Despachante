@@ -2,6 +2,8 @@
 
 @using AMDespachante.Application.Interfaces
 @using AMDespachante.Application.ViewModels
+@using AMDespachante.Domain.Extensions
+
 @inject IRecursoAppService RecursoAppService
 
 <CustomPageTitle Titulo="Recursos" />
@@ -15,16 +17,27 @@
     </ToolBarContent>
 
     <HeaderContent>
-        <MudTh>Nome</MudTh>
-        <MudTh>E-mail</MudTh>
-        <MudTh>CPF</MudTh>
-        <!-- Add other properties from RecursoViewModel -->
+        <MudTh><MudTableSortLabel SortLabel="nome" T="RecursoViewModel">Nome</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="email" T="RecursoViewModel">E-mail</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="cpf" T="RecursoViewModel">CPF</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="cargo" T="RecursoViewModel">Cargo</MudTableSortLabel></MudTh>
+        <MudTh Style="text-align: center">Ações</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd>@context.Nome</MudTd>
         <MudTd>@context.Email</MudTd>
         <MudTd>@context.Cpf</MudTd>
-        <!-- Map other properties -->
+        <MudTd>@context.Cargo.GetEnumDisplayName()</MudTd>
+        <MudTd class="d-flex justify-center">
+            <MudLink Href="@($"recursos/editar/{context.Id}")" class="mr-1 pt-1"
+                     Color="Color.Primary">
+                <MudIcon Icon="@Icons.Material.Filled.Edit" Size="Size.Small" />
+            </MudLink>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                           Color="Color.Error"
+                           Size="Size.Small"
+                           OnClick="@(() => OpenDeleteDialog(context))" />
+        </MudTd>
     </RowTemplate>
 
     <NoRecordsContent>
@@ -47,6 +60,9 @@
     private MudTable<RecursoViewModel> table;
     private string searchString = null;
 
+    private bool deleteDialogVisible;
+    private RecursoViewModel selectedItem;
+
     private async Task<TableData<RecursoViewModel>> ServerReload(TableState state, CancellationToken token)
     {
         try
@@ -54,7 +70,9 @@
             var response = await RecursoAppService.GetPagedAsync(
                 page: state.Page,
                 pageSize: state.PageSize,
-                searchTerm: searchString
+                searchTerm: searchString,
+                sortField: state.SortLabel,
+                sortOrder: state.SortDirection == SortDirection.Ascending ? "asc" : "desc"
             );
 
             return new TableData<RecursoViewModel>()
@@ -76,4 +94,16 @@
         searchString = text;
         table.ReloadServerData();
     }
+
+    private void OpenDeleteDialog(RecursoViewModel item)
+    {
+        selectedItem = item;
+        deleteDialogVisible = true;
+    }
+
+    private async Task HandleDelete()
+    {
+        deleteDialogVisible = false;
+    }
+
 }

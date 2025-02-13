@@ -5,7 +5,7 @@ namespace AMDespachante.Application.Interfaces
 {
     public interface IRecursoAppService
     {
-        Task<PagedResult<RecursoViewModel>> GetPagedAsync(int page, int pageSize, string searchTerm = null);
+        Task<PagedResult<RecursoViewModel>> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null);
         Task<IEnumerable<RecursoViewModel>> GetAll();
         Task<RecursoViewModel?> GetById(Guid Id);
 
