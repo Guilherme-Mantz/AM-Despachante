@@ -1,0 +1,87 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using AMDespachante.Application.ViewModels
+@using AMDespachante.Domain.Enums
+@using AMDespachante.Domain.Extensions
+
+<EditForm Model="@Recurso" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="Nome"
+                                  @bind-Value="Recurso.Nome"
+                                  For="@(() => Recurso.Nome)" />
+
+                    <MudTextField Label="Email"
+                                  Class="mt-3"
+                                  @bind-Value="Recurso.Email"
+                                  For="@(() => Recurso.Email)" />
+
+                    <MudTextField Label="CPF"
+                                  Class="mt-3"
+                                  @bind-Value="Recurso.Cpf"
+                                  For="@(() => Recurso.Cpf)" />
+
+                    <MudRadioGroup @bind-Value="Recurso.Cargo"
+                                   For="@(() => Recurso.Cargo)"
+                                   Label="Cargo"
+                                   Class="mt-3">
+                        @foreach (var cargo in Enum.GetValues(typeof(CargoEnum)))
+                        {
+                            <MudRadio Value="@((CargoEnum)cargo)" Color="Color.Primary">
+                                @(((CargoEnum)cargo).GetEnumDisplayName())
+                            </MudRadio>
+                        }
+                    </MudRadioGroup>
+
+                    @if (Recurso.Id != Guid.Empty)
+                    {
+                        <MudCheckBox @bind-Value="Recurso.Ativo"
+                                     Color="Color.Primary"
+                                     Label="Ativo"
+                                     For="@(() => Recurso.Ativo)"
+                                     Class="mt-3" />
+                    }
+
+                </MudCardContent>
+                <MudCardActions>
+                    <MudLink Href="/recursos" Class="mud-button mud-button-filled mud-button-primary" Underline="Underline.None">
+                        Cancelar
+                    </MudLink>
+                    <MudButton ButtonType="ButtonType.Submit"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Class="ml-auto">
+                        @(Recurso.Id == Guid.Empty ? "Criar" : "Atualizar")
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public RecursoViewModel Recurso { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<RecursoViewModel> OnSubmit { get; set; }
+
+    private async Task HandleValidSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(Recurso);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Recurso == null)
+        {
+            Recurso = new RecursoViewModel();
+        }
+    }
+}

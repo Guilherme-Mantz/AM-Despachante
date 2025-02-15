@@ -1,5 +1,18 @@
-﻿<h3>Create</h3>
+﻿@page "/recursos/create"
+
+@using AMDespachante.UI.Web.Components.Shared.Recursos
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+
+@inject IRecursoAppService RecursoAppService
+@inject NavigationManager NavigationManager
+
+<RecursoForm OnSubmit="CriarRecurso" />
 
 @code {
-
+    private void CriarRecurso(RecursoViewModel recurso)
+    {
+        RecursoAppService.Add(recurso);
+        NavigationManager.NavigateTo("/recursos");
+    }
 }

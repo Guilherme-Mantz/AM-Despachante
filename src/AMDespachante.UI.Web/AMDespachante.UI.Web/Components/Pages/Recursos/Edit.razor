@@ -1,5 +1,30 @@
-﻿<h3>Edit</h3>
+﻿@page "/recursos/edit/{id:guid}"
+
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+@using AMDespachante.UI.Web.Components.Shared.Recursos
+
+@inject NavigationManager NavigationManager
+@inject IRecursoAppService RecursoAppService
+
+<RecursoForm Recurso="recurso" OnSubmit="EditarRecurso" />
 
 @code {
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private RecursoViewModel recurso { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        recurso = await RecursoAppService.GetById(Id);
+    }
+
+    private void EditarRecurso(RecursoViewModel recurso)
+    {
+        RecursoAppService.Update(recurso);
+        NavigationManager.NavigateTo("/recursos");
+    }
 
 }

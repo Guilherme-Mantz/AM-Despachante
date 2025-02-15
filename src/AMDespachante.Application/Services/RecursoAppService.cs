@@ -32,10 +32,7 @@ namespace AMDespachante.Application.Services
 
         public async Task<IEnumerable<RecursoViewModel>> GetAll() => _mapper.Map<IEnumerable<RecursoViewModel>>(await _repository.GetAll());
 
-        public Task<RecursoViewModel> GetById(Guid Id)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<RecursoViewModel> GetById(Guid Id) => _mapper.Map<RecursoViewModel>(await _repository.GetById(Id));
 
         public void Add(RecursoViewModel recurso)
         {

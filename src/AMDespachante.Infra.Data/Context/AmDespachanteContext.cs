@@ -2,6 +2,7 @@
 using AMDespachante.Domain.Core.Data;
 using AMDespachante.Domain.Core.DomainObjects;
 using AMDespachante.Domain.Core.Message;
+using AMDespachante.Domain.Core.User;
 using AMDespachante.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,18 +11,50 @@ namespace AMDespachante.Infra.Data.Context;
 public class AmDespachanteContext : DbContext, IUnitOfWork
 {
     private readonly IMediatorHandler _mediatorHandler;
+    private readonly IAppUser _user;
 
-    public AmDespachanteContext(DbContextOptions<AmDespachanteContext> options, IMediatorHandler mediatorHandler) : base(options)
+    public AmDespachanteContext(DbContextOptions<AmDespachanteContext> options, IMediatorHandler mediatorHandler, IAppUser user) : base(options)
     {
         _mediatorHandler = mediatorHandler;
         ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         ChangeTracker.AutoDetectChangesEnabled = false;
+        _user = user;
     }
 
     public DbSet<Recurso> Recursos { get; set; }
 
     public async Task<bool> Commit()
     {
+        foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("Criado") != null))
+        {
+            if (entry.State == EntityState.Added)
+                entry.Property("Criado").CurrentValue = DateTime.Now;
+
+            if (entry.State == EntityState.Modified)
+                entry.Property("Criado").IsModified = false;
+        }
+
+        foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("CriadoPor") != null))
+        {
+            if (entry.State == EntityState.Added)
+                entry.Property("CriadoPor").CurrentValue = _user?.Name;
+
+            if (entry.State == EntityState.Modified)
+                entry.Property("CriadoPor").IsModified = false;
+        }
+
+        foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("Modificado") != null))
+        {
+            if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+                entry.Property("Modificado").CurrentValue = DateTime.Now;
+        }
+
+        foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("ModificadoPor") != null))
+        {
+            if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+                entry.Property("ModificadoPor").CurrentValue = _user?.Name;
+        }
+
         // After executing this line all the changes (from the Command Handler and Domain Event Handlers) 
         // performed through the DbContext will be committed
         var success = await SaveChangesAsync() > 0;
