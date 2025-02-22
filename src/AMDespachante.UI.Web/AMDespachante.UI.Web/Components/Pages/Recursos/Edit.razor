@@ -6,6 +6,7 @@
 
 @inject NavigationManager NavigationManager
 @inject IRecursoAppService RecursoAppService
+@inject ISnackbar Snackbar
 
 <RecursoForm Recurso="recurso" OnSubmit="EditarRecurso" />
 
@@ -24,6 +25,8 @@
     private void EditarRecurso(RecursoViewModel recurso)
     {
         RecursoAppService.Update(recurso);
+        Snackbar.Add($"Recurso atualizado com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
+
         NavigationManager.NavigateTo("/recursos");
     }
 

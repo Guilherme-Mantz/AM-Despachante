@@ -7,7 +7,7 @@
 
 @inject IDialogService DialogService
 @inject IRecursoAppService RecursoAppService
-@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
 
 <CustomPageTitle Titulo="Recursos" />
 
@@ -44,10 +44,10 @@
                      Color="Color.Primary">
                 <MudIcon Icon="@Icons.Material.Filled.Edit" Size="Size.Small" />
             </MudLink>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                           Color="Color.Error"
-                           Size="Size.Small"
-                           OnClick="@(() => OpenDeleteDialogAsync(context))" />
+            <MudLink Href="@($"/recursos/delete/{context.Id}")" class="mr-1 pt-1"
+                     Color="Color.Error">
+                <MudIcon Icon="@Icons.Material.Filled.Delete" Size="Size.Small" />
+            </MudLink>
         </MudTd>
     </RowTemplate>
 
@@ -94,8 +94,8 @@
         }
         catch (Exception ex)
         {
-            //TODO: TOAST
-            Console.WriteLine($"Erro ao carregar dados: {ex.Message}");
+            Snackbar.Add($"Erro ao carregar recursos", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+
             return new TableData<RecursoViewModel>();
         }
     }
@@ -104,29 +104,6 @@
     {
         searchString = text;
         table.ReloadServerData();
-    }
-
-    private async Task OpenDeleteDialogAsync(RecursoViewModel recurso)
-    {
-        var parameters = new DialogParameters
-        {
-            { "Title", "Confirmar Exclusão" },
-            { "Content", $"Deseja realmente excluir o recurso '{recurso.Nome}'?" },
-            { "ConfirmButtonColor", Color.Error },
-            { "ConfirmText", "Excluir" },
-            { "OnConfirm", EventCallback.Factory.Create<bool>(this, (value) =>
-            {
-                RecursoAppService.Delete(recurso.Id);
-
-                //TODO: TOAST
-
-                return Task.CompletedTask;
-            }) }
-        };
-
-        var options = new DialogOptions { CloseOnEscapeKey = true };
-
-        await DialogService.ShowAsync<Dialog>(string.Empty, parameters, options);
     }
 
 }

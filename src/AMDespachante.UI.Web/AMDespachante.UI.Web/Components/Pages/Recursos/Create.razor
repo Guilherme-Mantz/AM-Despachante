@@ -6,6 +6,7 @@
 
 @inject IRecursoAppService RecursoAppService
 @inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
 
 <RecursoForm OnSubmit="CriarRecurso" />
 
@@ -13,6 +14,8 @@
     private void CriarRecurso(RecursoViewModel recurso)
     {
         RecursoAppService.Add(recurso);
+        Snackbar.Add($"Recurso criado com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
+
         NavigationManager.NavigateTo("/recursos");
     }
 }

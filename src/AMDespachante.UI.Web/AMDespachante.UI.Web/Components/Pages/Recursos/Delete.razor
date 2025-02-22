@@ -1,0 +1,182 @@
+﻿@page "/recursos/delete/{id:guid}"
+
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+
+@inject IRecursoAppService RecursoAppService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudContainer Class="mt-6">
+    <MudPaper Class="pa-4">
+        @if (_isLoading)
+        {
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        }
+        else if (Recurso == null)
+        {
+            <MudAlert Severity="Severity.Error">Recurso não encontrado.</MudAlert>
+        }
+        else
+        {
+            <MudText Typo="Typo.h5" Color="Color.Error" Class="mb-4">Confirmar Exclusão</MudText>
+            
+            <MudAlert Severity="Severity.Warning" Class="mb-4">
+                Tem certeza que deseja excluir este recurso?
+            </MudAlert>
+
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudCard Elevation="0">
+                        <MudCardContent>
+                            <MudList T="RecursoViewModel" Dense="false">
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Nome</MudText>
+                                        <MudText>@Recurso.Nome</MudText>
+                                    </div>
+                                </MudListItem>
+                                
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Email</MudText>
+                                        <MudText>@Recurso.Email</MudText>
+                                    </div>
+                                </MudListItem>
+                                
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">CPF</MudText>
+                                        <MudText>@Recurso.Cpf</MudText>
+                                    </div>
+                                </MudListItem>
+                                
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Cargo</MudText>
+                                        <MudText>@Recurso.Cargo</MudText>
+                                    </div>
+                                </MudListItem>
+                                
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Status</MudText>
+                                        <MudChip Color="@(Recurso.Ativo ? Color.Success : Color.Error)"
+                                                 Size="Size.Small" Style="width: 8em">
+                                            @(Recurso.Ativo ? "Ativo" : "Inativo")
+                                        </MudChip>
+                                    </div>
+                                </MudListItem>
+                            </MudList>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudCard Elevation="0">
+                        <MudCardContent>
+                            <MudList T="RecursoViewModel" Dense="true">
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Criado por</MudText>
+                                        <MudText>@Recurso.CriadoPor</MudText>
+                                    </div>
+                                </MudListItem>
+                                
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Data criação</MudText>
+                                        <MudText>@Recurso.Criado.ToString("dd/MM/yyyy HH:mm")</MudText>
+                                    </div>
+                                </MudListItem>
+                                
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Modificado por</MudText>
+                                        <MudText>@Recurso.ModificadoPor</MudText>
+                                    </div>
+                                </MudListItem>
+                                
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Data modificação</MudText>
+                                        <MudText>@Recurso.Modificado.ToString("dd/MM/yyyy HH:mm")</MudText>
+                                    </div>
+                                </MudListItem>
+                            </MudList>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>
+
+            <MudDivider Class="my-6"/>
+
+            <MudGrid>
+                <MudItem>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Default"
+                               Href="/recursos">
+                        Cancelar
+                    </MudButton>
+                    <MudButton Class="ml-3" Variant="Variant.Filled" 
+                              Color="Color.Error" 
+                              StartIcon="@Icons.Material.Filled.Delete"
+                              OnClick="DeleteRecurso">
+                        Confirmar Exclusão
+                    </MudButton>                    
+                </MudItem>
+            </MudGrid>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private RecursoViewModel Recurso { get; set; }
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRecurso();
+    }
+
+    private async Task LoadRecurso()
+    {
+        try
+        {
+            _isLoading = true;
+            Recurso = await RecursoAppService.GetById(Id);
+            
+            if (Recurso == null)
+            {
+                Snackbar.Add("Recurso não encontrado.", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+                NavigationManager.NavigateTo("/recursos");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Erro ao carregar o recurso.", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void DeleteRecurso()
+    {
+        try
+        {
+            RecursoAppService.Delete(Id);
+            Snackbar.Add("Recurso removido com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
+            NavigationManager.NavigateTo("/recursos");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Erro ao remover o recurso.", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+        }
+    }
+}
