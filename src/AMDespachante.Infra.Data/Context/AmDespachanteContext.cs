@@ -37,7 +37,7 @@ public class AmDespachanteContext : DbContext, IUnitOfWork
         foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("CriadoPor") != null))
         {
             if (entry.State == EntityState.Added)
-                entry.Property("CriadoPor").CurrentValue = _user?.Name;
+                entry.Property("CriadoPor").CurrentValue = "Sys"/*_user?.Name*/;
 
             if (entry.State == EntityState.Modified)
                 entry.Property("CriadoPor").IsModified = false;
@@ -52,7 +52,7 @@ public class AmDespachanteContext : DbContext, IUnitOfWork
         foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("ModificadoPor") != null))
         {
             if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
-                entry.Property("ModificadoPor").CurrentValue = _user?.Name;
+                entry.Property("ModificadoPor").CurrentValue = "Sys"/*_user?.Name*/;
         }
 
         // After executing this line all the changes (from the Command Handler and Domain Event Handlers) 

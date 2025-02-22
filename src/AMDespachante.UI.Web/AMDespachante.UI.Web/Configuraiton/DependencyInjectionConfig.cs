@@ -9,6 +9,10 @@ using AMDespachante.Application.Interfaces;
 using AMDespachante.Application.Services;
 using AMDespachante.Domain.Interfaces;
 using AMDespachante.Infra.Data.Repository;
+using AMDespachante.Domain.Events.RecursoEvents;
+using MediatR;
+using AMDespachante.Domain.Commands.RecursoCommands;
+using FluentValidation.Results;
 
 namespace AMDespachante.UI.Web.Configuraiton
 {
@@ -16,6 +20,8 @@ namespace AMDespachante.UI.Web.Configuraiton
     {
         public static IServiceCollection ResolveDependencies(this IServiceCollection services)
         {
+            //UI
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IAppUser, AppUser>();
 
@@ -29,8 +35,14 @@ namespace AMDespachante.UI.Web.Configuraiton
             services.AddScoped<IRecursoAppService, RecursoAppService>();
 
             //Events
+            services.AddScoped<INotificationHandler<RecursoCriadoEvent>, RecursoEventHandler>();
+            services.AddScoped<INotificationHandler<RecursoAtualizadoEvent>, RecursoEventHandler>();
+            services.AddScoped<INotificationHandler<RecursoRemovidoEvent>, RecursoEventHandler>();
 
             // Domain - Commands
+            services.AddScoped<IRequestHandler<NovoRecursoCommand, ValidationResult>, RecursoCommandHandler>();
+            services.AddScoped<IRequestHandler<AtualizarRecursoCommand, ValidationResult>, RecursoCommandHandler>();
+            services.AddScoped<IRequestHandler<RemoverRecursoCommand, ValidationResult>, RecursoCommandHandler>();
 
             //Repostories
             services.AddScoped<AmDespachanteContext>();

@@ -3,8 +3,11 @@
 @using AMDespachante.Application.Interfaces
 @using AMDespachante.Application.ViewModels
 @using AMDespachante.Domain.Extensions
+@using AMDespachante.UI.Web.Components.Shared.Dialog
 
+@inject IDialogService DialogService
 @inject IRecursoAppService RecursoAppService
+@inject NavigationManager NavigationManager
 
 <CustomPageTitle Titulo="Recursos" />
 
@@ -44,7 +47,7 @@
             <MudIconButton Icon="@Icons.Material.Filled.Delete"
                            Color="Color.Error"
                            Size="Size.Small"
-                           OnClick="@(() => OpenDeleteDialog(context))" />
+                           OnClick="@(() => OpenDeleteDialogAsync(context))" />
         </MudTd>
     </RowTemplate>
 
@@ -103,15 +106,27 @@
         table.ReloadServerData();
     }
 
-    private void OpenDeleteDialog(RecursoViewModel item)
+    private async Task OpenDeleteDialogAsync(RecursoViewModel recurso)
     {
-        selectedItem = item;
-        deleteDialogVisible = true;
-    }
+        var parameters = new DialogParameters
+        {
+            { "Title", "Confirmar Exclusão" },
+            { "Content", $"Deseja realmente excluir o recurso '{recurso.Nome}'?" },
+            { "ConfirmButtonColor", Color.Error },
+            { "ConfirmText", "Excluir" },
+            { "OnConfirm", EventCallback.Factory.Create<bool>(this, (value) =>
+            {
+                RecursoAppService.Delete(recurso.Id);
 
-    private async Task HandleDelete()
-    {
-        deleteDialogVisible = false;
+                //TODO: TOAST
+
+                return Task.CompletedTask;
+            }) }
+        };
+
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+
+        await DialogService.ShowAsync<Dialog>(string.Empty, parameters, options);
     }
 
 }

@@ -1,5 +1,6 @@
 ﻿using AMDespachante.Application.Interfaces;
 using AMDespachante.Application.ViewModels;
+using AMDespachante.Domain.Commands.RecursoCommands;
 using AMDespachante.Domain.Core.Communication.Mediator;
 using AMDespachante.Domain.Interfaces;
 using AutoMapper;
@@ -34,19 +35,21 @@ namespace AMDespachante.Application.Services
 
         public async Task<RecursoViewModel> GetById(Guid Id) => _mapper.Map<RecursoViewModel>(await _repository.GetById(Id));
 
-        public void Add(RecursoViewModel recurso)
+        public async void Add(RecursoViewModel recurso)
         {
-            throw new NotImplementedException();
+            var addCommand = _mapper.Map<NovoRecursoCommand>(recurso);
+            await _mediatorHandler.SendCommand(addCommand);
         }
 
-        public void Update(RecursoViewModel recurso)
+        public async void Update(RecursoViewModel recurso)
         {
-            throw new NotImplementedException();
+            var updateCommand = _mapper.Map<AtualizarRecursoCommand>(recurso);
+            await _mediatorHandler.SendCommand(updateCommand);
         }
 
-        public void Delete(Guid Id)
+        public async void Delete(Guid id)
         {
-            throw new NotImplementedException();
+            await _mediatorHandler.SendCommand(new RemoverRecursoCommand(id));
         }
     }
 }
