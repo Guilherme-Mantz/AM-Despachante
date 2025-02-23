@@ -32,6 +32,7 @@
         <MudTh><MudTableSortLabel SortLabel="email" T="RecursoViewModel">E-mail</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="cpf" T="RecursoViewModel">CPF</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="cargo" T="RecursoViewModel">Cargo</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="ativo" T="RecursoViewModel">Ativo</MudTableSortLabel></MudTh>
         <MudTh Style="text-align: center">Ações</MudTh>
     </HeaderContent>
     <RowTemplate>
@@ -39,6 +40,7 @@
         <MudTd>@context.Email</MudTd>
         <MudTd>@context.Cpf</MudTd>
         <MudTd>@context.Cargo.GetEnumDisplayName()</MudTd>
+        <MudTd>@(context.Ativo ? "Sim" : "Não")</MudTd>
         <MudTd class="d-flex justify-center">
             <MudLink Href="@($"/recursos/edit/{context.Id}")" class="mr-1 pt-1"
                      Color="Color.Primary">

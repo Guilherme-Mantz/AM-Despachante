@@ -9,11 +9,12 @@ namespace AMDespachante.Domain.Models
         {
         }
 
-        public Recurso(string nome, string email, string cpf, bool ativo, bool primeiroAcesso, CargoEnum cargo)
+        public Recurso(string nome, string email, string cpf, string telefone, bool ativo, bool primeiroAcesso, CargoEnum cargo)
         {
             Nome = nome;
             Email = email;
             Cpf = cpf;
+            Telefone = telefone;
             Ativo = ativo;
             PrimeiroAcesso = primeiroAcesso;
             Cargo = cargo;
@@ -22,6 +23,7 @@ namespace AMDespachante.Domain.Models
         public string Nome { get; set; }
         public string Email { get; set; }
         public string Cpf { get; set; }
+        public string Telefone { get; set; }
         public bool PrimeiroAcesso { get; set; }
         public bool Ativo { get; set; }
         public CargoEnum Cargo { get; set; }

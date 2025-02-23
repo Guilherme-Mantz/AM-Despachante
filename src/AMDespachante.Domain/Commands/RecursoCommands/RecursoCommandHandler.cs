@@ -1,5 +1,4 @@
-﻿using AMDespachante.Domain.Core.Data;
-using AMDespachante.Domain.Core.Message;
+﻿using AMDespachante.Domain.Core.Message;
 using AMDespachante.Domain.Events.RecursoEvents;
 using AMDespachante.Domain.Interfaces;
 using AMDespachante.Domain.Models;
@@ -24,7 +23,7 @@ public class RecursoCommandHandler : CommandHandler,
     {
         if (!message.IsValid()) return message.ValidationResult;
 
-        var recurso = new Recurso(message.Nome, message.Email, message.Cpf, true, true, message.Cargo);
+        var recurso = new Recurso(message.Nome, message.Email, message.Cpf, message.Telefone, true, true, message.Cargo);
 
         _recursoRepository.Add(recurso);
 
@@ -48,6 +47,7 @@ public class RecursoCommandHandler : CommandHandler,
         recurso.Nome = message.Nome;
         recurso.Email = message.Email;
         recurso.Cpf = message.Cpf;
+        recurso.Telefone = message.Telefone;
         recurso.Ativo = message.Ativo;
         recurso.Cargo = message.Cargo;
 

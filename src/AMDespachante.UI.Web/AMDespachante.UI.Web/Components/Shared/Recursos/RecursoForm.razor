@@ -21,7 +21,16 @@
                     <MudTextField Label="CPF"
                                   Class="mt-3"
                                   @bind-Value="Recurso.Cpf"
-                                  For="@(() => Recurso.Cpf)" />
+                                  For="@(() => Recurso.Cpf)"
+                                  Mask="@(new PatternMask("000.000.000-00"))"
+                                  Immediate="true" />
+
+                    <MudTextField Label="Telefone"
+                                  Class="mt-3"
+                                  @bind-Value="Recurso.Telefone"
+                                  For="@(() => Recurso.Telefone)"
+                                  Mask="@(new PatternMask("(00) 00000-0000"))"
+                                  Immediate="true" />
 
                     <MudRadioGroup @bind-Value="Recurso.Cargo"
                                    For="@(() => Recurso.Cargo)"

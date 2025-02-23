@@ -5,7 +5,6 @@ using AMDespachante.Domain.Interfaces;
 using AMDespachante.Domain.Models;
 using AMDespachante.Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
-using Polly;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
@@ -39,7 +38,7 @@ namespace AMDespachante.Infra.Data.Repository
                     EF.Functions.Like(r.Nome, $"%{searchTerm}%") ||
                     EF.Functions.Like(r.Email, $"%{searchTerm}%") ||
                     EF.Functions.Like(r.Cpf, $"%{searchTerm}%") ||
-                    (cargoEnum != default && r.Cargo == cargoEnum)
+                    (r.Cargo == cargoEnum)
                 );
             }
 
@@ -90,6 +89,7 @@ namespace AMDespachante.Infra.Data.Repository
                 "email" => x => x.Email,
                 "cpf" => x => x.Cpf,
                 "cargo" => x => x.Cargo,
+                "ativo" => x => x.Ativo,
                 _ => x => x.Nome
             };
         }

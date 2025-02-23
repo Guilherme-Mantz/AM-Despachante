@@ -7,13 +7,21 @@ public class RecursoViewModel
     public Guid Id { get; set; }
 
     [Required(ErrorMessage = "Informe o Nome")]
+    [StringLength(255, ErrorMessage = "O nome deve ter no máximo 255 caracteres")]
     public string Nome { get; set; }
 
     [Required(ErrorMessage = "Informe o E-mail")]
+    [EmailAddress(ErrorMessage = "E-mail inválido")]
+    [StringLength(100, ErrorMessage = "O e-mail deve ter no máximo 100 caracteres")]
     public string Email { get; set; }
 
     [Required(ErrorMessage = "Informe o CPF")]
+    [RegularExpression(@"^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$", ErrorMessage = "CPF inválido")]
     public string Cpf { get; set; }
+
+    [Required(ErrorMessage = "Informe o Telefone")]
+    [RegularExpression(@"^\(?[1-9]{2}\)? ?(?:[2-8]|9[1-9])[0-9]{3}\-?[0-9]{4}$", ErrorMessage = "Telefone inválido")]
+    public string Telefone { get; set; }
     public bool PrimeiroAcesso { get; set; }
     public bool Ativo { get; set; }
     public CargoEnum Cargo { get; set; }
