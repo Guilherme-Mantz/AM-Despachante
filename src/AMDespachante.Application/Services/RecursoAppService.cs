@@ -4,6 +4,7 @@ using AMDespachante.Domain.Commands.RecursoCommands;
 using AMDespachante.Domain.Core.Communication.Mediator;
 using AMDespachante.Domain.Interfaces;
 using AutoMapper;
+using FluentValidation.Results;
 using System.Linq.Dynamic.Core;
 
 namespace AMDespachante.Application.Services
@@ -35,21 +36,21 @@ namespace AMDespachante.Application.Services
 
         public async Task<RecursoViewModel?> GetById(Guid Id) => _mapper.Map<RecursoViewModel>(await _repository.GetById(Id));
 
-        public async void Add(RecursoViewModel recurso)
+        public async Task<ValidationResult> Add(RecursoViewModel recurso)
         {
             var addCommand = _mapper.Map<NovoRecursoCommand>(recurso);
-            await _mediatorHandler.SendCommand(addCommand);
+            return await _mediatorHandler.SendCommand(addCommand);
         }
 
-        public async void Update(RecursoViewModel recurso)
+        public async Task<ValidationResult> Update(RecursoViewModel recurso)
         {
             var updateCommand = _mapper.Map<AtualizarRecursoCommand>(recurso);
-            await _mediatorHandler.SendCommand(updateCommand);
+            return await _mediatorHandler.SendCommand(updateCommand);
         }
 
-        public async void Delete(Guid id)
+        public async Task<ValidationResult> Delete(Guid id)
         {
-            await _mediatorHandler.SendCommand(new RemoverRecursoCommand(id));
+            return await _mediatorHandler.SendCommand(new RemoverRecursoCommand(id));
         }
     }
 }

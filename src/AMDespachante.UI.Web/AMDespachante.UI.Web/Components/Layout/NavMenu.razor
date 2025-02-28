@@ -2,9 +2,12 @@
 
 @inject NavigationManager NavigationManager
 
-<div class="top-row ps-3 navbar navbar-dark">
+<div class="top-row ps-3 navbar navbar-dark d-flex align-center">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">AM Despachante</a>
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <MudImage Src="/images/logo-despachante-redondo.png" Alt="Logo AM Despachante" Width="40" Height="40" Class="mr-1" ObjectFit="ObjectFit.Cover" />
+            <MudText Typo="Typo.h6" Class="mud-text-primary font-weight-bold" style="color: #EEEEEE">AM Despachante</MudText>
+        </MudStack>
     </div>
 </div>
 

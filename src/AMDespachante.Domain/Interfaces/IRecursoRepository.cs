@@ -7,6 +7,7 @@ public interface IRecursoRepository : IRepository<Recurso>
 {
     Task<IEnumerable<Recurso>> GetAll();
     Task<Recurso?> GetById(Guid Id);
+    Task<(bool email, bool cpf)> EmailOrCpfExists(string email, string cpf);
 
     void Add(Recurso recurso);
     void Update(Recurso recurso);

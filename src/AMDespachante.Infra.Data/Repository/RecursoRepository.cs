@@ -64,6 +64,21 @@ namespace AMDespachante.Infra.Data.Repository
 
         public async Task<Recurso> GetById(Guid id) => await _dbSet.FindAsync(id);
 
+        public async Task<(bool email, bool cpf)> EmailOrCpfExists(string email, string cpf)
+        {
+            var recurso = await _dbSet
+                .Where(r => r.Email == email || r.Cpf == cpf)
+                .Select(r => new { r.Email, r.Cpf })
+                .FirstOrDefaultAsync();
+
+            if (recurso == null) return (email: false, cpf: false);
+
+            return (
+                email: recurso.Email == email,
+                cpf: recurso.Cpf == cpf
+            );
+        }
+
         public void Add(Recurso recurso)
         {
             _dbSet.Add(recurso);

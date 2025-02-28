@@ -23,6 +23,15 @@ public class RecursoCommandHandler : CommandHandler,
     {
         if (!message.IsValid()) return message.ValidationResult;
 
+        _validationResult.Errors.Clear();
+
+        var (emailExists, cpfExists) = await _recursoRepository.EmailOrCpfExists(message.Email, message.Cpf);
+
+        if (emailExists) AddError("Email já cadastrado no sistema.");
+        if (cpfExists) AddError("Cpf já cadastrado no sistema");
+
+        if (emailExists || cpfExists) return _validationResult;
+
         var recurso = new Recurso(message.Nome, message.Email, message.Cpf, message.Telefone, true, true, message.Cargo);
 
         _recursoRepository.Add(recurso);
@@ -36,6 +45,8 @@ public class RecursoCommandHandler : CommandHandler,
     {
         if (!message.IsValid()) return message.ValidationResult;
 
+        _validationResult.Errors.Clear();
+
         var recurso = await _recursoRepository.GetById(message.Id);
 
         if(recurso is null)
@@ -43,6 +54,13 @@ public class RecursoCommandHandler : CommandHandler,
             AddError("Recurso não encontrado");
             return _validationResult;
         }
+
+        var (emailExists, cpfExists) = await _recursoRepository.EmailOrCpfExists(message.Email, message.Cpf);
+
+        if (message.Email != recurso.Email && emailExists) AddError("Email já cadastrado no sistema.");
+        if (message.Cpf != recurso.Cpf && cpfExists) AddError("Cpf já cadastrado no sistema");
+
+        if (emailExists || cpfExists) return _validationResult;
 
         recurso.Nome = message.Nome;
         recurso.Email = message.Email;
@@ -61,6 +79,8 @@ public class RecursoCommandHandler : CommandHandler,
     public async Task<ValidationResult> Handle(RemoverRecursoCommand message, CancellationToken cancellationToken)
     {
         if (!message.IsValid()) return message.ValidationResult;
+        
+        _validationResult.Errors.Clear();
 
         var recurso = await _recursoRepository.GetById(message.Id);
 

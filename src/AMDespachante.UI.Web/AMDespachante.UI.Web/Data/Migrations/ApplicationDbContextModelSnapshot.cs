@@ -22,7 +22,7 @@ namespace AMDespachante.UI.Web.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("AMDespachante.UI.Web.Data.ApplicationUser", b =>
+            modelBuilder.Entity("AMDespachante.UI.Web.Data.IdentityUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -231,7 +231,7 @@ namespace AMDespachante.UI.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("AMDespachante.UI.Web.Data.ApplicationUser", null)
+                    b.HasOne("AMDespachante.UI.Web.Data.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -240,7 +240,7 @@ namespace AMDespachante.UI.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("AMDespachante.UI.Web.Data.ApplicationUser", null)
+                    b.HasOne("AMDespachante.UI.Web.Data.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -255,7 +255,7 @@ namespace AMDespachante.UI.Web.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("AMDespachante.UI.Web.Data.ApplicationUser", null)
+                    b.HasOne("AMDespachante.UI.Web.Data.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -264,7 +264,7 @@ namespace AMDespachante.UI.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("AMDespachante.UI.Web.Data.ApplicationUser", null)
+                    b.HasOne("AMDespachante.UI.Web.Data.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

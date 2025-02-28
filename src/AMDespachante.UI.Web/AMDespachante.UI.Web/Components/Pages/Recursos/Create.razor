@@ -10,14 +10,21 @@
 
 <CustomPageTitle Titulo="Recursos" />
 
-<RecursoForm OnSubmit="CriarRecurso" />
+<RecursoForm OnSubmit="@(async (recurso) => await CriarRecurso(recurso))" />
 
 @code {
-    private void CriarRecurso(RecursoViewModel recurso)
+    private async Task CriarRecurso(RecursoViewModel recurso)
     {
-        RecursoAppService.Add(recurso);
-        Snackbar.Add($"Recurso criado com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
+        var result = await RecursoAppService.Add(recurso);
 
+        if(!result.IsValid)
+        {
+            result.Errors.ToList()
+                .ForEach(erro => Snackbar.Add(erro.ErrorMessage, Severity.Error, c => c.SnackbarVariant = Variant.Filled));
+            return;
+        }
+
+        Snackbar.Add($"Recurso criado com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
         NavigationManager.NavigateTo("/recursos");
     }
 }

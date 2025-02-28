@@ -35,10 +35,11 @@ namespace AMDespachante.UI.Web.Configuraiton
 
         private static void AddIdentityCoreServices(IServiceCollection services)
         {
-            services.AddIdentityCore<ApplicationUser>(options =>
+            services.AddIdentityCore<IdentityUser>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = true;
             })
+            .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager()
             .AddDefaultTokenProviders();

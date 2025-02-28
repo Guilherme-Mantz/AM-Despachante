@@ -10,7 +10,7 @@
 
 <CustomPageTitle Titulo="Recursos" />
 
-<RecursoForm Recurso="recurso" OnSubmit="EditarRecurso" />
+<RecursoForm Recurso="recurso" OnSubmit="@(async (recurso) => await EditarRecurso(recurso))" />
 
 @code {
 
@@ -24,9 +24,16 @@
         recurso = await RecursoAppService.GetById(Id);
     }
 
-    private void EditarRecurso(RecursoViewModel recurso)
+    private async Task EditarRecurso(RecursoViewModel recurso)
     {
-        RecursoAppService.Update(recurso);
+        var result = await RecursoAppService.Update(recurso);
+        if (!result.IsValid)
+        {
+            result.Errors.ToList()
+                .ForEach(erro => Snackbar.Add(erro.ErrorMessage, Severity.Error, c => c.SnackbarVariant = Variant.Filled));
+            return;
+        }
+
         Snackbar.Add($"Recurso atualizado com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
 
         NavigationManager.NavigateTo("/recursos");

@@ -1,4 +1,5 @@
 ﻿using AMDespachante.Application.ViewModels;
+using FluentValidation.Results;
 using System.Linq.Dynamic.Core;
 
 namespace AMDespachante.Application.Interfaces
@@ -9,8 +10,8 @@ namespace AMDespachante.Application.Interfaces
         Task<IEnumerable<RecursoViewModel>> GetAll();
         Task<RecursoViewModel?> GetById(Guid Id);
 
-        void Add(RecursoViewModel recurso);
-        void Update(RecursoViewModel recurso);
-        void Delete(Guid Id);
+        Task<ValidationResult> Add(RecursoViewModel recurso);
+        Task<ValidationResult> Update(RecursoViewModel recurso);
+        Task<ValidationResult> Delete(Guid Id);
     }
 }
