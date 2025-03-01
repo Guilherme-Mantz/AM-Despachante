@@ -4,7 +4,7 @@ using System.Linq.Dynamic.Core;
 
 namespace AMDespachante.Application.Interfaces
 {
-    public interface IRecursoAppService
+    public interface IRecursoAppService : IDisposable
     {
         Task<PagedResult<RecursoViewModel>> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null);
         Task<IEnumerable<RecursoViewModel>> GetAll();

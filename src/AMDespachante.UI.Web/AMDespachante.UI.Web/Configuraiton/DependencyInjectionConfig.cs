@@ -13,6 +13,8 @@ using AMDespachante.Domain.Events.RecursoEvents;
 using MediatR;
 using AMDespachante.Domain.Commands.RecursoCommands;
 using FluentValidation.Results;
+using AMDespachante.Infra.Identity.Implementations;
+using AMDespachante.Infra.Identity.Interfaces;
 
 namespace AMDespachante.UI.Web.Configuraiton
 {
@@ -52,6 +54,9 @@ namespace AMDespachante.UI.Web.Configuraiton
             services.AddScoped<IEventSourcingRepository, EventSourcingRepository>();
             services.AddScoped<IEventStore, SqlEventStore>();
             services.AddScoped<EventStoreSqlContext>();
+
+            // Identity
+            services.AddScoped<IIdentityManagementService, IdentityManagementService>();
 
             return services;
         }

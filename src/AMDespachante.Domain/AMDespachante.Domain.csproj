@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AMDespachante.Domain.Core\AMDespachante.Domain.Core.csproj" />
+    <ProjectReference Include="..\AMDespachante.Infra.Identity\AMDespachante.Infra.Identity.csproj" />
   </ItemGroup>
 
 </Project>

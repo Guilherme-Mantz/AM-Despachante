@@ -60,7 +60,8 @@ public class RecursoCommandHandler : CommandHandler,
         if (message.Email != recurso.Email && emailExists) AddError("Email já cadastrado no sistema.");
         if (message.Cpf != recurso.Cpf && cpfExists) AddError("Cpf já cadastrado no sistema");
 
-        if (emailExists || cpfExists) return _validationResult;
+        if ((emailExists && message.Email != recurso.Email) || 
+            (cpfExists && message.Cpf != recurso.Cpf)) return _validationResult;
 
         recurso.Nome = message.Nome;
         recurso.Email = message.Email;
@@ -92,7 +93,7 @@ public class RecursoCommandHandler : CommandHandler,
 
         _recursoRepository.Delete(recurso);
 
-        recurso.AddEvent(new RecursoRemovidoEvent(recurso.Id));
+        recurso.AddEvent(new RecursoRemovidoEvent(recurso.Id, recurso.Cpf));
 
         return await Commit(_recursoRepository.UnitOfWork);
     }

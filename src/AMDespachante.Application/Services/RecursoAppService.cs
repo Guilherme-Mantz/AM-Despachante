@@ -52,5 +52,10 @@ namespace AMDespachante.Application.Services
         {
             return await _mediatorHandler.SendCommand(new RemoverRecursoCommand(id));
         }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
     }
 }

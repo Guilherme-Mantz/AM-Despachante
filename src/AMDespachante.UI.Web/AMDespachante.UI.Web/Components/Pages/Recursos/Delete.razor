@@ -123,7 +123,7 @@
                     <MudButton Class="ml-3" Variant="Variant.Filled" 
                               Color="Color.Error" 
                               StartIcon="@Icons.Material.Filled.Delete"
-                              OnClick="DeleteRecurso">
+                              OnClick="@(async () => await DeleteRecurso())">
                         Confirmar Exclusão
                     </MudButton>                    
                 </MudItem>
@@ -168,17 +168,19 @@
         }
     }
 
-    private void DeleteRecurso()
+    private async Task DeleteRecurso()
     {
-        try
+
+        var result = await RecursoAppService.Delete(Id);
+
+        if(!result.IsValid)
         {
-            RecursoAppService.Delete(Id);
-            Snackbar.Add("Recurso removido com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
-            NavigationManager.NavigateTo("/recursos");
+            result.Errors.ToList()
+                .ForEach(erro => Snackbar.Add(erro.ErrorMessage, Severity.Error, c => c.SnackbarVariant = Variant.Filled));
+            return;
         }
-        catch (Exception ex)
-        {
-            Snackbar.Add("Erro ao remover o recurso.", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
-        }
+
+        Snackbar.Add("Recurso removido com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
+        NavigationManager.NavigateTo("/recursos");
     }
 }

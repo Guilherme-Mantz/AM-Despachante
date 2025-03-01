@@ -1,53 +1,48 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Identity;
+﻿using AMDespachante.Infra.Identity.DTOs;
+using AMDespachante.Infra.Identity.Interfaces;
+using MediatR;
+using System.Text.RegularExpressions;
 
 namespace AMDespachante.Domain.Events.RecursoEvents
 {
-    public class RecursoEventHandler :
+    public partial class RecursoEventHandler(IIdentityManagementService identityService) :
         INotificationHandler<RecursoCriadoEvent>,
         INotificationHandler<RecursoAtualizadoEvent>,
         INotificationHandler<RecursoRemovidoEvent>
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-
-        public RecursoEventHandler(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
-        {
-            _userManager = userManager;
-            _roleManager = roleManager;
-        }
+        private readonly IIdentityManagementService _identityService = identityService;
 
         public async Task Handle(RecursoCriadoEvent notification, CancellationToken cancellationToken)
         {
-            
-            var user = new IdentityUser
+
+            var userDto = new UserDto
             {
-                UserName = notification.Recurso.Cpf,
+                Cpf = OnlyNumbers().Replace(notification.Recurso.Cpf, ""),
                 Email = notification.Recurso.Email,
-                EmailConfirmed = true
+                Cargo = notification.Recurso.Cargo.ToString()
             };
 
-            var result = await _userManager.CreateAsync(user, "123Mud@r");
-
-            if (!result.Succeeded)
-            {
-                return;
-            }
-
-            var roleExists = await _roleManager.RoleExistsAsync(notification.Recurso.Cargo.ToString());
-            if (!roleExists)
-            {
-                await _roleManager.CreateAsync(new IdentityRole(notification.Recurso.Cargo.ToString()));
-            }
-
-            await _userManager.AddToRoleAsync(user, notification.Recurso.Cargo.ToString());
+            await _identityService.CreateUser(userDto);
         }
 
         public async Task Handle(RecursoAtualizadoEvent notification, CancellationToken cancellationToken) 
         {
-            //_userManager.FindByNameAsync(notification.Recurso.Cpf);
+            var userDto = new UserDto
+            {
+                Cpf = OnlyNumbers().Replace(notification.Recurso.Cpf, ""),
+                Email = notification.Recurso.Email,
+                Cargo = notification.Recurso.Cargo.ToString()
+            };
+
+            await _identityService.UpdateUser(userDto);
         }
 
-        public Task Handle(RecursoRemovidoEvent notification, CancellationToken cancellationToken) => Task.CompletedTask;
+        public async Task Handle(RecursoRemovidoEvent notification, CancellationToken cancellationToken)
+        {
+            await _identityService.RemoveUser(notification.Cpf);
+        }
+
+        [GeneratedRegex(@"\D")]
+        private partial Regex OnlyNumbers();
     }
 }
