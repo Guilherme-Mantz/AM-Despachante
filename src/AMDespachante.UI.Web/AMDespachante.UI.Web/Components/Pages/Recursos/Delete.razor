@@ -1,11 +1,16 @@
 ﻿@page "/recursos/delete/{id:guid}"
 
+@rendermode InteractiveServer
+
 @using AMDespachante.Application.Interfaces
 @using AMDespachante.Application.ViewModels
+@using AMDespachante.UI.Web.Components.Shared.MudBlazor
 
 @inject IRecursoAppService RecursoAppService
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
+
+<MudProviders />
 
 <CustomPageTitle Titulo="Recursos" />
 

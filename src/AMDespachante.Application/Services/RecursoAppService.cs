@@ -36,6 +36,8 @@ namespace AMDespachante.Application.Services
 
         public async Task<RecursoViewModel?> GetById(Guid Id) => _mapper.Map<RecursoViewModel>(await _repository.GetById(Id));
 
+        public async Task<RecursoViewModel?> GetByCpf(string cpf) => _mapper.Map<RecursoViewModel>(await _repository.GetByCpf(cpf));
+
         public async Task<ValidationResult> Add(RecursoViewModel recurso)
         {
             var addCommand = _mapper.Map<NovoRecursoCommand>(recurso);

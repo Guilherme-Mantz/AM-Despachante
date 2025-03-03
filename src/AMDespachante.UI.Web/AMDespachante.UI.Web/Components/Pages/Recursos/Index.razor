@@ -1,13 +1,18 @@
 ﻿@page "/recursos"
 
+@rendermode InteractiveServer
+
 @using AMDespachante.Application.Interfaces
 @using AMDespachante.Application.ViewModels
 @using AMDespachante.Domain.Extensions
 @using AMDespachante.UI.Web.Components.Shared.Dialog
+@using AMDespachante.UI.Web.Components.Shared.MudBlazor
 
 @inject IDialogService DialogService
 @inject IRecursoAppService RecursoAppService
 @inject ISnackbar Snackbar
+
+<MudProviders />
 
 <CustomPageTitle Titulo="Recursos" />
 
