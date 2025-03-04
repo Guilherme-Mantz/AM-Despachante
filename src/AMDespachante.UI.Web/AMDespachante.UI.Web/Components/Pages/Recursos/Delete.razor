@@ -4,13 +4,12 @@
 
 @using AMDespachante.Application.Interfaces
 @using AMDespachante.Application.ViewModels
-@using AMDespachante.UI.Web.Components.Shared.MudBlazor
 
 @inject IRecursoAppService RecursoAppService
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
-<MudProviders />
+@implements IDisposable
 
 <CustomPageTitle Titulo="Recursos" />
 
@@ -187,5 +186,10 @@
 
         Snackbar.Add("Recurso removido com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
         NavigationManager.NavigateTo("/recursos");
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

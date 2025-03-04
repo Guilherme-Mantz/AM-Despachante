@@ -10,6 +10,8 @@
 @inject IRecursoAppService RecursoAppService
 @inject ISnackbar Snackbar
 
+@implements IDisposable
+
 <CustomPageTitle Titulo="Recursos" />
 
 <RecursoForm Recurso="recurso" OnSubmit="@(async (recurso) => await EditarRecurso(recurso))" />
@@ -41,4 +43,8 @@
         NavigationManager.NavigateTo("/recursos");
     }
 
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
 }

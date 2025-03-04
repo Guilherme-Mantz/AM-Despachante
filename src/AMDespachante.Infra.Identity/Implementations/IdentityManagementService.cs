@@ -2,6 +2,7 @@
 using AMDespachante.Infra.Identity.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace AMDespachante.Infra.Identity.Implementations
 {
@@ -40,6 +41,8 @@ namespace AMDespachante.Infra.Identity.Implementations
                     return;
                 }
 
+                await _userManager.AddClaimAsync(user, new Claim("Nome", userDto.Nome));
+
                 await EnsureRoleExistsAndAddUser(user, userDto.Cargo);
                 _logger.LogInformation("Usuário criado com sucesso: {cpf}", userDto.Cpf);
             }
@@ -72,6 +75,14 @@ namespace AMDespachante.Infra.Identity.Implementations
                         string.Join(", ", updateResult.Errors.Select(e => e.Description)));
                     return;
                 }
+
+                var existingNameClaim = (await _userManager.GetClaimsAsync(user)).FirstOrDefault(c => c.Type == "Nome");
+
+                if (existingNameClaim != null)
+                {
+                    await _userManager.RemoveClaimAsync(user, existingNameClaim);
+                }
+                await _userManager.AddClaimAsync(user, new Claim("Nome", userDto.Nome));
 
                 await UpdateUserRoles(user, userDto.Cargo);
                 _logger.LogInformation("Usuário atualizado com sucesso: {cpf}", userDto.Cpf);

@@ -55,10 +55,9 @@ public class AmDespachanteContext : DbContext, IUnitOfWork
                 entry.Property("ModificadoPor").CurrentValue = "Sys"/*_user?.Name*/;
         }
 
+        await _mediatorHandler.PublishDomainEvents(this).ConfigureAwait(false);
 
         var success = await SaveChangesAsync() > 0;
-
-        await _mediatorHandler.PublishDomainEvents(this).ConfigureAwait(false);
 
         return success;
     }

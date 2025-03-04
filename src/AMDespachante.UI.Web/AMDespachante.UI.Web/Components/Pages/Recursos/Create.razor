@@ -10,6 +10,8 @@
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
+@implements IDisposable
+
 <CustomPageTitle Titulo="Recursos" />
 
 <RecursoForm OnSubmit="@(async (recurso) => await CriarRecurso(recurso))" />
@@ -28,5 +30,10 @@
 
         Snackbar.Add($"Recurso criado com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
         NavigationManager.NavigateTo("/recursos");
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

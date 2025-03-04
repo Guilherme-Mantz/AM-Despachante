@@ -23,7 +23,6 @@ namespace AMDespachante.Infra.Data.Repository
 
         public IUnitOfWork UnitOfWork => _db;
 
-
         public async Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null)
         {
             var query = _db.Recursos.AsQueryable();
@@ -68,16 +67,16 @@ namespace AMDespachante.Infra.Data.Repository
 
         public async Task<(bool email, bool cpf)> EmailOrCpfExists(string email, string cpf)
         {
-            var recurso = await _dbSet
-                .Where(r => r.Email == email || r.Cpf == cpf)
+            var existingRecursos = await _dbSet
+                .Where(r =>
+                    (!string.IsNullOrEmpty(email) && r.Email == email) ||
+                    (!string.IsNullOrEmpty(cpf) && r.Cpf == cpf))
                 .Select(r => new { r.Email, r.Cpf })
-                .FirstOrDefaultAsync();
-
-            if (recurso == null) return (email: false, cpf: false);
+                .ToListAsync();
 
             return (
-                email: recurso.Email == email,
-                cpf: recurso.Cpf == cpf
+                email: existingRecursos.Any(r => r.Email == email),
+                cpf: existingRecursos.Any(r => r.Cpf == cpf)
             );
         }
 

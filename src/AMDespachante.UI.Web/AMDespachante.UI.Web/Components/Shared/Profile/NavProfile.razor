@@ -1,0 +1,87 @@
+﻿@rendermode InteractiveServer
+
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using AMDespachante.UI.Web.Components.Shared.MudBlazor
+@using global::MudBlazor
+
+@implements IDisposable
+
+@inject NavigationManager NavigationManager
+
+<MudProviders />
+
+<div class="top-row px-4 d-flex justify-end align-center mud-elevation-1">
+    <AuthorizeView>
+        <Authorized Context="authContext">
+            <MudMenu AnchorOrigin="Origin.BottomCenter"
+                     TransformOrigin="Origin.TopCenter"
+                     ListClass="pa-0"
+                     AnchorClass="mr-4"
+                     PopoverClass="mr-4">
+                <ActivatorContent>
+                    <div class="d-flex align-center pt-2 mr-1 pb-2">
+                        <MudIcon Color="Color.Default" Icon="@Icons.Material.Rounded.AccountCircle" Size="Size.Large" />
+                        <MudText Typo="Typo.body2" Class="ml-2">
+                            @authContext.User.FindFirst("Nome")?.Value
+                        </MudText>
+                        <MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" />
+                    </div>
+                </ActivatorContent>
+                <ChildContent>
+                    <MudList T="string" Style="min-width: 185px">
+                        <MudListItem T="string">
+                            <MudText Typo="Typo.body2" Color="Color.Default">
+                                @authContext.User.FindFirst(ClaimTypes.Email)?.Value
+                            </MudText>
+                        </MudListItem>
+                        <MudDivider />
+                        <MudListItem T="string">
+                            <MudButton Href="/Account/Manage/ChangePassword"
+                                       FullWidth="true"
+                                       StartIcon="@Icons.Material.Filled.Lock">
+                                Alterar Senha
+                            </MudButton>
+                        </MudListItem>
+                        <MudDivider />
+                        <MudListItem T="string">
+                            <MudForm>
+                                <form action="Account/Logout" method="post">
+                                    <AntiforgeryToken />
+                                    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                                    <MudButton ButtonType="ButtonType.Submit"
+                                               FullWidth="true"
+                                               StartIcon="@Icons.Material.Filled.Logout"
+                                               Color="Color.Error">
+                                        Sair
+                                    </MudButton>
+                                </form>
+                            </MudForm>
+                        </MudListItem>
+                    </MudList>
+                </ChildContent>
+            </MudMenu>
+        </Authorized>
+    </AuthorizeView>
+</div>
+
+@code {
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

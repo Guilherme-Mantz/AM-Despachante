@@ -6,13 +6,12 @@
 @using AMDespachante.Application.ViewModels
 @using AMDespachante.Domain.Extensions
 @using AMDespachante.UI.Web.Components.Shared.Dialog
-@using AMDespachante.UI.Web.Components.Shared.MudBlazor
 
 @inject IDialogService DialogService
 @inject IRecursoAppService RecursoAppService
 @inject ISnackbar Snackbar
 
-<MudProviders />
+@implements IDisposable
 
 <CustomPageTitle Titulo="Recursos" />
 
@@ -113,4 +112,8 @@
         table.ReloadServerData();
     }
 
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
 }
