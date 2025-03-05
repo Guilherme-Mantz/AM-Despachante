@@ -1,6 +1,12 @@
 ﻿@inherits LayoutComponentBase
 
 @using AMDespachante.UI.Web.Components.Shared.Profile
+@using Microsoft.AspNetCore.Authorization
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+@attribute [Authorize]
 
 <div class="page">
     <div class="sidebar">
@@ -22,3 +28,18 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    private bool IsAuthenticated = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        IsAuthenticated = authState.User.Identity.IsAuthenticated;
+
+        if (!IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("Account/Login");
+        }
+    }
+}

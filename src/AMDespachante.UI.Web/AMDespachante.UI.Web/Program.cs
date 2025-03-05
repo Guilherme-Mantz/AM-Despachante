@@ -23,6 +23,7 @@ builder.Services.AddDatabaseConfiguration(builder.Configuration);
 builder.Services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<Program>());
 
 builder.Services.AddMudServices();
+
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
@@ -46,6 +47,7 @@ else
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
+
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
