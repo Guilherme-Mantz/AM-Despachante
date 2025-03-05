@@ -1,9 +1,11 @@
 ﻿@page "/recursos/delete/{id:guid}"
+@attribute [Authorize(Roles = "ADMIN")]
 
 @rendermode InteractiveServer
 
 @using AMDespachante.Application.Interfaces
 @using AMDespachante.Application.ViewModels
+@using Microsoft.AspNetCore.Authorization
 
 @inject IRecursoAppService RecursoAppService
 @inject NavigationManager NavigationManager

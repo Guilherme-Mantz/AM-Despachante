@@ -1,11 +1,12 @@
 ﻿@page "/recursos"
+@attribute [Authorize(Roles = "ADMIN")]
 
 @rendermode InteractiveServer
 
 @using AMDespachante.Application.Interfaces
 @using AMDespachante.Application.ViewModels
 @using AMDespachante.Domain.Extensions
-@using AMDespachante.UI.Web.Components.Shared.Dialog
+@using Microsoft.AspNetCore.Authorization
 
 @inject IDialogService DialogService
 @inject IRecursoAppService RecursoAppService
