@@ -2,9 +2,11 @@
 
 @using AMDespachante.UI.Web.Components.Shared.Profile
 @using Microsoft.AspNetCore.Authorization
+@using AMDespachante.Application.Interfaces
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
+@inject IRecursoAppService RecursoAppService
 
 @attribute [Authorize]
 
@@ -14,7 +16,7 @@
     </div>
 
     <main>
-        
+
         <NavProfile />
 
         <article class="content px-4">
@@ -34,12 +36,26 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await CheckAuthenticationAndAccessStatus();
+    }
+
+    private async Task CheckAuthenticationAndAccessStatus()
+    {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         IsAuthenticated = authState.User.Identity.IsAuthenticated;
 
         if (!IsAuthenticated)
         {
-            NavigationManager.NavigateTo("Account/Login");
+            NavigationManager.NavigateTo("Account/Login", forceLoad: true);
+            return;
         }
+
+        if (await RecursoAppService.IsFirstAccess(authState.User.Identity.Name))
+        {
+            NavigationManager.NavigateTo("Account/Manage/ChangePassword", forceLoad: true);
+            return;
+        }
+
+        StateHasChanged();
     }
 }

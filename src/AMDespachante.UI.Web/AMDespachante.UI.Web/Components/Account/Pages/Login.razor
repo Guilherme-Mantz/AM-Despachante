@@ -33,7 +33,7 @@
                             @errorMessage
                         </div>
                     }
-                    
+
                     <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
                         <DataAnnotationsValidator />
                         <div class="text-center mb-3">
@@ -88,32 +88,32 @@
 
 <script>
     function formatCPF(input) {
-        let value = input.value.replace(/\D/g, '');
+    let value = input.value.replace(/\D/g, '');
 
-        if (value.length > 11) {
-            value = value.substring(0, 11);
-        }
+    if (value.length > 11) {
+    value = value.substring(0, 11);
+    }
 
-        if (value.length > 0) {
-            value = value.replace(/^(\d{3})(\d)/, '$1.$2');
-            value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
-            value = value.replace(/\.(\d{3})(\d{2})$/, '.$1-$2');
-        }
+    if (value.length > 0) {
+    value = value.replace(/^(\d{3})(\d)/, '$1.$2');
+    value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
+    value = value.replace(/\.(\d{3})(\d{2})$/, '.$1-$2');
+    }
 
-        input.value = value;
+    input.value = value;
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        var cpfInput = document.getElementById('cpfInput');
-        if (cpfInput) {
-            cpfInput.addEventListener('input', function(e) {
-                formatCPF(e.target);
-            });
+    var cpfInput = document.getElementById('cpfInput');
+    if (cpfInput) {
+    cpfInput.addEventListener('input', function(e) {
+    formatCPF(e.target);
+    });
 
-            cpfInput.addEventListener('blur', function(e) {
-                formatCPF(e.target);
-            });
-        }
+    cpfInput.addEventListener('blur', function(e) {
+    formatCPF(e.target);
+    });
+    }
     });
 </script>
 
@@ -140,7 +140,9 @@
 
     public async Task LoginUser()
     {
-        var recurso = await RecursoAppService.GetByCpf(Input.Cpf);
+        var cpfOnlyNumbers = System.Text.RegularExpressions.Regex.Replace(Input.Cpf, @"\D", "");
+
+        var recurso = await RecursoAppService.GetByCpf(cpfOnlyNumbers);
 
         if (recurso is null)
         {
@@ -156,7 +158,7 @@
 
         // To enable password failures to trigger account lockout, set lockoutOnFailure: true
         var result = await SignInManager.PasswordSignInAsync(
-            System.Text.RegularExpressions.Regex.Replace(Input.Cpf, @"\D", ""), 
+            cpfOnlyNumbers,
             Input.Password, 
             Input.RememberMe, 
             lockoutOnFailure: false);

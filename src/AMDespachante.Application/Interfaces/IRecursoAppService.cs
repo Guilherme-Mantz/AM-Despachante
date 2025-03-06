@@ -10,9 +10,12 @@ namespace AMDespachante.Application.Interfaces
         Task<IEnumerable<RecursoViewModel>> GetAll();
         Task<RecursoViewModel?> GetById(Guid Id);
         Task<RecursoViewModel?> GetByCpf(string cpf);
+        Task<bool> IsFirstAccess(string cpf);
 
         Task<ValidationResult> Add(RecursoViewModel recurso);
         Task<ValidationResult> Update(RecursoViewModel recurso);
         Task<ValidationResult> Delete(Guid Id);
+
+        Task<ValidationResult> DeactiveFirtsAccess(string cpf);
     }
 }

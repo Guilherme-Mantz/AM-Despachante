@@ -43,7 +43,15 @@
     <RowTemplate>
         <MudTd>@context.Nome</MudTd>
         <MudTd>@context.Email</MudTd>
-        <MudTd>@context.Cpf</MudTd>
+        <MudTd>
+            @(string.IsNullOrEmpty(context.Cpf) ? "" :
+                string.Join("", context.Cpf.Where(c => char.IsDigit(c)))
+                .PadLeft(11, '0')
+                .Insert(3, ".")
+                .Insert(7, ".")
+                .Insert(11, "-")
+                .Substring(0, 14))
+        </MudTd>
         <MudTd>@context.Cargo.GetEnumDisplayName()</MudTd>
         <MudTd>@(context.Ativo ? "Sim" : "Não")</MudTd>
         <MudTd class="d-flex justify-center">

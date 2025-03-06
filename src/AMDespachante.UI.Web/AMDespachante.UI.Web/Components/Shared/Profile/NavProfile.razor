@@ -3,11 +3,14 @@
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
 @using AMDespachante.UI.Web.Components.Shared.MudBlazor
+@using Microsoft.AspNetCore.Antiforgery
 @using global::MudBlazor
 
 @implements IDisposable
 
 @inject NavigationManager NavigationManager
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IAntiforgery Antiforgery
 
 <MudProviders />
 
@@ -45,18 +48,16 @@
                         </MudListItem>
                         <MudDivider />
                         <MudListItem T="string">
-                            <MudForm>
-                                <form action="Account/Logout" method="post">
-                                    <AntiforgeryToken />
-                                    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
-                                    <MudButton ButtonType="ButtonType.Submit"
-                                               FullWidth="true"
-                                               StartIcon="@Icons.Material.Filled.Logout"
-                                               Color="Color.Error">
-                                        Sair
-                                    </MudButton>
-                                </form>
-                            </MudForm>
+                            <form action="Account/Logout" method="post">
+                                <input name="__RequestVerificationToken" type="hidden" value="@GetAntiXsrfToken()" />
+                                <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                                <MudButton ButtonType="ButtonType.Submit"
+                                           FullWidth="true"
+                                           StartIcon="@Icons.Material.Filled.Logout"
+                                           Color="Color.Error">
+                                    Sair
+                                </MudButton>
+                            </form>
                         </MudListItem>
                     </MudList>
                 </ChildContent>
@@ -83,5 +84,16 @@
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+
+    private string GetAntiXsrfToken()
+    {
+        var httpContext = HttpContextAccessor.HttpContext;
+        if (httpContext != null)
+        {
+            var tokens = Antiforgery.GetAndStoreTokens(httpContext);
+            return tokens.RequestToken ?? string.Empty;
+        }
+        return string.Empty;
     }
 }

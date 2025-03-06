@@ -9,10 +9,10 @@ public interface IRecursoRepository : IRepository<Recurso>
     Task<Recurso?> GetById(Guid Id);
     Task<Recurso?> GetByCpf(string cpf);
     Task<(bool email, bool cpf)> EmailOrCpfExists(string email, string cpf);
+    Task<bool> IsFirstAccess(string cpf);
 
     void Add(Recurso recurso);
     void Update(Recurso recurso);
     void Delete(Recurso recurso);
     Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null);
-    
 }

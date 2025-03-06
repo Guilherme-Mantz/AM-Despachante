@@ -45,6 +45,7 @@ namespace AMDespachante.UI.Web.Configuraiton
             services.AddScoped<IRequestHandler<NovoRecursoCommand, ValidationResult>, RecursoCommandHandler>();
             services.AddScoped<IRequestHandler<AtualizarRecursoCommand, ValidationResult>, RecursoCommandHandler>();
             services.AddScoped<IRequestHandler<RemoverRecursoCommand, ValidationResult>, RecursoCommandHandler>();
+            services.AddScoped<IRequestHandler<DesativarPrimeiroAcessoRecursoCommand, ValidationResult>, RecursoCommandHandler>();
 
             //Repostories
             services.AddScoped<AmDespachanteContext>();

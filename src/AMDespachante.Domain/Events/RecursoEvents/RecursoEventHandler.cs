@@ -18,7 +18,7 @@ namespace AMDespachante.Domain.Events.RecursoEvents
             var userDto = new UserDto
             {
                 Nome = notification.Recurso.Nome,
-                Cpf = OnlyNumbers().Replace(notification.Recurso.Cpf, ""),
+                Cpf = notification.Recurso.Cpf,
                 Email = notification.Recurso.Email,
                 Cargo = notification.Recurso.Cargo.ToString()
             };
@@ -31,7 +31,7 @@ namespace AMDespachante.Domain.Events.RecursoEvents
             var userDto = new UserDto
             {
                 Nome = notification.Recurso.Nome,
-                Cpf = OnlyNumbers().Replace(notification.Recurso.Cpf, ""),
+                Cpf = notification.Recurso.Cpf,
                 Email = notification.Recurso.Email,
                 Cargo = notification.Recurso.Cargo.ToString()
             };
@@ -41,10 +41,7 @@ namespace AMDespachante.Domain.Events.RecursoEvents
 
         public async Task Handle(RecursoRemovidoEvent notification, CancellationToken cancellationToken)
         {
-            await _identityService.RemoveUser(OnlyNumbers().Replace(notification.Cpf, ""));
+            await _identityService.RemoveUser(notification.Cpf);
         }
-
-        [GeneratedRegex(@"\D")]
-        private partial Regex OnlyNumbers();
     }
 }

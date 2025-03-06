@@ -65,6 +65,14 @@ namespace AMDespachante.Infra.Data.Repository
 
         public async Task<Recurso> GetByCpf(string cpf) => await _dbSet.FirstOrDefaultAsync(x => x.Cpf == cpf);
 
+        public async Task<bool> IsFirstAccess(string cpf)
+        {
+            return await _dbSet
+                .Where(x => x.Cpf == cpf)
+                .Select(x => x.PrimeiroAcesso)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<(bool email, bool cpf)> EmailOrCpfExists(string email, string cpf)
         {
             var existingRecursos = await _dbSet

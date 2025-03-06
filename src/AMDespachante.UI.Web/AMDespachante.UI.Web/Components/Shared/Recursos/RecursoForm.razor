@@ -11,32 +11,32 @@
             <MudCard>
                 <MudCardContent>
                     <MudTextField Label="Nome"
-                                  @bind-Value="Recurso.Nome"
-                                  For="@(() => Recurso.Nome)" />
+                    @bind-Value="Recurso.Nome"
+                    For="@(() => Recurso.Nome)" />
 
                     <MudTextField Label="Email"
-                                  Class="mt-3"
-                                  @bind-Value="Recurso.Email"
-                                  For="@(() => Recurso.Email)" />
+                    Class="mt-3"
+                    @bind-Value="Recurso.Email"
+                    For="@(() => Recurso.Email)" />
 
                     <MudTextField Label="CPF"
-                                  Class="mt-3"
-                                  @bind-Value="Recurso.Cpf"
-                                  For="@(() => Recurso.Cpf)"
-                                  Mask="@(new PatternMask("000.000.000-00"))"
-                                  Immediate="true" />
+                    Class="mt-3"
+                    @bind-Value="Recurso.Cpf"
+                    For="@(() => Recurso.Cpf)"
+                    Mask="@(new PatternMask("000.000.000-00"))"
+                    Immediate="true" />
 
                     <MudTextField Label="Telefone"
-                                  Class="mt-3"
-                                  @bind-Value="Recurso.Telefone"
-                                  For="@(() => Recurso.Telefone)"
-                                  Mask="@(new PatternMask("(00) 00000-0000"))"
-                                  Immediate="true" />
+                    Class="mt-3"
+                    @bind-Value="Recurso.Telefone"
+                    For="@(() => Recurso.Telefone)"
+                    Mask="@(new PatternMask("(00) 00000-0000"))"
+                    Immediate="true" />
 
                     <MudRadioGroup @bind-Value="Recurso.Cargo"
-                                   For="@(() => Recurso.Cargo)"
-                                   Label="Cargo"
-                                   Class="mt-3">
+                    For="@(() => Recurso.Cargo)"
+                    Label="Cargo"
+                    Class="mt-3">
                         @foreach (var cargo in Enum.GetValues(typeof(CargoEnum)))
                         {
                             <MudRadio Value="@((CargoEnum)cargo)" Color="Color.Primary">
@@ -48,10 +48,10 @@
                     @if (Recurso.Id != Guid.Empty)
                     {
                         <MudCheckBox @bind-Value="Recurso.Ativo"
-                                     Color="Color.Primary"
-                                     Label="Ativo"
-                                     For="@(() => Recurso.Ativo)"
-                                     Class="mt-3" />
+                        Color="Color.Primary"
+                        Label="Ativo"
+                        For="@(() => Recurso.Ativo)"
+                        Class="mt-3" />
                     }
 
                 </MudCardContent>
@@ -60,9 +60,9 @@
                         Cancelar
                     </MudLink>
                     <MudButton ButtonType="ButtonType.Submit"
-                               Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               Class="ml-auto">
+                    Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    Class="ml-auto">
                         @(Recurso.Id == Guid.Empty ? "Criar" : "Atualizar")
                     </MudButton>
                 </MudCardActions>
@@ -83,6 +83,7 @@
     {
         if (OnSubmit.HasDelegate)
         {
+            Recurso.Cpf = System.Text.RegularExpressions.Regex.Replace(Recurso.Cpf, @"\D", "");
             await OnSubmit.InvokeAsync(Recurso);
         }
     }

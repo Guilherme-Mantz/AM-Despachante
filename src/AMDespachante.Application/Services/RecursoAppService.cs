@@ -38,6 +38,11 @@ namespace AMDespachante.Application.Services
 
         public async Task<RecursoViewModel?> GetByCpf(string cpf) => _mapper.Map<RecursoViewModel>(await _repository.GetByCpf(cpf));
 
+        public async Task<bool> IsFirstAccess(string cpf)
+        {
+            return await _repository.IsFirstAccess(cpf);
+        }
+
         public async Task<ValidationResult> Add(RecursoViewModel recurso)
         {
             var addCommand = _mapper.Map<NovoRecursoCommand>(recurso);
@@ -53,6 +58,11 @@ namespace AMDespachante.Application.Services
         public async Task<ValidationResult> Delete(Guid id)
         {
             return await _mediatorHandler.SendCommand(new RemoverRecursoCommand(id));
+        }
+
+        public async Task<ValidationResult> DeactiveFirtsAccess(string cpf)
+        {
+            return await _mediatorHandler.SendCommand(new DesativarPrimeiroAcessoRecursoCommand(cpf));
         }
 
         public void Dispose()

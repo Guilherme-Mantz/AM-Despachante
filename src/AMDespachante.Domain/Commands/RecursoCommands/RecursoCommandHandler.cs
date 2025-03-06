@@ -10,7 +10,8 @@ namespace AMDespachante.Domain.Commands.RecursoCommands;
 public class RecursoCommandHandler : CommandHandler,
         IRequestHandler<NovoRecursoCommand, ValidationResult>,
         IRequestHandler<AtualizarRecursoCommand, ValidationResult>,
-        IRequestHandler<RemoverRecursoCommand, ValidationResult>
+        IRequestHandler<RemoverRecursoCommand, ValidationResult>,
+        IRequestHandler<DesativarPrimeiroAcessoRecursoCommand, ValidationResult>
 {
     private readonly IRecursoRepository _recursoRepository;
 
@@ -94,6 +95,34 @@ public class RecursoCommandHandler : CommandHandler,
         _recursoRepository.Delete(recurso);
 
         recurso.AddEvent(new RecursoRemovidoEvent(recurso.Id, recurso.Cpf));
+
+        return await Commit(_recursoRepository.UnitOfWork);
+    }
+
+    public async Task<ValidationResult> Handle(DesativarPrimeiroAcessoRecursoCommand message, CancellationToken cancellationToken)
+    {
+        if (!message.IsValid()) return message.ValidationResult;
+
+        _validationResult.Errors.Clear();
+
+        var recurso = await _recursoRepository.GetByCpf(message.Cpf);
+
+        if (recurso is null)
+        {
+            AddError("Recurso não encontrado");
+            return _validationResult;
+        }
+
+        if (!recurso.PrimeiroAcesso)
+        {
+            return _validationResult;
+        }
+
+        recurso.PrimeiroAcesso = false;
+
+        _recursoRepository.Update(recurso);
+
+        recurso.AddEvent(new RecursoAtualizadoEvent(recurso));
 
         return await Commit(_recursoRepository.UnitOfWork);
     }
