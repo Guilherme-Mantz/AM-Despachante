@@ -2,9 +2,23 @@
 
 namespace AMDespachante.Domain.Models
 {
-    public class Veiculo : Entity
+    public class Veiculo : Entity, IAggregateRoot
     {
         public Veiculo() { }
+
+        public Veiculo(string placa, string renavam, string modelo, string anoFabricacao, string anoModelo)
+        {
+            Placa = placa;
+            Renavam = renavam;
+            Modelo = modelo;
+            AnoFabricacao = anoFabricacao;
+            AnoModelo = anoModelo;
+        }
+
+        public Veiculo(string placa, string renavam, string modelo, string anoFabricacao, string anoModelo, Guid clienteId) : this(placa, renavam, modelo, anoFabricacao, anoModelo)
+        {
+            ClienteId = clienteId;
+        }
 
         public string Placa { get; set; }
         public string Renavam { get; set; }

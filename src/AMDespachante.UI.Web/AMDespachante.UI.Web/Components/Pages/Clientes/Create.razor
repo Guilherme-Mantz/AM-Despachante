@@ -1,0 +1,41 @@
+﻿@page "/clientes/create"
+@attribute [Authorize(Roles = "ADMIN")]
+
+@rendermode InteractiveServer
+
+@using AMDespachante.UI.Web.Components.Shared.Clientes
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+@using Microsoft.AspNetCore.Authorization
+
+@inject IClienteAppService ClienteAppService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+@implements IDisposable
+
+<CustomPageTitle Titulo="Clientes" />
+
+<ClienteForm OnSubmit="@(async (cliente) => await CriarCliente(cliente))" />
+
+@code {
+    private async Task CriarCliente(ClienteViewModel cliente)
+    {
+        var result = await ClienteAppService.Add(cliente);
+
+        if (!result.IsValid)
+        {
+            result.Errors.ToList()
+                .ForEach(erro => Snackbar.Add(erro.ErrorMessage, Severity.Error, c => c.SnackbarVariant = Variant.Filled));
+            return;
+        }
+
+        Snackbar.Add($"Cliente criado com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
+        NavigationManager.NavigateTo("/clientes");
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
+}

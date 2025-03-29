@@ -17,8 +17,6 @@
         public DateTime Modificado { get; set; }
         public IEnumerable<VeiculoViewModel>Veiculos { get; set; }
         public IEnumerable<MensalidadeViewModel> Mensalidades { get; set; }
-
-        // 1:N com Atendimento
-        public virtual ICollection<Atendimento> Atendimentos { get; set; }
+        public IEnumerable<AtendimentoViewModel> Atendimentos { get; set; }
     }
 }

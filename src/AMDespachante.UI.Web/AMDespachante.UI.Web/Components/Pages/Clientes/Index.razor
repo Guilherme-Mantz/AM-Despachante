@@ -1,0 +1,122 @@
+﻿@page "/clientes"
+@attribute [Authorize(Roles = "ADMIN")]
+
+@rendermode InteractiveServer
+
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+@using AMDespachante.Domain.Extensions
+@using Microsoft.AspNetCore.Authorization
+
+@inject IDialogService DialogService
+@inject IClienteAppService ClienteAppService
+@inject ISnackbar Snackbar
+
+@implements IDisposable
+
+<CustomPageTitle Titulo="Clientes" />
+
+<MudGrid Class="mb-5">
+    <MudItem xs="12" class="d-flex justify-end">
+        <MudLink Href="/clientes/create" Class="mud-button mud-button-filled mud-button-primary" Underline="Underline.None">
+            Novo Cliente
+        </MudLink>
+    </MudItem>
+</MudGrid>
+
+<MudTable ServerData="ServerReload" Hover="true" Striped="true" @ref="table">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Clientes</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortLabel="nome" T="ClienteViewModel">Nome</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="email" T="ClienteViewModel">E-mail</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="cpf" T="ClienteViewModel">CPF</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="telefone" T="ClienteViewModel">Telefone</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="ehEstacionamento" T="ClienteViewModel">Estacionamento</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="pagaMensalidade" T="ClienteViewModel">Paga Mensalidade</MudTableSortLabel></MudTh>
+        <MudTh Style="text-align: center">Ações</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Nome</MudTd>
+        <MudTd>@context.Email</MudTd>
+        <MudTd>@context.CPF</MudTd>
+        <MudTd>@context.Telefone</MudTd>
+        <MudTd>@(context.EhEstacionamento ? "Sim" : "Não")</MudTd>
+        <MudTd>@(context.PagaMensalidade ? "Sim" : "Não")</MudTd>
+        <MudTd class="d-flex justify-center">
+            <MudLink Href="@($"/clientes/edit/{context.Id}")" class="mr-1 pt-1"
+                     Color="Color.Primary">
+                <MudIcon Icon="@Icons.Material.Filled.Edit" Size="Size.Small" />
+            </MudLink>
+            <MudLink Href="@($"/clientes/delete/{context.Id}")" class="mr-1 pt-1"
+                     Color="Color.Error">
+                <MudIcon Icon="@Icons.Material.Filled.Delete" Size="Size.Small" />
+            </MudLink>
+        </MudTd>
+    </RowTemplate>
+
+    <NoRecordsContent>
+        <MudText>Nenhum registro encontrado</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Carregando...</MudText>
+    </LoadingContent>
+
+    <PagerContent>
+        <MudTablePager RowsPerPageString="Registros por página:"
+                       InfoFormat="{first_item}-{last_item} de {all_items}"
+                       PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+    </PagerContent>
+
+</MudTable>
+
+@code {
+
+    private MudTable<ClienteViewModel> table;
+    private string searchString = null;
+
+    private bool deleteDialogVisible;
+    private ClienteViewModel selectedItem;
+
+    private async Task<TableData<ClienteViewModel>> ServerReload(TableState state, CancellationToken token)
+    {
+        try
+        {
+            var response = await ClienteAppService.GetPagedAsync(
+                page: state.Page,
+                pageSize: state.PageSize,
+                searchTerm: searchString,
+                sortField: state.SortLabel,
+                sortOrder: state.SortDirection == SortDirection.Ascending ? "asc" : "desc"
+            );
+
+            return new TableData<ClienteViewModel>()
+                {
+                    TotalItems = response.PageCount,
+                    Items = response.Queryable.ToArray()
+                };
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar clientes", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+
+            return new TableData<ClienteViewModel>();
+        }
+    }
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
+}

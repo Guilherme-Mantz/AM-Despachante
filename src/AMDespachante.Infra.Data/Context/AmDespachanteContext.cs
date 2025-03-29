@@ -22,6 +22,8 @@ public class AmDespachanteContext : DbContext, IUnitOfWork
     }
 
     public DbSet<Recurso> Recursos { get; set; }
+    public DbSet<Cliente> Clientes { get; set; }
+    public DbSet<Veiculo> Veiculos { get; set; }
 
     public async Task<bool> Commit()
     {
@@ -37,7 +39,7 @@ public class AmDespachanteContext : DbContext, IUnitOfWork
         foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("CriadoPor") != null))
         {
             if (entry.State == EntityState.Added)
-                entry.Property("CriadoPor").CurrentValue = "Sys"/*_user?.Name*/;
+                entry.Property("CriadoPor").CurrentValue = _user?.Name;
 
             if (entry.State == EntityState.Modified)
                 entry.Property("CriadoPor").IsModified = false;
@@ -52,7 +54,7 @@ public class AmDespachanteContext : DbContext, IUnitOfWork
         foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("ModificadoPor") != null))
         {
             if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
-                entry.Property("ModificadoPor").CurrentValue = "Sys"/*_user?.Name*/;
+                entry.Property("ModificadoPor").CurrentValue = _user?.Name;
         }
 
         await _mediatorHandler.PublishDomainEvents(this).ConfigureAwait(false);
@@ -100,4 +102,3 @@ public static class MediatorExtension
         await Task.WhenAll(tasks);
     }
 }
-

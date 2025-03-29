@@ -3,7 +3,7 @@ using AMDespachante.Domain.Enums;
 
 namespace AMDespachante.Domain.Models
 {
-    public class Atendimento : Entity
+    public class Atendimento : Entity, IAggregateRoot
     {
         public Atendimento() { }
 

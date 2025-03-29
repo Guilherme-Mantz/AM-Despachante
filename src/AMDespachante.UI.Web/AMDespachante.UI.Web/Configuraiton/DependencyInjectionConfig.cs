@@ -15,6 +15,10 @@ using AMDespachante.Domain.Commands.RecursoCommands;
 using FluentValidation.Results;
 using AMDespachante.Infra.Identity.Implementations;
 using AMDespachante.Infra.Identity.Interfaces;
+using AMDespachante.Domain.Events.ClienteEvents;
+using AMDespachante.Domain.Events.VeiculoEvents;
+using AMDespachante.Domain.Commands.ClienteCommands;
+using AMDespachante.Domain.Commands.VeiculoCommands;
 
 namespace AMDespachante.UI.Web.Configuraiton
 {
@@ -35,11 +39,21 @@ namespace AMDespachante.UI.Web.Configuraiton
 
             //Services
             services.AddScoped<IRecursoAppService, RecursoAppService>();
+            services.AddScoped<IClienteAppService, ClienteAppService>();
+            services.AddScoped<IVeiculoAppService, VeiculoAppService>();
 
             //Events
             services.AddScoped<INotificationHandler<RecursoCriadoEvent>, RecursoEventHandler>();
             services.AddScoped<INotificationHandler<RecursoAtualizadoEvent>, RecursoEventHandler>();
             services.AddScoped<INotificationHandler<RecursoRemovidoEvent>, RecursoEventHandler>();
+
+            services.AddScoped<INotificationHandler<ClienteCriadoEvent>, ClienteEventHandler>();
+            services.AddScoped<INotificationHandler<ClienteAtualizadoEvent>, ClienteEventHandler>();
+            services.AddScoped<INotificationHandler<ClienteRemovidoEvent>, ClienteEventHandler>();
+
+            services.AddScoped<INotificationHandler<VeiculoCriadoEvent>, VeiculoEventHandler>();
+            services.AddScoped<INotificationHandler<VeiculoAtualizadoEvent>, VeiculoEventHandler>();
+            services.AddScoped<INotificationHandler<VeiculoRemovidoEvent>, VeiculoEventHandler>();
 
             // Domain - Commands
             services.AddScoped<IRequestHandler<NovoRecursoCommand, ValidationResult>, RecursoCommandHandler>();
@@ -47,9 +61,19 @@ namespace AMDespachante.UI.Web.Configuraiton
             services.AddScoped<IRequestHandler<RemoverRecursoCommand, ValidationResult>, RecursoCommandHandler>();
             services.AddScoped<IRequestHandler<DesativarPrimeiroAcessoRecursoCommand, ValidationResult>, RecursoCommandHandler>();
 
+            services.AddScoped<IRequestHandler<NovoClienteCommand, ValidationResult>, ClienteCommandHandler>();
+            services.AddScoped<IRequestHandler<AtualizarClienteCommand, ValidationResult>, ClienteCommandHandler>();
+            services.AddScoped<IRequestHandler<RemoverClienteCommand, ValidationResult>, ClienteCommandHandler>();
+
+            services.AddScoped<IRequestHandler<NovoVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
+            services.AddScoped<IRequestHandler<AtualizarVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
+            services.AddScoped<IRequestHandler<RemoverVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
+
             //Repostories
             services.AddScoped<AmDespachanteContext>();
             services.AddScoped<IRecursoRepository, RecursoRepository>();
+            services.AddScoped<IClienteRepository, ClienteRepository>();
+            services.AddScoped<IVeiculoRepository, VeiculoRepository>();
 
             // Event Sourcing
             services.AddScoped<IEventSourcingRepository, EventSourcingRepository>();

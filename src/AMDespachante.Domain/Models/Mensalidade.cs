@@ -2,7 +2,7 @@
 
 namespace AMDespachante.Domain.Models
 {
-    public class Mensalidade : Entity
+    public class Mensalidade : Entity, IAggregateRoot
     {
         public Mensalidade() { }
 

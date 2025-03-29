@@ -1,0 +1,163 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using AMDespachante.Application.ViewModels
+@using AMDespachante.Domain.Extensions
+@using global::MudBlazor
+<EditForm Model="@Cliente" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <MudGrid Justify="Justify.Center" Class="mt-5">
+        <MudItem xs="12" sm="8">
+            <MudCard>
+                <MudCardContent>
+                    <MudText Typo="Typo.h5" Class="mb-4">Dados do Cliente</MudText>
+
+                    <MudTextField Label="Nome"
+                                  @bind-Value="Cliente.Nome"
+                                  For="@(() => Cliente.Nome)" />
+                    <MudTextField Label="Email"
+                                  Class="mt-3"
+                                  @bind-Value="Cliente.Email"
+                                  For="@(() => Cliente.Email)" />
+                    <MudTextField Label="CPF"
+                                  Class="mt-3"
+                                  @bind-Value="Cliente.CPF"
+                                  For="@(() => Cliente.CPF)"
+                                  Mask="@(new PatternMask("000.000.000-00"))"
+                                  Immediate="true" />
+                    <MudTextField Label="Telefone"
+                                  Class="mt-3"
+                                  @bind-Value="Cliente.Telefone"
+                                  For="@(() => Cliente.Telefone)"
+                                  Mask="@(new PatternMask("(00) 00000-0000"))"
+                                  Immediate="true" />
+
+                    <MudDivider Class="my-4" />
+
+                    <MudCheckBox @bind-Value="Cliente.EhEstacionamento"
+                                 Color="Color.Primary"
+                                 Label="É Estacionamento"
+                                 For="@(() => Cliente.EhEstacionamento)"
+                                 Class="mt-3" />
+
+                    <MudCheckBox @bind-Value="Cliente.PagaMensalidade"
+                                 Color="Color.Primary"
+                                 Label="Paga Mensalidade"
+                                 For="@(() => Cliente.PagaMensalidade)"
+                                 Class="mt-3" />
+
+                    @if (Cliente.PagaMensalidade)
+                    {
+                        <MudNumericField Label="Valor da Mensalidade"
+                                         @bind-Value="Cliente.ValorMensalidade"
+                                         For="@(() => Cliente.ValorMensalidade)"
+                                         Format="N2"
+                                         Adornment="Adornment.Start"
+                                         AdornmentIcon="@Icons.Material.Filled.AttachMoney"
+                                         Class="mt-3" />
+
+                        <MudDatePicker Label="Data do Próximo Vencimento"
+                                       @bind-Date="Cliente.DataProximoVencimento"
+                                       For="@(() => Cliente.DataProximoVencimento)"
+                                       Class="mt-3" />
+                    }
+
+                    <MudDivider Class="my-4" />
+
+                    <MudText Typo="Typo.h6" Class="mb-3">Veículos</MudText>
+
+                    @if (Cliente.Veiculos != null && Cliente.Veiculos.Any())
+                    {
+                        <MudTable Items="@Cliente.Veiculos.ToList()" Hover="true" Dense="true" Class="mb-3">
+                            <HeaderContent>
+                                <MudTh>Placa</MudTh>
+                                <MudTh>Modelo</MudTh>
+                                <MudTh>Ano</MudTh>
+                                <MudTh>Ações</MudTh>
+                            </HeaderContent>
+                            <RowTemplate Context="veiculo">
+                                <MudTd>@veiculo.Placa</MudTd>
+                                <MudTd>@veiculo.Modelo</MudTd>
+                                <MudTd>@veiculo.AnoFabricacao/@veiculo.AnoModelo</MudTd>
+                                <MudTd>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="@(() => EditarVeiculo(veiculo))" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(() => RemoverVeiculo(veiculo))" />
+                                </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                    else
+                    {
+                        <MudAlert Severity="Severity.Info" Class="mb-3">Nenhum veículo cadastrado.</MudAlert>
+                    }
+
+                    <MudButton Variant="Variant.Outlined"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               Color="Color.Primary"
+                               OnClick="AdicionarVeiculo">
+                        Adicionar Veículo
+                    </MudButton>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudLink Href="/clientes" Class="mud-button mud-button-filled mud-button-filled-secondary" Underline="Underline.None">
+                        Cancelar
+                    </MudLink>
+                    <MudButton ButtonType="ButtonType.Submit"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Class="ml-auto">
+                        @(Cliente.Id == Guid.Empty ? "Criar" : "Atualizar")
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+@code {
+    [Parameter]
+    public ClienteViewModel Cliente { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<ClienteViewModel> OnSubmit { get; set; }
+
+    private async Task HandleValidSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            Cliente.CPF = System.Text.RegularExpressions.Regex.Replace(Cliente.CPF, @"\D", "");
+            await OnSubmit.InvokeAsync(Cliente);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Cliente == null)
+        {
+            Cliente = new ClienteViewModel();
+        }
+
+        if (Cliente.Veiculos == null)
+        {
+            Cliente.Veiculos = new List<VeiculoViewModel>();
+        }
+    }
+
+    private void AdicionarVeiculo()
+    {
+        // Implementar lógica para adicionar veículo
+        // Pode abrir um diálogo MudBlazor para inserir dados do veículo
+    }
+
+    private void EditarVeiculo(VeiculoViewModel veiculo)
+    {
+        // Implementar lógica para editar veículo
+    }
+
+    private void RemoverVeiculo(VeiculoViewModel veiculo)
+    {
+        // Implementar lógica para remover veículo
+        if (Cliente.Veiculos is List<VeiculoViewModel> listaVeiculos)
+        {
+            listaVeiculos.Remove(veiculo);
+        }
+    }
+}
