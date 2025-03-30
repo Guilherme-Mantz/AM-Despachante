@@ -64,6 +64,11 @@ public class AmDespachanteContext : DbContext, IUnitOfWork
         return success;
     }
 
+    public void Reset()
+    {
+        ChangeTracker.Clear();
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Ignore<Event>();

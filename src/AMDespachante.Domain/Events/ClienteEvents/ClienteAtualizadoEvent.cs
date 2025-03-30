@@ -9,7 +9,7 @@ namespace AMDespachante.Domain.Events.ClienteEvents
 
         public ClienteAtualizadoEvent(Cliente cliente)
         {
-            AggregateId = Cliente.Id;
+            AggregateId = cliente.Id;
             Cliente = cliente;
         }
     }

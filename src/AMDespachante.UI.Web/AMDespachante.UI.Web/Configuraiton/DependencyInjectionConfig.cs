@@ -67,6 +67,7 @@ namespace AMDespachante.UI.Web.Configuraiton
 
             services.AddScoped<IRequestHandler<NovoVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
             services.AddScoped<IRequestHandler<AtualizarVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
+            services.AddScoped<IRequestHandler<GerenciarVeiculosClienteCommand, ValidationResult>, VeiculoCommandHandler>();
             services.AddScoped<IRequestHandler<RemoverVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
 
             //Repostories

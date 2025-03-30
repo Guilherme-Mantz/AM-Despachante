@@ -1,5 +1,248 @@
-﻿<h3>Delete</h3>
+﻿@page "/clientes/delete/{id:guid}"
+@attribute [Authorize(Roles = "ADMIN")]
+
+@rendermode InteractiveServer
+
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+@using Microsoft.AspNetCore.Authorization
+
+@inject IClienteAppService ClienteAppService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+@implements IDisposable
+
+<CustomPageTitle Titulo="Clientes" />
+
+<MudContainer Class="mt-6 mb-5">
+    <MudPaper Class="pa-4">
+        @if (_isLoading)
+        {
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        }
+        else if (Cliente == null)
+        {
+            <MudAlert Severity="Severity.Error">Cliente não encontrado.</MudAlert>
+        }
+        else
+        {
+            <MudText Typo="Typo.h5" Color="Color.Error" Class="mb-4">Confirmar Exclusão</MudText>
+
+            <MudAlert Severity="Severity.Warning" Class="mb-4">
+                Tem certeza que deseja excluir este cliente? Todos os veículos associados também serão removidos.
+            </MudAlert>
+
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudCard Elevation="0">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" Class="mb-3">Dados do Cliente</MudText>
+                            <MudList T="ClienteViewModel" Dense="false">
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Nome</MudText>
+                                        <MudText>@Cliente.Nome</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">CPF</MudText>
+                                        <MudText>@Cliente.Cpf</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Telefone</MudText>
+                                        <MudText>@Cliente.Telefone</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Email</MudText>
+                                        <MudText>@Cliente.Email</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Tipo</MudText>
+                                        <MudChip Color="@(Cliente.EhEstacionamento ? Color.Info : Color.Default)"
+                                                 Size="Size.Small" Style="width: 12em">
+                                            @(Cliente.EhEstacionamento ? "Estacionamento" : "Cliente Regular")
+                                        </MudChip>
+                                    </div>
+                                </MudListItem>
+
+                                @if (Cliente.PagaMensalidade)
+                                {
+                                    <MudListItem>
+                                        <div class="d-flex flex-column">
+                                            <MudText Typo="Typo.subtitle2">Mensalidade</MudText>
+                                            <MudText>R$ @Cliente.ValorMensalidade.ToString("N2")</MudText>
+                                        </div>
+                                    </MudListItem>
+
+                                    <MudListItem>
+                                        <div class="d-flex flex-column">
+                                            <MudText Typo="Typo.subtitle2">Próximo Vencimento</MudText>
+                                            <MudText>@(Cliente.DataProximoVencimento?.ToString("dd/MM/yyyy") ?? "Não definido")</MudText>
+                                        </div>
+                                    </MudListItem>
+                                }
+                            </MudList>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudCard Elevation="0">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" Class="mb-3">Informações de Registro</MudText>
+                            <MudList T="ClienteViewModel" Dense="true">
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Criado por</MudText>
+                                        <MudText>@Cliente.CriadoPor</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Data criação</MudText>
+                                        <MudText>@Cliente.Criado.ToString("dd/MM/yyyy HH:mm")</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Modificado por</MudText>
+                                        <MudText>@Cliente.ModificadoPor</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Data modificação</MudText>
+                                        <MudText>@Cliente.Modificado.ToString("dd/MM/yyyy HH:mm")</MudText>
+                                    </div>
+                                </MudListItem>
+                            </MudList>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>
+
+            <MudDivider Class="my-6" />
+
+            @if (Cliente.Veiculos != null && Cliente.Veiculos.Any())
+            {
+                <MudText Typo="Typo.h6" Class="mb-3">Veículos Associados</MudText>
+                <MudSimpleTable Hover="true" Dense="true" Bordered="true" Striped="true" Class="mb-6">
+                    <thead>
+                        <tr>
+                            <th>Placa</th>
+                            <th>Modelo</th>
+                            <th>Renavam</th>
+                            <th>Ano Fab.</th>
+                            <th>Ano Mod.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var veiculo in Cliente.Veiculos)
+                        {
+                            <tr>
+                                <td>@veiculo.Placa</td>
+                                <td>@veiculo.Modelo</td>
+                                <td>@veiculo.Renavam</td>
+                                <td>@veiculo.AnoFabricacao</td>
+                                <td>@veiculo.AnoModelo</td>
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            }
+            else
+            {
+                <MudAlert Severity="Severity.Info" Class="mb-6">Este cliente não possui veículos cadastrados.</MudAlert>
+            }
+
+            <MudGrid>
+                <MudItem>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Default"
+                               Href="/clientes">
+                        Cancelar
+                    </MudButton>
+                    <MudButton Class="ml-3" Variant="Variant.Filled"
+                               Color="Color.Error"
+                               StartIcon="@Icons.Material.Filled.Delete"
+                               OnClick="@(async () => await DeleteCliente())">
+                        Confirmar Exclusão
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+        }
+    </MudPaper>
+</MudContainer>
 
 @code {
+    [Parameter]
+    public Guid Id { get; set; }
 
+    private ClienteViewModel Cliente { get; set; }
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Yield();
+        await LoadCliente();
+    }
+
+    private async Task LoadCliente()
+    {
+        try
+        {
+            _isLoading = true;
+            Cliente = await ClienteAppService.GetByIdWithVeiculos(Id);
+
+            if (Cliente == null)
+            {
+                Snackbar.Add("Cliente não encontrado.", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+                NavigationManager.NavigateTo("/clientes");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Erro ao carregar o cliente.", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteCliente()
+    {
+        var result = await ClienteAppService.Delete(Id);
+
+        if (!result.IsValid)
+        {
+            result.Errors.ToList()
+                .ForEach(erro => Snackbar.Add(erro.ErrorMessage, Severity.Error, c => c.SnackbarVariant = Variant.Filled));
+            return;
+        }
+
+        Snackbar.Add("Cliente removido com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
+        NavigationManager.NavigateTo("/clientes");
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
 }

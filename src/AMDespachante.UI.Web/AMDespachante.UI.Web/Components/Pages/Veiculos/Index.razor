@@ -1,4 +1,4 @@
-﻿@page "/clientes"
+﻿@page "/veiculos"
 @attribute [Authorize(Roles = "ADMIN")]
 
 @rendermode InteractiveServer
@@ -9,51 +9,49 @@
 @using Microsoft.AspNetCore.Authorization
 
 @inject IDialogService DialogService
-@inject IClienteAppService ClienteAppService
+@inject IVeiculoAppService VeiculoAppService
 @inject ISnackbar Snackbar
 
 @implements IDisposable
 
-<CustomPageTitle Titulo="Clientes" />
+<CustomPageTitle Titulo="Veículos" />
 
 <MudGrid Class="mb-5">
     <MudItem xs="12" class="d-flex justify-end">
-        <MudLink Href="/clientes/create" Class="mud-button mud-button-filled mud-button-primary" Underline="Underline.None">
-            Novo Cliente
+        <MudLink Href="/veiculos/create" Class="mud-button mud-button-filled mud-button-primary" Underline="Underline.None">
+            Novo Veículo
         </MudLink>
     </MudItem>
 </MudGrid>
 
 <MudTable ServerData="ServerReload" Hover="true" Striped="true" @ref="table">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Clientes</MudText>
+        <MudText Typo="Typo.h6">Veículos</MudText>
         <MudSpacer />
         <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
 
     <HeaderContent>
-        <MudTh><MudTableSortLabel SortLabel="nome" T="ClienteViewModel">Nome</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="email" T="ClienteViewModel">E-mail</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="cpf" T="ClienteViewModel">CPF</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="telefone" T="ClienteViewModel">Telefone</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="ehEstacionamento" T="ClienteViewModel">Estacionamento</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="pagaMensalidade" T="ClienteViewModel">Paga Mensalidade</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="placa" T="VeiculoViewModel">Placa</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="renavam" T="VeiculoViewModel">Renavam</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="modelo" T="VeiculoViewModel">Modelo</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="anoFabricacao" T="VeiculoViewModel">Ano Fabricação</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="anoModelo" T="VeiculoViewModel">Ano Modelo</MudTableSortLabel></MudTh>
         <MudTh Style="text-align: center">Ações</MudTh>
     </HeaderContent>
     <RowTemplate>
-        <MudTd>@context.Nome</MudTd>
-        <MudTd>@context.Email</MudTd>
-        <MudTd>@context.Cpf</MudTd>
-        <MudTd>@context.Telefone</MudTd>
-        <MudTd>@(context.EhEstacionamento ? "Sim" : "Não")</MudTd>
-        <MudTd>@(context.PagaMensalidade ? "Sim" : "Não")</MudTd>
+        <MudTd>@context.Placa</MudTd>
+        <MudTd>@context.Renavam</MudTd>
+        <MudTd>@context.Modelo</MudTd>
+        <MudTd>@context.AnoFabricacao</MudTd>
+        <MudTd>@context.AnoModelo</MudTd>
         <MudTd class="d-flex justify-center">
-            <MudLink Href="@($"/clientes/edit/{context.Id}")" class="mr-1 pt-1"
+            <MudLink Href="@($"/veiculos/edit/{context.Id}")" class="mr-1 pt-1"
                      Color="Color.Primary">
                 <MudIcon Icon="@Icons.Material.Filled.Edit" Size="Size.Small" />
             </MudLink>
-            <MudLink Href="@($"/clientes/delete/{context.Id}")" class="mr-1 pt-1"
+            <MudLink Href="@($"/veiculos/delete/{context.Id}")" class="mr-1 pt-1"
                      Color="Color.Error">
                 <MudIcon Icon="@Icons.Material.Filled.Delete" Size="Size.Small" />
             </MudLink>
@@ -77,17 +75,14 @@
 
 @code {
 
-    private MudTable<ClienteViewModel> table;
+    private MudTable<VeiculoViewModel> table;
     private string searchString = null;
 
-    private bool deleteDialogVisible;
-    private ClienteViewModel selectedItem;
-
-    private async Task<TableData<ClienteViewModel>> ServerReload(TableState state, CancellationToken token)
+    private async Task<TableData<VeiculoViewModel>> ServerReload(TableState state, CancellationToken token)
     {
         try
         {
-            var response = await ClienteAppService.GetPagedAsync(
+            var response = await VeiculoAppService.GetPagedAsync(
                 page: state.Page,
                 pageSize: state.PageSize,
                 searchTerm: searchString,
@@ -95,7 +90,7 @@
                 sortOrder: state.SortDirection == SortDirection.Ascending ? "asc" : "desc"
             );
 
-            return new TableData<ClienteViewModel>()
+            return new TableData<VeiculoViewModel>()
                 {
                     TotalItems = response.PageCount,
                     Items = response.Queryable.ToArray()
@@ -103,9 +98,9 @@
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Erro ao carregar clientes", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+            Snackbar.Add($"Erro ao carregar veículos", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
 
-            return new TableData<ClienteViewModel>();
+            return new TableData<VeiculoViewModel>();
         }
     }
 

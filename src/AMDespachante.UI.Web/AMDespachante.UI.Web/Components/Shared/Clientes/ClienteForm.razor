@@ -1,7 +1,9 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using AMDespachante.Application.ViewModels
 @using AMDespachante.Domain.Extensions
+@using AMDespachante.UI.Web.Components.Shared.Veiculos
 @using global::MudBlazor
+
 <EditForm Model="@Cliente" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <MudGrid Justify="Justify.Center" Class="mt-5">
@@ -19,8 +21,8 @@
                                   For="@(() => Cliente.Email)" />
                     <MudTextField Label="CPF"
                                   Class="mt-3"
-                                  @bind-Value="Cliente.CPF"
-                                  For="@(() => Cliente.CPF)"
+                                  @bind-Value="Cliente.Cpf"
+                                  For="@(() => Cliente.Cpf)"
                                   Mask="@(new PatternMask("000.000.000-00"))"
                                   Immediate="true" />
                     <MudTextField Label="Telefone"
@@ -119,11 +121,14 @@
     [Parameter]
     public EventCallback<ClienteViewModel> OnSubmit { get; set; }
 
+    [Inject]
+    private IDialogService DialogService { get; set; }
+
     private async Task HandleValidSubmit()
     {
         if (OnSubmit.HasDelegate)
         {
-            Cliente.CPF = System.Text.RegularExpressions.Regex.Replace(Cliente.CPF, @"\D", "");
+            Cliente.Cpf = System.Text.RegularExpressions.Regex.Replace(Cliente.Cpf, @"\D", "");
             await OnSubmit.InvokeAsync(Cliente);
         }
     }
@@ -141,23 +146,81 @@
         }
     }
 
-    private void AdicionarVeiculo()
+    private async Task AdicionarVeiculo()
     {
-        // Implementar lógica para adicionar veículo
-        // Pode abrir um diálogo MudBlazor para inserir dados do veículo
+        var veiculo = new VeiculoViewModel
+            {
+                Id = Guid.NewGuid(),
+                ClienteId = Cliente.Id
+            };
+
+        var parameters = new DialogParameters
+            {
+                ["Veiculo"] = veiculo
+            };
+
+        var dialog = await DialogService.ShowAsync<VeiculoDialog>("Adicionar Veículo", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var novoVeiculo = result.Data as VeiculoViewModel;
+
+            if (Cliente.Veiculos == null)
+            {
+                Cliente.Veiculos = new List<VeiculoViewModel>();
+            }
+
+            Cliente.Veiculos.Add(novoVeiculo);
+            StateHasChanged();
+        }
     }
 
-    private void EditarVeiculo(VeiculoViewModel veiculo)
+    private async Task EditarVeiculo(VeiculoViewModel veiculo)
     {
-        // Implementar lógica para editar veículo
+        var veiculoEditavel = new VeiculoViewModel
+            {
+                Id = veiculo.Id,
+                Placa = veiculo.Placa,
+                Renavam = veiculo.Renavam,
+                Modelo = veiculo.Modelo,
+                AnoFabricacao = veiculo.AnoFabricacao,
+                AnoModelo = veiculo.AnoModelo,
+                ClienteId = veiculo.ClienteId,
+                CriadoPor = veiculo.CriadoPor
+            };
+
+        var parameters = new DialogParameters
+            {
+                ["Veiculo"] = veiculoEditavel
+            };
+
+        var dialog = await DialogService.ShowAsync<VeiculoDialog>("Editar Veículo", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var veiculoAtualizado = result.Data as VeiculoViewModel;
+
+            var index = Cliente.Veiculos.ToList().FindIndex(v => v.Id == veiculo.Id);
+            if (index != -1)
+            {
+                if (Cliente.Veiculos is List<VeiculoViewModel> listaVeiculos)
+                {
+                    listaVeiculos[index] = veiculoAtualizado;
+                }
+            }
+
+            StateHasChanged();
+        }
     }
 
     private void RemoverVeiculo(VeiculoViewModel veiculo)
     {
-        // Implementar lógica para remover veículo
         if (Cliente.Veiculos is List<VeiculoViewModel> listaVeiculos)
         {
             listaVeiculos.Remove(veiculo);
+            StateHasChanged();
         }
     }
 }

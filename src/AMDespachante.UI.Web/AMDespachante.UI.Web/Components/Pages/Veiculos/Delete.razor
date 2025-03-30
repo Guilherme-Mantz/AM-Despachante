@@ -1,0 +1,215 @@
+﻿@page "/veiculos/delete/{id:guid}"
+@attribute [Authorize(Roles = "ADMIN")]
+
+@rendermode InteractiveServer
+
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+@using Microsoft.AspNetCore.Authorization
+
+@inject IVeiculoAppService VeiculoAppService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+@implements IDisposable
+
+<CustomPageTitle Titulo="Veículos" />
+
+<MudContainer Class="mt-6 mb-5">
+    <MudPaper Class="pa-4">
+        @if (_isLoading)
+        {
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        }
+        else if (Veiculo == null)
+        {
+            <MudAlert Severity="Severity.Error">Veículo não encontrado.</MudAlert>
+        }
+        else
+        {
+            <MudText Typo="Typo.h5" Color="Color.Error" Class="mb-4">Confirmar Exclusão</MudText>
+
+            <MudAlert Severity="Severity.Warning" Class="mb-4">
+                Tem certeza que deseja excluir este veículo? Esta ação não pode ser desfeita.
+            </MudAlert>
+
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudCard Elevation="0">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" Class="mb-3">Dados do Veículo</MudText>
+                            <MudList T="VeiculoViewModel" Dense="false">
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Placa</MudText>
+                                        <MudText>@Veiculo.Placa</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Modelo</MudText>
+                                        <MudText>@Veiculo.Modelo</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Renavam</MudText>
+                                        <MudText>@Veiculo.Renavam</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Ano de Fabricação</MudText>
+                                        <MudText>@Veiculo.AnoFabricacao</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Ano do Modelo</MudText>
+                                        <MudText>@Veiculo.AnoModelo</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                @* @if (Veiculo.Cliente != null)
+                                {
+                                    <MudListItem>
+                                        <div class="d-flex flex-column">
+                                            <MudText Typo="Typo.subtitle2">Cliente</MudText>
+                                            <MudText>@Veiculo.Cliente.Nome</MudText>
+                                        </div>
+                                    </MudListItem>
+                                } *@
+                            </MudList>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudCard Elevation="0">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6" Class="mb-3">Informações de Registro</MudText>
+                            <MudList T="VeiculoViewModel" Dense="true">
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Criado por</MudText>
+                                        <MudText>@Veiculo.CriadoPor</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Data criação</MudText>
+                                        <MudText>@Veiculo.Criado.ToString("dd/MM/yyyy HH:mm")</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Modificado por</MudText>
+                                        <MudText>@Veiculo.ModificadoPor</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Data modificação</MudText>
+                                        <MudText>@Veiculo.Modificado.ToString("dd/MM/yyyy HH:mm")</MudText>
+                                    </div>
+                                </MudListItem>
+                            </MudList>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>
+
+            <MudDivider Class="my-6" />
+
+            <MudGrid>
+                <MudItem>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Default"
+                               Href="/veiculos">
+                        Cancelar
+                    </MudButton>
+                    <MudButton Class="ml-3" Variant="Variant.Filled"
+                               Color="Color.Error"
+                               StartIcon="@Icons.Material.Filled.Delete"
+                               OnClick="@(async () => await DeleteVeiculo())">
+                        Confirmar Exclusão
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private VeiculoViewModel Veiculo { get; set; }
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Yield();
+        await LoadVeiculo();
+    }
+
+    private async Task LoadVeiculo()
+    {
+        try
+        {
+            _isLoading = true;
+            Veiculo = await VeiculoAppService.GetById(Id);
+
+            if (Veiculo == null)
+            {
+                Snackbar.Add("Veículo não encontrado.", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+                NavigationManager.NavigateTo("/veiculos");
+                return;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Erro ao carregar o veículo.", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteVeiculo()
+    {
+        try
+        {
+            var result = await VeiculoAppService.Delete(Id);
+
+            if (!result.IsValid)
+            {
+                result.Errors.ToList()
+                    .ForEach(erro => Snackbar.Add(erro.ErrorMessage, Severity.Error, c => c.SnackbarVariant = Variant.Filled));
+                return;
+            }
+
+            Snackbar.Add("Veículo removido com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
+            NavigationManager.NavigateTo("/veiculos");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Erro ao excluir o veículo.", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+        }
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
+}

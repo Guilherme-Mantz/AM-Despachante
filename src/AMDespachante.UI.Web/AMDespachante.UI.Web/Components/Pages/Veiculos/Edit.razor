@@ -1,39 +1,42 @@
-﻿@page "/clientes/edit/{id:guid}"
+﻿@page "/veiculos/edit/{id:guid}"
 @attribute [Authorize(Roles = "ADMIN")]
 
 @rendermode InteractiveServer
 
 @using AMDespachante.Application.Interfaces
 @using AMDespachante.Application.ViewModels
-@using AMDespachante.UI.Web.Components.Shared.Clientes
+@using AMDespachante.UI.Web.Components.Shared.Veiculos
 @using Microsoft.AspNetCore.Authorization
 
 @inject NavigationManager NavigationManager
 @inject IClienteAppService ClienteAppService
+@inject IVeiculoAppService VeiculoAppService
 @inject ISnackbar Snackbar
 
 @implements IDisposable
 
-<CustomPageTitle Titulo="Clientes" />
+<CustomPageTitle Titulo="Veículos" />
 
-<ClienteForm Cliente="cliente" OnSubmit="@(async (cliente) => await EditarCliente(cliente))" />
+<VeiculoForm Veiculo="veiculo" Clientes="clientes" OnSubmit="@(async (veiculo) => await EditarVeiculo(veiculo))" />
 
 @code {
 
     [Parameter]
     public Guid Id { get; set; }
 
-    private ClienteViewModel cliente { get; set; }
+    private VeiculoViewModel veiculo { get; set; }
+    private IEnumerable<ClienteViewModel> clientes { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
         await Task.Yield();
-        cliente = await ClienteAppService.GetByIdWithVeiculos(Id);
+        veiculo = await VeiculoAppService.GetById(Id);
+        clientes = await ClienteAppService.GetAll();
     }
 
-    private async Task EditarCliente(ClienteViewModel cliente)
+    private async Task EditarVeiculo(VeiculoViewModel cliente)
     {
-        var result = await ClienteAppService.Update(cliente);
+        var result = await VeiculoAppService.Update(cliente);
         if (!result.IsValid)
         {
             result.Errors.ToList()
@@ -41,9 +44,9 @@
             return;
         }
 
-        Snackbar.Add($"Cliente atualizado com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
+        Snackbar.Add($"Veículo atualizado com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
 
-        NavigationManager.NavigateTo("/clientes");
+        NavigationManager.NavigateTo("/veiculos");
     }
 
     public void Dispose()

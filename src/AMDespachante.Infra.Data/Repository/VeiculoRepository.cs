@@ -1,5 +1,4 @@
 ﻿using AMDespachante.Domain.Core.Data;
-using AMDespachante.Domain.Enums;
 using AMDespachante.Domain.Interfaces;
 using AMDespachante.Domain.Models;
 using AMDespachante.Infra.Data.Context;
@@ -62,6 +61,11 @@ namespace AMDespachante.Infra.Data.Repository
         public async Task<Veiculo> GetById(Guid id)
         {
             return await _dbSet.FindAsync(id);
+        }
+
+        public async Task<IEnumerable<Veiculo>> GetByClienteIdAsync(Guid id)
+        {
+            return await _dbSet.AsNoTracking().Where(x => x.ClienteId == id).ToListAsync();
         }
 
         public void Add(Veiculo veiculo)

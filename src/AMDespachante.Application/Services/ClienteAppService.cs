@@ -2,6 +2,7 @@
 using AMDespachante.Application.ViewModels;
 using AMDespachante.Domain.Commands.ClienteCommands;
 using AMDespachante.Domain.Commands.RecursoCommands;
+using AMDespachante.Domain.Commands.VeiculoCommands;
 using AMDespachante.Domain.Core.Communication.Mediator;
 using AMDespachante.Domain.Interfaces;
 using AutoMapper;
@@ -43,7 +44,12 @@ namespace AMDespachante.Application.Services
         {
             return _mapper.Map<ClienteViewModel>(await _clienteRepository.GetById(Id));
         }
-        
+
+        public async Task<ClienteViewModel> GetByIdWithVeiculos(Guid Id)
+        {
+            return _mapper.Map<ClienteViewModel>(await _clienteRepository.GetByIdWithVeiculos(Id));
+        }
+
         public async Task<ValidationResult> Add(ClienteViewModel cliente)
         {
             var addCommand = _mapper.Map<NovoClienteCommand>(cliente);
@@ -52,13 +58,24 @@ namespace AMDespachante.Application.Services
 
         public async Task<ValidationResult> Update(ClienteViewModel cliente)
         {
-            var updateCommand = _mapper.Map<AtualizarClienteCommand>(cliente);
-            return await _mediatorHandler.SendCommand(updateCommand);
+            var updateClienteCommand = _mapper.Map<AtualizarClienteCommand>(cliente);
+            var clienteResult = await _mediatorHandler.SendCommand(updateClienteCommand);
+
+            if (!clienteResult.IsValid) return clienteResult;
+
+            if (cliente.Veiculos == null || !cliente.Veiculos.Any()) return clienteResult;
+
+            var gerenciarVeiculosCommand = new GerenciarVeiculosClienteCommand(
+                cliente.Id,
+                _mapper.Map<ICollection<AtualizarVeiculoCommand>>(cliente.Veiculos)
+            );
+
+            return await _mediatorHandler.SendCommand(gerenciarVeiculosCommand);
         }
 
         public async Task<ValidationResult> Delete(Guid Id)
         {
-            var removeCommand = new RemoverRecursoCommand(Id);
+            var removeCommand = new RemoverClienteCommand(Id);
             return await _mediatorHandler.SendCommand(removeCommand);
         }
 

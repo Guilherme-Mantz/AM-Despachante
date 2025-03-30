@@ -1,0 +1,50 @@
+﻿@page "/veiculos/create"
+@attribute [Authorize(Roles = "ADMIN")]
+
+@rendermode InteractiveServer
+
+@using AMDespachante.UI.Web.Components.Shared.Veiculos
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+@using Microsoft.AspNetCore.Authorization
+
+@inject IVeiculoAppService VeiculoAppService
+@inject IClienteAppService ClienteAppService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+@implements IDisposable
+
+<CustomPageTitle Titulo="Veículos" />
+
+<VeiculoForm Clientes="clientes" OnSubmit="@(async (veiculo) => await CriarVeiculo(veiculo))" />
+
+@code {
+    private IEnumerable<ClienteViewModel> clientes { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Yield();
+        clientes = await ClienteAppService.GetAll();
+    }
+
+    private async Task CriarVeiculo(VeiculoViewModel veiculo)
+    {
+        var result = await VeiculoAppService.Add(veiculo);
+
+        if (!result.IsValid)
+        {
+            result.Errors.ToList()
+                .ForEach(erro => Snackbar.Add(erro.ErrorMessage, Severity.Error, c => c.SnackbarVariant = Variant.Filled));
+            return;
+        }
+
+        Snackbar.Add($"Veículo criado com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
+        NavigationManager.NavigateTo("/veiculos");
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
+}

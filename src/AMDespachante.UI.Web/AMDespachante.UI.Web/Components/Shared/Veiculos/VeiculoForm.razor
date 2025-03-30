@@ -1,0 +1,96 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using AMDespachante.Application.ViewModels
+@using AMDespachante.Domain.Enums
+@using AMDespachante.Domain.Extensions
+@using global::MudBlazor
+
+<EditForm Model="@Veiculo" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <MudGrid Justify="Justify.Center" Class="mt-5">
+        <MudItem xs="6" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="Placa"
+                                  @bind-Value="Veiculo.Placa"
+                                  For="@(() => Veiculo.Placa)" />
+
+                    <MudTextField Label="Renavam"
+                                  Class="mt-3"
+                                  @bind-Value="Veiculo.Renavam"
+                                  For="@(() => Veiculo.Renavam)" />
+
+                    <MudTextField Label="Modelo"
+                                  Class="mt-3"
+                                  @bind-Value="Veiculo.Modelo"
+                                  For="@(() => Veiculo.Modelo)" />
+
+                    <MudTextField Label="Ano de Fabricação"
+                                  Class="mt-3"
+                                  @bind-Value="Veiculo.AnoFabricacao"
+                                  For="@(() => Veiculo.AnoFabricacao)" />
+
+                    <MudTextField Label="Ano do Modelo"
+                                  Class="mt-3"
+                                  @bind-Value="Veiculo.AnoModelo"
+                                  For="@(() => Veiculo.AnoModelo)" />
+
+                    <MudSelect T="Guid" Label="Cliente"
+                               @bind-Value="Veiculo.ClienteId"
+                               For="@(() => Veiculo.ClienteId)"
+                               Required="true"
+                               RequiredError="Cliente é obrigatório"
+                               Class="mt-3">
+                        <MudSelectItem Value="Guid.Empty" Disabled>Selecione um cliente</MudSelectItem>
+                        @if (Clientes != null)
+                        {
+                            @foreach (var cliente in Clientes)
+                            {
+                                <MudSelectItem Value="@cliente.Id">@cliente.Nome</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+
+                </MudCardContent>
+                <MudCardActions>
+                    <MudLink Href="/veiculos" Class="mud-button mud-button-filled mud-button-primary" Underline="Underline.None">
+                        Cancelar
+                    </MudLink>
+                    <MudButton ButtonType="ButtonType.Submit"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Class="ml-auto">
+                        @(Veiculo.Id == Guid.Empty ? "Criar" : "Atualizar")
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public VeiculoViewModel Veiculo { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<VeiculoViewModel> OnSubmit { get; set; }
+
+    [Parameter]
+    public IEnumerable<ClienteViewModel> Clientes { get; set; }
+
+    private async Task HandleValidSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(Veiculo);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Veiculo == null)
+        {
+            Veiculo = new VeiculoViewModel();
+        }
+    }
+}
