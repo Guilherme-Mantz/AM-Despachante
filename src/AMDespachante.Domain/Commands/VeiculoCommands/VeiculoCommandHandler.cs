@@ -35,6 +35,12 @@ namespace AMDespachante.Domain.Commands.VeiculoCommands
                     message.AnoModelo,
                     (Guid)message.ClienteId);
 
+                if (await _veiculoRepository.PlacaExists(veiculo.Id, veiculo.Placa))
+                {
+                    AddError($"Já existe um veículo cadastrado com a placa {message.Placa}.");
+                    return _validationResult;
+                }
+
                 _veiculoRepository.Add(veiculo);
 
                 veiculo.AddEvent(new VeiculoCriadoEvent(veiculo));
@@ -60,6 +66,13 @@ namespace AMDespachante.Domain.Commands.VeiculoCommands
                 if (veiculo is null)
                 {
                     AddError("Veículo não encontrado");
+                    return _validationResult;
+                }
+
+                if (veiculo.Placa != message.Placa && 
+                    await _veiculoRepository.PlacaExists(veiculo.Id, message.Placa))
+                {
+                    AddError($"Já existe um veículo cadastrado com a placa {message.Placa}.");
                     return _validationResult;
                 }
 

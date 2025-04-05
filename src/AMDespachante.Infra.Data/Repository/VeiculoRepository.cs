@@ -23,15 +23,18 @@ namespace AMDespachante.Infra.Data.Repository
 
         public async Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null)
         {
-            var query = _db.Veiculos.AsQueryable();
+            var query = _db.Veiculos.Include(c => c.Cliente).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
 
                 query = query.Where(r =>
+                    EF.Functions.Like(r.Cliente.Nome, $"%{searchTerm}%") ||
                     EF.Functions.Like(r.Placa, $"%{searchTerm}%") ||
                     EF.Functions.Like(r.Renavam, $"%{searchTerm}%") ||
-                    EF.Functions.Like(r.Modelo, $"%{searchTerm}%")
+                    EF.Functions.Like(r.Modelo, $"%{searchTerm}%") ||
+                    EF.Functions.Like(r.AnoFabricacao, $"%{searchTerm}%") ||
+                    EF.Functions.Like(r.AnoModelo, $"%{searchTerm}%")
                 );
             }
 
@@ -89,11 +92,19 @@ namespace AMDespachante.Infra.Data.Repository
         {
             return sortField?.ToLower() switch
             {
+                "clienteNome" => x => x.Cliente.Nome,
                 "placa" => x => x.Placa,
                 "renavam" => x => x.Renavam,
                 "modelo" => x => x.Modelo,
+                "anoFabricacao" => x => x.AnoFabricacao,
+                "anoModelo" => x => x.AnoModelo,
                 _ => x => x.Modelo
             };
+        }
+
+        public async Task<bool> PlacaExists(Guid id, string placa)
+        {
+            return await _dbSet.AnyAsync(x => x.Id != id && x.Placa == placa);
         }
     }
 }

@@ -19,6 +19,8 @@ using AMDespachante.Domain.Events.ClienteEvents;
 using AMDespachante.Domain.Events.VeiculoEvents;
 using AMDespachante.Domain.Commands.ClienteCommands;
 using AMDespachante.Domain.Commands.VeiculoCommands;
+using AMDespachante.UI.Web.Services.Implementations;
+using AMDespachante.UI.Web.Services.Interfaces;
 
 namespace AMDespachante.UI.Web.Configuraiton
 {
@@ -27,6 +29,7 @@ namespace AMDespachante.UI.Web.Configuraiton
         public static IServiceCollection ResolveDependencies(this IServiceCollection services)
         {
             //UI
+            services.AddScoped<IVeiculoService, VeiculoService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<IAppUser, AppUser>();

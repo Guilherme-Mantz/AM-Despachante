@@ -13,7 +13,11 @@ namespace AMDespachante.Application.AutoMapper
         {
             CreateMap<RecursoViewModel, Recurso>().ReverseMap();
             CreateMap<ClienteViewModel, Cliente>().ReverseMap();
-            CreateMap<VeiculoViewModel, Veiculo>().ReverseMap();
+
+            CreateMap<VeiculoViewModel, Veiculo>();
+
+            CreateMap<Veiculo, VeiculoViewModel>()
+                .ForMember(dest => dest.ClienteNome, opt => opt.MapFrom(src => src.Cliente.Nome));
 
             // Commands
             CreateMap<RecursoViewModel, NovoRecursoCommand>();

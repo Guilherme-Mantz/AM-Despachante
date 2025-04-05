@@ -30,6 +30,7 @@ namespace AMDespachante.Application.ViewModels
         public string AnoModelo { get; set; }
 
         public Guid ClienteId { get; set; }
+        public string ClienteNome { get; set; }
 
         public string CriadoPor { get; set; }
         public DateTime Criado { get; set; }

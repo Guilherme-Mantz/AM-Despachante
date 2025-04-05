@@ -33,6 +33,7 @@
     </ToolBarContent>
 
     <HeaderContent>
+        <MudTh><MudTableSortLabel SortLabel="clienteNome" T="VeiculoViewModel">Cliente</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="placa" T="VeiculoViewModel">Placa</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="renavam" T="VeiculoViewModel">Renavam</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="modelo" T="VeiculoViewModel">Modelo</MudTableSortLabel></MudTh>
@@ -41,6 +42,7 @@
         <MudTh Style="text-align: center">Ações</MudTh>
     </HeaderContent>
     <RowTemplate>
+        <MudTd>@context.ClienteNome</MudTd>
         <MudTd>@context.Placa</MudTd>
         <MudTd>@context.Renavam</MudTd>
         <MudTd>@context.Modelo</MudTd>

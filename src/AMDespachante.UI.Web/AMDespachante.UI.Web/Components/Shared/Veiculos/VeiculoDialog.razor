@@ -1,59 +1,67 @@
 ﻿@using AMDespachante.Application.ViewModels
+@using AMDespachante.Application.Services
 @using AMDespachante.Domain.Extensions
 @using global::MudBlazor
 @using System.ComponentModel.DataAnnotations
+@using AMDespachante.UI.Web.Services.Interfaces
 
-<MudDialog>
+@inject IVeiculoService VeiculoService
+@inject ISnackbar Snackbar
+
+<MudDialog Class="px-4 py-2" Style="min-width: 500px; max-width: 500px;">
     <DialogContent>
-        <EditForm Model="@Veiculo" OnValidSubmit="Submit">
-            <DataAnnotationsValidator />
+        <div class="d-flex flex-column" style="min-height: 21rem; max-height: 25rem; overflow-y: auto;">
+            <EditForm Model="@Veiculo" OnValidSubmit="Submit">
+                <DataAnnotationsValidator />
 
-            <MudTextField Label="Placa"
-            @bind-Value="Veiculo.Placa"
-            For="@(() => Veiculo.Placa)"
-            Immediate="true"
-            Validation="@(new Func<string, IEnumerable<string>>(ValidatePlaca))"
-            AdornmentText="Ex: ABC-1234 ou ABC1D23"
-            Adornment="Adornment.End"
-            HelperText="Placas no formato antigo (AAA-0000) ou Mercosul (AAA0A00)"
-            TransformText="@(new Func<string, string>(text => text?.ToUpper() ?? string.Empty))" />
+                <MudTextField Label="Placa"
+                              @bind-Value="Veiculo.Placa"
+                              For="@(() => Veiculo.Placa)"
+                              Immediate="true"
+                              AdornmentText="Ex: ABC-1234 ou ABC1D23"
+                              Adornment="Adornment.End"
+                              HelperText="Placas no formato antigo (AAA-0000) ou Mercosul (AAA0A00)"
+                              TransformText="@(new Func<string, string>(text => text?.ToUpper() ?? string.Empty))" />
 
-            <MudTextField Label="Renavam"
-            Class="mt-3"
-            @bind-Value="Veiculo.Renavam"
-            For="@(() => Veiculo.Renavam)"
-            Immediate="true"
-            InputType="InputType.Number"
-            MaxLength="11" />
+                <MudTextField Label="Renavam"
+                              Class="mt-3"
+                              @bind-Value="Veiculo.Renavam"
+                              For="@(() => Veiculo.Renavam)"
+                              Immediate="true"
+                              InputType="InputType.Number"
+                              MaxLength="11" />
 
-            <MudTextField Label="Modelo"
-            Class="mt-3"
-            @bind-Value="Veiculo.Modelo"
-            For="@(() => Veiculo.Modelo)"
-            Immediate="true" />
+                <MudTextField Label="Modelo"
+                              Class="mt-3"
+                              @bind-Value="Veiculo.Modelo"
+                              For="@(() => Veiculo.Modelo)"
+                              Immediate="true" />
 
-            <MudNumericField Label="Ano de Fabricação"
-            Class="mt-3"
-            @bind-Value="AnoFabricacaoNumerico"
-            Min="1900"
-            Max="@DateTime.Now.Year"
-            Immediate="true"
-            OnBlur="AtualizarAnoFabricacao" />
+                <MudNumericField Label="Ano de Fabricação"
+                                 Class="mt-3"
+                                 @bind-Value="AnoFabricacaoNumerico"
+                                 Min="1900"
+                                 Max="@DateTime.Now.Year"
+                                 Immediate="true"
+                                 OnBlur="() => Veiculo.AnoFabricacao = AnoFabricacaoNumerico?.ToString()" />
 
-            <MudNumericField Label="Ano do Modelo"
-            Class="mt-3"
-            @bind-Value="AnoModeloNumerico"
-            Min="1900"
-            Max="@(DateTime.Now.Year + 1)"
-            Immediate="true"
-            OnBlur="AtualizarAnoModelo" />
+                <MudNumericField Label="Ano do Modelo"
+                                 Class="mt-3"
+                                 @bind-Value="AnoModeloNumerico"
+                                 Min="1900"
+                                 Max="@(DateTime.Now.Year + 1)"
+                                 Immediate="true"
+                                 OnBlur="() => Veiculo.AnoModelo = AnoModeloNumerico?.ToString()" />
 
-            <ValidationSummary />
-        </EditForm>
+                @* <ValidationSummary /> *@
+            </EditForm>
+        </div>
+
+
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancelar</MudButton>
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="ValidarESubmeter">
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="async () => await ValidarESubmeter()">
             @(string.IsNullOrEmpty(Veiculo.CriadoPor) ? "Adicionar" : "Atualizar")
         </MudButton>
     </DialogActions>
@@ -61,179 +69,37 @@
 
 @code {
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
-
     [Parameter] public VeiculoViewModel Veiculo { get; set; } = new();
 
     private int? AnoFabricacaoNumerico { get; set; }
     private int? AnoModeloNumerico { get; set; }
-
     private EditContext _editContext;
     private ValidationMessageStore _messageStore;
 
     protected override void OnInitialized()
     {
-        // Converter strings para números
-        if (!string.IsNullOrEmpty(Veiculo.AnoFabricacao) && int.TryParse(Veiculo.AnoFabricacao, out int anoFab))
-        {
+        if (int.TryParse(Veiculo.AnoFabricacao, out int anoFab))
             AnoFabricacaoNumerico = anoFab;
-        }
 
-        if (!string.IsNullOrEmpty(Veiculo.AnoModelo) && int.TryParse(Veiculo.AnoModelo, out int anoMod))
-        {
+        if (int.TryParse(Veiculo.AnoModelo, out int anoMod))
             AnoModeloNumerico = anoMod;
-        }
 
-        // Criar contexto de edição para validações manuais
         _editContext = new EditContext(Veiculo);
         _messageStore = new ValidationMessageStore(_editContext);
     }
 
-    private void AtualizarAnoFabricacao()
-    {
-        Veiculo.AnoFabricacao = AnoFabricacaoNumerico?.ToString();
-    }
-
-    private void AtualizarAnoModelo()
-    {
-        Veiculo.AnoModelo = AnoModeloNumerico?.ToString();
-    }
-
-    private IEnumerable<string> ValidatePlaca(string placa)
-    {
-        if (string.IsNullOrWhiteSpace(placa))
-        {
-            yield return "A placa é obrigatória";
-            yield break;
-        }
-
-        // Normalizar a placa: remover espaços e traços, converter para maiúsculas
-        var placaNormalizada = placa.Replace("-", "").Replace(" ", "").ToUpper();
-
-        // Validar formato de placa antiga: 3 letras + 4 números
-        bool placaAntigaValida = System.Text.RegularExpressions.Regex.IsMatch(placaNormalizada, @"^[A-Z]{3}[0-9]{4}$");
-
-        // Validar formato de placa Mercosul: 3 letras + 1 número + 1 letra + 2 números
-        bool placaMercosulValida = System.Text.RegularExpressions.Regex.IsMatch(placaNormalizada, @"^[A-Z]{3}[0-9][A-Z][0-9]{2}$");
-
-        if (!placaAntigaValida && !placaMercosulValida)
-        {
-            yield return "Formato de placa inválido. Use o formato AAA-0000 para placas antigas ou AAA0A00 para placas Mercosul";
-        }
-
-        // Se for válida, formatar automaticamente
-        if (placaAntigaValida || placaMercosulValida)
-        {
-            // Formatação feita no ValidarESubmeter
-        }
-    }
-
-    private void ValidarESubmeter()
+    private async Task ValidarESubmeter()
     {
         _messageStore.Clear();
 
-        // Validar se os campos obrigatórios estão preenchidos
-        var erros = new Dictionary<string, List<string>>();
+        var erros = await VeiculoService.ValidarVeiculo(Veiculo, AnoFabricacaoNumerico, AnoModeloNumerico);
 
-        // Validar e formatar a placa
-        if (string.IsNullOrWhiteSpace(Veiculo.Placa))
-        {
-            AddError(erros, nameof(Veiculo.Placa), "A placa é obrigatória");
-        }
-        else
-        {
-            // Normalizar a placa: remover espaços e traços, converter para maiúsculas
-            var placaNormalizada = Veiculo.Placa.Replace("-", "").Replace(" ", "").ToUpper();
-
-            // Validar formato de placa antiga: 3 letras + 4 números
-            bool placaAntigaValida = System.Text.RegularExpressions.Regex.IsMatch(placaNormalizada, @"^[A-Z]{3}[0-9]{4}$");
-
-            // Validar formato de placa Mercosul: 3 letras + 1 número + 1 letra + 2 números
-            bool placaMercosulValida = System.Text.RegularExpressions.Regex.IsMatch(placaNormalizada, @"^[A-Z]{3}[0-9][A-Z][0-9]{2}$");
-
-            if (!placaAntigaValida && !placaMercosulValida)
-            {
-                AddError(erros, nameof(Veiculo.Placa), "Formato de placa inválido. Use o formato AAA-0000 para placas antigas ou AAA0A00 para placas Mercosul");
-            }
-            else
-            {
-                // Formatar a placa conforme o tipo
-                if (placaAntigaValida)
-                {
-                    // Formatar como AAA-0000
-                    Veiculo.Placa = $"{placaNormalizada.Substring(0, 3)}-{placaNormalizada.Substring(3, 4)}";
-                }
-                else if (placaMercosulValida)
-                {
-                    // Manter formato Mercosul: AAA0A00
-                    Veiculo.Placa = placaNormalizada;
-                }
-            }
-        }
-
-        // Validar Renavam
-        if (string.IsNullOrWhiteSpace(Veiculo.Renavam))
-        {
-            AddError(erros, nameof(Veiculo.Renavam), "O Renavam é obrigatório");
-        }
-        else
-        {
-            // Remover qualquer caractere não numérico
-            var renavamNormalizado = System.Text.RegularExpressions.Regex.Replace(Veiculo.Renavam, @"\D", "");
-
-            if (renavamNormalizado.Length != 11)
-            {
-                AddError(erros, nameof(Veiculo.Renavam), "O Renavam deve ter exatamente 11 dígitos numéricos");
-            }
-            else
-            {
-                // Normalizar para conter apenas números
-                Veiculo.Renavam = renavamNormalizado;
-            }
-        }
-
-        if (string.IsNullOrWhiteSpace(Veiculo.Modelo))
-        {
-            AddError(erros, nameof(Veiculo.Modelo), "O modelo é obrigatório");
-        }
-
-        if (AnoFabricacaoNumerico == null)
-        {
-            AddError(erros, nameof(Veiculo.AnoFabricacao), "O ano de fabricação é obrigatório");
-        }
-        else
-        {
-            Veiculo.AnoFabricacao = AnoFabricacaoNumerico.ToString();
-        }
-
-        if (AnoModeloNumerico == null)
-        {
-            AddError(erros, nameof(Veiculo.AnoModelo), "O ano do modelo é obrigatório");
-        }
-        else
-        {
-            Veiculo.AnoModelo = AnoModeloNumerico.ToString();
-        }
-
-        // Verificar se o ano do modelo não é muito anterior ao ano de fabricação
-        if (AnoFabricacaoNumerico.HasValue && AnoModeloNumerico.HasValue)
-        {
-            if (AnoModeloNumerico < AnoFabricacaoNumerico)
-            {
-                AddError(erros, nameof(Veiculo.AnoModelo), "O ano do modelo não pode ser anterior ao ano de fabricação");
-            }
-
-            if (AnoModeloNumerico > AnoFabricacaoNumerico + 1)
-            {
-                AddError(erros, nameof(Veiculo.AnoModelo), "O ano do modelo não deve ser mais de 1 ano posterior ao ano de fabricação");
-            }
-        }
-
-        // Adicionar erros ao ValidationMessageStore
         foreach (var error in erros)
         {
             foreach (var message in error.Value)
             {
                 _messageStore.Add(_editContext.Field(error.Key), message);
+                Snackbar.Add(message, Severity.Error, c => c.SnackbarVariant = Variant.Filled);
             }
         }
 
@@ -244,23 +110,6 @@
         }
     }
 
-    private void AddError(Dictionary<string, List<string>> errors, string field, string message)
-    {
-        if (!errors.ContainsKey(field))
-        {
-            errors[field] = new List<string>();
-        }
-
-        errors[field].Add(message);
-    }
-
-    private void Submit()
-    {
-        MudDialog.Close(DialogResult.Ok(Veiculo));
-    }
-
-    private void Cancel()
-    {
-        MudDialog.Cancel();
-    }
+    private void Submit() => MudDialog.Close(DialogResult.Ok(Veiculo));
+    private void Cancel() => MudDialog.Cancel();
 }
