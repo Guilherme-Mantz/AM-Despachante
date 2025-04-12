@@ -16,8 +16,6 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddIdentityConfig();
 
-builder.Services.AddQuickGridEntityFrameworkAdapter();
-
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
 
 builder.Services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<Program>());
