@@ -1,4 +1,5 @@
 ﻿using AMDespachante.Application.ViewModels;
+using AMDespachante.Domain.Commands.AtendimentoCommands;
 using AMDespachante.Domain.Commands.ClienteCommands;
 using AMDespachante.Domain.Commands.RecursoCommands;
 using AMDespachante.Domain.Commands.VeiculoCommands;
@@ -11,6 +12,8 @@ namespace AMDespachante.Application.AutoMapper
     {
         public AutomaperConfig()
         {
+            CreateMap<Atendimento, AtendimentoViewModel>().ReverseMap();
+
             CreateMap<RecursoViewModel, Recurso>().ReverseMap();
             CreateMap<ClienteViewModel, Cliente>().ReverseMap();
 
@@ -20,6 +23,9 @@ namespace AMDespachante.Application.AutoMapper
                 .ForMember(dest => dest.ClienteNome, opt => opt.MapFrom(src => src.Cliente.Nome));
 
             // Commands
+            CreateMap<AtendimentoViewModel, NovoAtendimentoCommand>();
+            CreateMap<AtendimentoViewModel, AtualizarAtendimentoCommand>();
+
             CreateMap<RecursoViewModel, NovoRecursoCommand>();
             CreateMap<RecursoViewModel, AtualizarRecursoCommand>();
 

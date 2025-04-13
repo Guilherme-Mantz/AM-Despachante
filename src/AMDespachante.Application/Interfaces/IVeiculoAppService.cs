@@ -9,6 +9,7 @@ namespace AMDespachante.Application.Interfaces
         Task<PagedResult<VeiculoViewModel>> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null);
         Task<IEnumerable<VeiculoViewModel>> GetAll();
         Task<VeiculoViewModel?> GetById(Guid id);
+        Task<IEnumerable<VeiculoViewModel>> GetByClienteIdAsync(Guid clienteId);
 
         Task<ValidationResult> Add(VeiculoViewModel veiculo);
         Task<ValidationResult> Update(VeiculoViewModel veiculo);

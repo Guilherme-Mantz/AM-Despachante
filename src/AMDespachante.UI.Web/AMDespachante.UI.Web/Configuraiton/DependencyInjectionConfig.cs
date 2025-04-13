@@ -21,6 +21,8 @@ using AMDespachante.Domain.Commands.ClienteCommands;
 using AMDespachante.Domain.Commands.VeiculoCommands;
 using AMDespachante.UI.Web.Services.Implementations;
 using AMDespachante.UI.Web.Services.Interfaces;
+using AMDespachante.Domain.Events.AtendimentoEvents;
+using AMDespachante.Domain.Commands.AtendimentoCommands;
 
 namespace AMDespachante.UI.Web.Configuraiton
 {
@@ -29,63 +31,73 @@ namespace AMDespachante.UI.Web.Configuraiton
         public static IServiceCollection ResolveDependencies(this IServiceCollection services)
         {
             //UI
-            services.AddScoped<IVeiculoService, VeiculoService>();
+            services.AddTransient<IVeiculoService, VeiculoService>();
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddScoped<IAppUser, AppUser>();
+            services.AddTransient<IAppUser, AppUser>();
 
             // MediatR
-            services.AddScoped<IMediatorHandler, MediatorHandler>();
+            services.AddTransient<IMediatorHandler, MediatorHandler>();
 
             // AutoMapper Settings
             services.AddAutoMapper(typeof(AutomaperConfig));
 
             //Services
-            services.AddScoped<IRecursoAppService, RecursoAppService>();
-            services.AddScoped<IClienteAppService, ClienteAppService>();
-            services.AddScoped<IVeiculoAppService, VeiculoAppService>();
+            services.AddTransient<IAtendimentoAppService, AtendimentoAppService>();
+            services.AddTransient<IRecursoAppService, RecursoAppService>();
+            services.AddTransient<IClienteAppService, ClienteAppService>();
+            services.AddTransient<IVeiculoAppService, VeiculoAppService>();
 
             //Events
-            services.AddScoped<INotificationHandler<RecursoCriadoEvent>, RecursoEventHandler>();
-            services.AddScoped<INotificationHandler<RecursoAtualizadoEvent>, RecursoEventHandler>();
-            services.AddScoped<INotificationHandler<RecursoRemovidoEvent>, RecursoEventHandler>();
+            services.AddTransient<INotificationHandler<AtendimentoCriadoEvent>, AtendimentoEventHandler>();
+            services.AddTransient<INotificationHandler<AtendimentoAtualizadoEvent>, AtendimentoEventHandler>();
+            services.AddTransient<INotificationHandler<AtendimentoRemovidoEvent>, AtendimentoEventHandler>();
 
-            services.AddScoped<INotificationHandler<ClienteCriadoEvent>, ClienteEventHandler>();
-            services.AddScoped<INotificationHandler<ClienteAtualizadoEvent>, ClienteEventHandler>();
-            services.AddScoped<INotificationHandler<ClienteRemovidoEvent>, ClienteEventHandler>();
+            services.AddTransient<INotificationHandler<RecursoCriadoEvent>, RecursoEventHandler>();
+            services.AddTransient<INotificationHandler<RecursoAtualizadoEvent>, RecursoEventHandler>();
+            services.AddTransient<INotificationHandler<RecursoRemovidoEvent>, RecursoEventHandler>();
 
-            services.AddScoped<INotificationHandler<VeiculoCriadoEvent>, VeiculoEventHandler>();
-            services.AddScoped<INotificationHandler<VeiculoAtualizadoEvent>, VeiculoEventHandler>();
-            services.AddScoped<INotificationHandler<VeiculoRemovidoEvent>, VeiculoEventHandler>();
+            services.AddTransient<INotificationHandler<ClienteCriadoEvent>, ClienteEventHandler>();
+            services.AddTransient<INotificationHandler<ClienteAtualizadoEvent>, ClienteEventHandler>();
+            services.AddTransient<INotificationHandler<ClienteRemovidoEvent>, ClienteEventHandler>();
+
+            services.AddTransient<INotificationHandler<VeiculoCriadoEvent>, VeiculoEventHandler>();
+            services.AddTransient<INotificationHandler<VeiculoAtualizadoEvent>, VeiculoEventHandler>();
+            services.AddTransient<INotificationHandler<VeiculoRemovidoEvent>, VeiculoEventHandler>();
 
             // Domain - Commands
-            services.AddScoped<IRequestHandler<NovoRecursoCommand, ValidationResult>, RecursoCommandHandler>();
-            services.AddScoped<IRequestHandler<AtualizarRecursoCommand, ValidationResult>, RecursoCommandHandler>();
-            services.AddScoped<IRequestHandler<RemoverRecursoCommand, ValidationResult>, RecursoCommandHandler>();
-            services.AddScoped<IRequestHandler<DesativarPrimeiroAcessoRecursoCommand, ValidationResult>, RecursoCommandHandler>();
+            services.AddTransient<IRequestHandler<NovoAtendimentoCommand, ValidationResult>, AtendimentoCommandHandler>();
+            services.AddTransient<IRequestHandler<AtualizarAtendimentoCommand, ValidationResult>, AtendimentoCommandHandler>();
+            services.AddTransient<IRequestHandler<RemoverAtendimentoCommand, ValidationResult>, AtendimentoCommandHandler>();
 
-            services.AddScoped<IRequestHandler<NovoClienteCommand, ValidationResult>, ClienteCommandHandler>();
-            services.AddScoped<IRequestHandler<AtualizarClienteCommand, ValidationResult>, ClienteCommandHandler>();
-            services.AddScoped<IRequestHandler<RemoverClienteCommand, ValidationResult>, ClienteCommandHandler>();
+            services.AddTransient<IRequestHandler<NovoRecursoCommand, ValidationResult>, RecursoCommandHandler>();
+            services.AddTransient<IRequestHandler<AtualizarRecursoCommand, ValidationResult>, RecursoCommandHandler>();
+            services.AddTransient<IRequestHandler<RemoverRecursoCommand, ValidationResult>, RecursoCommandHandler>();
+            services.AddTransient<IRequestHandler<DesativarPrimeiroAcessoRecursoCommand, ValidationResult>, RecursoCommandHandler>();
 
-            services.AddScoped<IRequestHandler<NovoVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
-            services.AddScoped<IRequestHandler<AtualizarVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
-            services.AddScoped<IRequestHandler<GerenciarVeiculosClienteCommand, ValidationResult>, VeiculoCommandHandler>();
-            services.AddScoped<IRequestHandler<RemoverVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
+            services.AddTransient<IRequestHandler<NovoClienteCommand, ValidationResult>, ClienteCommandHandler>();
+            services.AddTransient<IRequestHandler<AtualizarClienteCommand, ValidationResult>, ClienteCommandHandler>();
+            services.AddTransient<IRequestHandler<RemoverClienteCommand, ValidationResult>, ClienteCommandHandler>();
+
+            services.AddTransient<IRequestHandler<NovoVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
+            services.AddTransient<IRequestHandler<AtualizarVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
+            services.AddTransient<IRequestHandler<GerenciarVeiculosClienteCommand, ValidationResult>, VeiculoCommandHandler>();
+            services.AddTransient<IRequestHandler<RemoverVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
 
             //Repostories
-            services.AddScoped<AmDespachanteContext>();
-            services.AddScoped<IRecursoRepository, RecursoRepository>();
-            services.AddScoped<IClienteRepository, ClienteRepository>();
-            services.AddScoped<IVeiculoRepository, VeiculoRepository>();
+            services.AddTransient<AmDespachanteContext>();
+            services.AddTransient<IAtendimentoRepository, AtendimentoRepository>();
+            services.AddTransient<IRecursoRepository, RecursoRepository>();
+            services.AddTransient<IClienteRepository, ClienteRepository>();
+            services.AddTransient<IVeiculoRepository, VeiculoRepository>();
 
             // Event Sourcing
-            services.AddScoped<IEventSourcingRepository, EventSourcingRepository>();
-            services.AddScoped<IEventStore, SqlEventStore>();
-            services.AddScoped<EventStoreSqlContext>();
+            services.AddTransient<IEventSourcingRepository, EventSourcingRepository>();
+            services.AddTransient<IEventStore, SqlEventStore>();
+            services.AddTransient<EventStoreSqlContext>();
 
             // Identity
-            services.AddScoped<IIdentityManagementService, IdentityManagementService>();
+            services.AddTransient<IIdentityManagementService, IdentityManagementService>();
 
             return services;
         }

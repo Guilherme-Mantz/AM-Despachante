@@ -8,29 +8,28 @@ using System.Linq.Expressions;
 
 namespace AMDespachante.Infra.Data.Repository
 {
-    public class ClienteRepository : IClienteRepository
+    public class AtendimentoRepository : IAtendimentoRepository
     {
         private readonly AmDespachanteContext _db;
-        private readonly DbSet<Cliente> _dbSet;
+        private readonly DbSet<Atendimento> _dbSet;
 
-        public ClienteRepository(AmDespachanteContext db)
+        public AtendimentoRepository(AmDespachanteContext db)
         {
             _db = db;
-            _dbSet = _db.Set<Cliente>();
+            _dbSet = _db.Set<Atendimento>();
         }
 
         public IUnitOfWork UnitOfWork => _db;
 
         public async Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null)
         {
-            var query = _db.Clientes.AsQueryable();
+            var query = _db.Atendimentos.AsNoTracking().Include(c => c.Cliente).Include(v => v.Veiculo).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 query = query.Where(r =>
-                    EF.Functions.Like(r.Nome, $"%{searchTerm}%") ||
-                    EF.Functions.Like(r.Email, $"%{searchTerm}%") ||
-                    EF.Functions.Like(r.Cpf, $"%{searchTerm}%")
+                    EF.Functions.Like(r.Cliente.Nome, $"%{searchTerm}%") ||
+                    EF.Functions.Like(r.Veiculo.Placa, $"%{searchTerm}%")
                 );
             }
 
@@ -52,46 +51,47 @@ namespace AMDespachante.Infra.Data.Repository
             };
         }
 
-        public async Task<IEnumerable<Cliente>> GetAll()
+        public async Task<IEnumerable<Atendimento>> GetAll()
         {
-            return await _dbSet.ToListAsync();
+            return await _dbSet.AsNoTracking().Include(c => c.Cliente).Include(v => v.Veiculo).ToListAsync();
         }
 
-        public async Task<Cliente> GetById(Guid id)
+        public async Task<Atendimento> GetById(Guid Id)
         {
-            return await _dbSet.FindAsync(id);
+            return await _dbSet.FindAsync(Id);
+        }
+        public async Task<Atendimento> GetByIdWithIncludes(Guid Id)
+        {
+            return await _dbSet.AsNoTracking()
+                .Include(c => c.Cliente)
+                .Include(v => v.Veiculo)
+                .FirstOrDefaultAsync(a => a.Id == Id);
         }
 
-        public async Task<Cliente> GetByIdWithVeiculos(Guid id)
+        public void Add(Atendimento atendimento)
         {
-            return await _dbSet.Include(x => x.Veiculos).FirstOrDefaultAsync(x => x.Id == id);
+            _dbSet.Add(atendimento);
         }
 
-        public void Add(Cliente recurso)
+        public void Update(Atendimento atendimento)
         {
-            _dbSet.Add(recurso);
+            _dbSet.Update(atendimento);
         }
 
-        public void Update(Cliente recurso)
+        public void Delete(Atendimento atendimento)
         {
-            _dbSet.Update(recurso);
-        }
-
-        public void Delete(Cliente recurso)
-        {
-            _dbSet.Remove(recurso);
+            _dbSet.Remove(atendimento);
         }
 
         public void Dispose() => GC.SuppressFinalize(this);
 
-        private Expression<Func<Cliente, object>> GetSortProperty(string sortField)
+        private Expression<Func<Atendimento, object>> GetSortProperty(string sortField)
         {
             return sortField?.ToLower() switch
             {
-                "nome" => x => x.Nome,
-                "email" => x => x.Email,
-                "cpf" => x => x.Cpf,
-                _ => x => x.Nome
+                "clienteNome" => x => x.Cliente.Nome,
+                "placa" => x => x.Veiculo.Placa,
+                _ => x => x.Cliente.Nome
             };
         }
     }

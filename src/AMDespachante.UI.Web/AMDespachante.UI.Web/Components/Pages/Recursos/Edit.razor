@@ -27,7 +27,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        recurso = await RecursoAppService.GetById(Id);
+        recurso = await RecursoAppService.GetById(Id);            
     }
 
     private async Task EditarRecurso(RecursoViewModel recurso)

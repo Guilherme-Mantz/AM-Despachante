@@ -103,7 +103,7 @@ namespace AMDespachante.Infra.Data.Repository
             _dbSet.Remove(recurso);
         }
 
-        public void Dispose() => _db.Dispose();
+        public void Dispose() => GC.SuppressFinalize(this);
 
         private Expression<Func<Recurso, object>> GetSortProperty(string sortField)
         {

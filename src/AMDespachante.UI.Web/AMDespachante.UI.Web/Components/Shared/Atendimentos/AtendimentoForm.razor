@@ -1,0 +1,239 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+@using AMDespachante.Domain.Enums
+@using AMDespachante.Domain.Extensions
+@using global::MudBlazor
+
+<EditForm Model="@Atendimento" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <MudGrid Justify="Justify.Center" Class="mt-5">
+        <MudItem xs="12" sm="10" md="8">
+            <MudCard>
+                <MudCardHeader>
+                    <MudText Typo="Typo.h5">@(Atendimento.Id == Guid.Empty ? "Novo Atendimento" : "Editar Atendimento")</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudGrid>
+                        <MudItem xs="12" md="6">
+                            <MudDatePicker Label="Data"
+                                           Date="@Atendimento.Data"
+                                           DateChanged="@((DateTime? date) => { if (date.HasValue) Atendimento.Data = date.Value; })"
+                                           Required="true" />
+                        </MudItem>
+
+                        <MudItem xs="12" md="6">
+                            <MudSelect T="TipoServico"
+                                       Label="Serviço"
+                                       @bind-Value="@Atendimento.Servico"
+                                       For="@(()=> Atendimento.Servico)"
+                                       Required="true">
+                                @foreach (var servico in Enum.GetValues<TipoServico>())
+                                {
+                                    <MudSelectItem Value="@servico">
+                                        @servico.GetEnumDisplayName()
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+
+                        <MudItem xs="12" md="6">
+                            <MudSelect T="Guid" Label="Cliente"
+                                       @bind-Value="Atendimento.ClienteId"
+                                       For="@(() => Atendimento.ClienteId)"
+                                       Required="true"
+                                       RequiredError="Cliente é obrigatório"
+                                       Class="mt-3">
+                                <MudSelectItem Value="Guid.Empty" Disabled>Selecione um cliente</MudSelectItem>
+                                @if (Clientes != null)
+                                {
+                                    @foreach (var cliente in Clientes)
+                                    {
+                                        <MudSelectItem Value="@cliente.Id">@cliente.Nome</MudSelectItem>
+                                    }
+                                }
+                            </MudSelect>
+                        </MudItem>
+
+                        <MudItem xs="12" md="6">
+                            <MudSelect T="Guid?"
+                                       Label="Veículo"
+                                       @bind-Value="@Atendimento.VeiculoId"
+                                       For="@(()=> Atendimento.VeiculoId)">
+                                <MudSelectItem Value="@((Guid?)null)">Selecione um veículo</MudSelectItem>
+                                @if (VeiculosDoCliente != null)
+                                {
+                                    @foreach (var veiculo in VeiculosDoCliente)
+                                    {
+                                        <MudSelectItem Value="@veiculo.Id">@($"{veiculo.Placa} - {veiculo.Modelo}")</MudSelectItem>
+                                    }
+                                }
+                            </MudSelect>
+                        </MudItem>
+
+                        <MudItem xs="12" md="6">
+                            <MudNumericField T="decimal"
+                                             Label="Valor Entrada (R$)"
+                                             @bind-Value="@Atendimento.ValorEntrada"
+                                             For="@(()=> Atendimento.ValorEntrada)"
+                                             Format="F2"
+                                             Step="0.01m"
+                                             Min="0" />
+                        </MudItem>
+
+                        <MudItem xs="12" md="6">
+                            <MudNumericField T="decimal"
+                                             Label="Valor Saída (R$)"
+                                             @bind-Value="@Atendimento.ValorSaida"
+                                             For="@(()=> Atendimento.ValorSaida)"
+                                             Format="F2"
+                                             Step="0.01m"
+                                             Min="0" />
+                        </MudItem>
+
+                        <MudItem xs="12" md="6">
+                            <MudSelect T="FormaPagamento"
+                                       Label="Forma de Pagamento"
+                                       @bind-Value="@Atendimento.FormaPagamento"
+                                       For="@(()=> Atendimento.FormaPagamento)">
+                                @foreach (var formaPagamento in Enum.GetValues<FormaPagamento>())
+                                {
+                                    <MudSelectItem Value="@formaPagamento">
+                                        @formaPagamento.GetEnumDisplayName()
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+
+                        <MudItem xs="12" md="6">
+                            <MudSelect T="StatusAtendimentoEnum"
+                                       Label="Status"
+                                       @bind-Value="@Atendimento.Status"
+                                       For="@(()=> Atendimento.Status)">
+                                @foreach (var status in Enum.GetValues<StatusAtendimentoEnum>())
+                                {
+                                    <MudSelectItem Value="@status">
+                                        @status.GetEnumDisplayName()
+                                    </MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+
+                        @if (Atendimento.Servico == TipoServico.PreenchimentoATPV)
+                        {
+                            <MudItem xs="12" md="6">
+                                <MudTextField Label="Número ATPV"
+                                              Value="@Atendimento.NumeroATPV"
+                                              ValueChanged="@((string value) => Atendimento.NumeroATPV = value)"
+                                              For="@(() => Atendimento.NumeroATPV)" />
+                            </MudItem>
+                        }
+
+                        @if (Atendimento.Servico == TipoServico.ImpressaoCRLVe)
+                        {
+                            <MudItem xs="12" md="6">
+                                <MudTextField Label="Número CRLV"
+                                              Value="@Atendimento.NumeroCRLV"
+                                              ValueChanged="@((string value) => Atendimento.NumeroCRLV = value)"
+                                              For="@(() => Atendimento.NumeroCRLV)" />
+                            </MudItem>
+                        }
+
+                        <MudItem xs="12">
+                            <MudTextField Label="Observações"
+                                          @bind-Value="@Atendimento.Observacoes"
+                                          For="@(()=> Atendimento.Observacoes)"
+                                          Lines="3" />
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Href="/atendimentos"
+                               Variant="Variant.Outlined"
+                               Color="Color.Secondary">
+                        Cancelar
+                    </MudButton>
+                    <MudButton ButtonType="ButtonType.Submit"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Class="ml-auto">
+                        @(Atendimento.Id == Guid.Empty ? "Criar" : "Atualizar")
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+@code {
+    [Parameter]
+    public AtendimentoViewModel Atendimento { get; set; }
+
+    [Parameter]
+    public EventCallback<AtendimentoViewModel> OnSubmit { get; set; }
+
+    [Parameter]
+    public IEnumerable<ClienteViewModel> Clientes { get; set; }
+
+    [Inject]
+    private IVeiculoAppService VeiculoService { get; set; }
+
+    private IEnumerable<VeiculoViewModel> VeiculosDoCliente { get; set; } = Enumerable.Empty<VeiculoViewModel>();
+
+    private bool _disposed = false;
+
+    protected override void OnInitialized()
+    {
+        if (Atendimento == null)
+        {
+            Atendimento = new AtendimentoViewModel
+                {
+                    Data = DateTime.Now,
+                    EstaPago = false,
+                    Status = StatusAtendimentoEnum.Pendente
+                };
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Atendimento?.ClienteId != null && Atendimento.ClienteId != Guid.Empty)
+        {
+            await CarregarVeiculosDoCliente(Atendimento.ClienteId);
+        }
+    }
+
+    private async Task HandleClienteChangedAsync(Guid clienteId)
+    {
+        if (clienteId != Guid.Empty)
+        {
+            await CarregarVeiculosDoCliente(clienteId);
+            Atendimento.VeiculoId = null;
+        }
+        else
+        {
+            VeiculosDoCliente = Enumerable.Empty<VeiculoViewModel>();
+        }
+        StateHasChanged();
+    }
+
+    private async Task CarregarVeiculosDoCliente(Guid clienteId)
+    {
+        try
+        {
+            VeiculosDoCliente = await VeiculoService.GetByClienteIdAsync(clienteId);
+        }
+        catch (Exception)
+        {
+            VeiculosDoCliente = Enumerable.Empty<VeiculoViewModel>();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (OnSubmit.HasDelegate)
+        {
+            await OnSubmit.InvokeAsync(Atendimento);
+        }
+    }
+}

@@ -1,0 +1,125 @@
+﻿@page "/atendimentos"
+@attribute [Authorize(Roles = "ADMIN")]
+
+@rendermode InteractiveServer
+
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+@using AMDespachante.Domain.Extensions
+@using Microsoft.AspNetCore.Authorization
+
+@inject IDialogService DialogService
+@inject IAtendimentoAppService AtendimentoAppService
+@inject ISnackbar Snackbar
+
+@implements IDisposable
+
+<CustomPageTitle Titulo="Atendimentos" />
+
+<MudGrid Class="mb-5">
+    <MudItem xs="12" class="d-flex justify-end">
+        <MudLink Href="/atendimentos/create" Class="mud-button mud-button-filled mud-button-primary" Underline="Underline.None">
+            Novo Atendimento
+        </MudLink>
+    </MudItem>
+</MudGrid>
+
+<MudTable ServerData="ServerReload" Hover="true" Striped="true" @ref="table">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Atendimentos</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh><MudTableSortLabel SortLabel="data" T="AtendimentoViewModel">Data</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="cliente" T="AtendimentoViewModel">Cliente</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="servico" T="AtendimentoViewModel">Serviço</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="placa" T="AtendimentoViewModel">Placa</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="valorEntrada" T="AtendimentoViewModel">Valor Entrada</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="valorSaida" T="AtendimentoViewModel">Valor Saída</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="lucro" T="AtendimentoViewModel">Lucro</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="status" T="AtendimentoViewModel">Status</MudTableSortLabel></MudTh>
+        <MudTh Style="text-align: center">Ações</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Data.ToString("dd/MM/yyyy")</MudTd>
+        <MudTd>@context.Cliente?.Nome</MudTd>
+        <MudTd>@context.Servico</MudTd>
+        <MudTd>@(context.Veiculo?.Placa ?? "-")</MudTd>
+        <MudTd>@context.ValorEntrada.ToString("C")</MudTd>
+        <MudTd>@context.ValorSaida.ToString("C")</MudTd>
+        <MudTd>@context.Lucro.ToString("C")</MudTd>
+        <MudTd>@context.Status</MudTd>
+        <MudTd class="d-flex justify-center">
+            <MudLink Href="@($"/atendimentos/edit/{context.Id}")" class="mr-1 pt-1"
+                     Color="Color.Primary">
+                <MudIcon Icon="@Icons.Material.Filled.Edit" Size="Size.Small" />
+            </MudLink>
+            <MudLink Href="@($"/atendimentos/delete/{context.Id}")" class="mr-1 pt-1"
+                     Color="Color.Error">
+                <MudIcon Icon="@Icons.Material.Filled.Delete" Size="Size.Small" />
+            </MudLink>
+        </MudTd>
+    </RowTemplate>
+
+    <NoRecordsContent>
+        <MudText>Nenhum registro encontrado</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Carregando...</MudText>
+    </LoadingContent>
+
+    <PagerContent>
+        <MudTablePager RowsPerPageString="Registros por página:"
+                       InfoFormat="{first_item}-{last_item} de {all_items}"
+                       PageSizeOptions="new int[] { 10, 25, 50, 100 }" />
+    </PagerContent>
+</MudTable>
+
+@code {
+
+    private MudTable<AtendimentoViewModel> table;
+    private string searchString = null;
+
+    private bool deleteDialogVisible;
+    private AtendimentoViewModel selectedItem;
+
+    private async Task<TableData<AtendimentoViewModel>> ServerReload(TableState state, CancellationToken token)
+    {
+        try
+        {
+            var response = await AtendimentoAppService.GetPagedAsync(
+                page: state.Page,
+                pageSize: state.PageSize,
+                searchTerm: searchString,
+                sortField: state.SortLabel,
+                sortOrder: state.SortDirection == SortDirection.Ascending ? "asc" : "desc"
+            );
+
+            return new TableData<AtendimentoViewModel>()
+                {
+                    TotalItems = response.PageCount,
+                    Items = response.Queryable.ToArray()
+                };
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar clientes", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+
+            return new TableData<AtendimentoViewModel>();
+        }
+    }
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
+}

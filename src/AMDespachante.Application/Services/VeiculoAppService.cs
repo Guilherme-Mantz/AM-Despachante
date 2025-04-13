@@ -43,6 +43,11 @@ namespace AMDespachante.Application.Services
             return _mapper.Map<VeiculoViewModel>(await _veiculoRepository.GetById(id));
         }
 
+        public async Task<IEnumerable<VeiculoViewModel>> GetByClienteIdAsync(Guid clienteId)
+        {
+            return _mapper.Map<IEnumerable<VeiculoViewModel>>(await _veiculoRepository.GetByClienteIdAsync(clienteId));
+        }
+
         public async Task<ValidationResult> Add(VeiculoViewModel veiculo)
         {
             var addCommand = _mapper.Map<NovoVeiculoCommand>(veiculo);
@@ -65,5 +70,6 @@ namespace AMDespachante.Application.Services
         {
             GC.SuppressFinalize(this);
         }
+
     }
 }

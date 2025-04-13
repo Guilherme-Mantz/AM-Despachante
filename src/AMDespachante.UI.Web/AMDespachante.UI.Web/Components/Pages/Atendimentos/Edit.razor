@@ -1,41 +1,41 @@
-﻿@page "/veiculos/edit/{id:guid}"
+﻿@page "/atendimentos/edit/{id:guid}"
 @attribute [Authorize(Roles = "ADMIN")]
 
 @rendermode InteractiveServer
 
 @using AMDespachante.Application.Interfaces
 @using AMDespachante.Application.ViewModels
-@using AMDespachante.UI.Web.Components.Shared.Veiculos
+@using AMDespachante.UI.Web.Components.Shared.Atendimentos
 @using Microsoft.AspNetCore.Authorization
 
 @inject NavigationManager NavigationManager
 @inject IClienteAppService ClienteAppService
-@inject IVeiculoAppService VeiculoAppService
+@inject IAtendimentoAppService AtendimentoAppService
 @inject ISnackbar Snackbar
 
 @implements IDisposable
 
 <CustomPageTitle Titulo="Veículos" />
 
-<VeiculoForm Veiculo="veiculo" Clientes="clientes" OnSubmit="@(async (veiculo) => await EditarVeiculo(veiculo))" />
+<AtendimentoForm Clientes="clientes" Atendimento="atendimento" OnSubmit="@(async (atendimento) => await EditarAtendimento(atendimento))" />
 
 @code {
 
     [Parameter]
     public Guid Id { get; set; }
 
-    private VeiculoViewModel veiculo { get; set; }
+    private AtendimentoViewModel atendimento { get; set; }
     private IEnumerable<ClienteViewModel> clientes { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
-        veiculo = await VeiculoAppService.GetById(Id);
+        atendimento = await AtendimentoAppService.GetById(Id);
         clientes = await ClienteAppService.GetAll();
     }
 
-    private async Task EditarVeiculo(VeiculoViewModel cliente)
+    private async Task EditarAtendimento(AtendimentoViewModel cliente)
     {
-        var result = await VeiculoAppService.Update(cliente);
+        var result = await AtendimentoAppService.Update(cliente);
         if (!result.IsValid)
         {
             result.Errors.ToList()
@@ -43,9 +43,9 @@
             return;
         }
 
-        Snackbar.Add($"Veículo atualizado com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
+        Snackbar.Add($"Atendimento atualizado com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
 
-        NavigationManager.NavigateTo("/veiculos");
+        NavigationManager.NavigateTo("/atendimentos");
     }
 
     public void Dispose()

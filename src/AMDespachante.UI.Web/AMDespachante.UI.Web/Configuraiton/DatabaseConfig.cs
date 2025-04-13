@@ -13,13 +13,13 @@ namespace AMDespachante.UI.Web.Configuraiton
 
             var connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-            services.AddDbContext<AmDespachanteContext>(options =>
-                options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
+            services.AddDbContextFactory<AmDespachanteContext>(options =>
+                options.UseSqlServer(connectionString));
 
-            services.AddDbContext<EventStoreSqlContext>(options =>
-                options.UseSqlServer(connectionString), ServiceLifetime.Scoped);
+            services.AddDbContextFactory<EventStoreSqlContext>(options =>
+                options.UseSqlServer(connectionString));
 
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContextFactory<ApplicationDbContext>(options =>
                options.UseSqlServer(connectionString));
 
             services.AddDatabaseDeveloperPageExceptionFilter();

@@ -27,7 +27,6 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        await Task.Yield();
         cliente = await ClienteAppService.GetByIdWithVeiculos(Id);
     }
 

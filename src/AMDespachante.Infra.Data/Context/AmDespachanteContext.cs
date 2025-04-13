@@ -21,6 +21,7 @@ public class AmDespachanteContext : DbContext, IUnitOfWork
         _user = user;
     }
 
+    public DbSet<Atendimento> Atendimentos { get; set; }
     public DbSet<Recurso> Recursos { get; set; }
     public DbSet<Cliente> Clientes { get; set; }
     public DbSet<Veiculo> Veiculos { get; set; }
