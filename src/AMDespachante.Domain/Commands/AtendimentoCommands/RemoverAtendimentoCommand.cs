@@ -10,5 +10,13 @@ namespace AMDespachante.Domain.Commands.AtendimentoCommands
         {
             Id = id;
         }
+
+        public override bool IsValid()
+        {
+            // ValidationResult = new NovoAcessorioCommandValidation().Validate(this);
+            // return ValidationResult.IsValid;
+
+            return true;
+        }
     }
 }

@@ -1,0 +1,276 @@
+﻿@page "/atendimentos/delete/{id:guid}"
+
+@rendermode InteractiveServer
+
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+@using AMDespachante.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+
+@inject IAtendimentoAppService AtendimentoAppService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+@implements IDisposable
+
+<CustomPageTitle Titulo="Atendimentos" />
+
+<MudContainer Class="mt-6 mb-5">
+    <MudPaper Class="pa-4">
+        @if (_isLoading)
+        {
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        }
+        else if (Atendimento == null)
+        {
+            <MudAlert Severity="Severity.Error">Atendimento não encontrado.</MudAlert>
+        }
+        else
+        {
+            <MudText Typo="Typo.h5" Color="Color.Error" Class="mb-4">Confirmar Exclusão</MudText>
+
+            <MudAlert Severity="Severity.Warning" Class="mb-4">
+                Tem certeza que deseja excluir este atendimento?
+            </MudAlert>
+
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudCard Elevation="0">
+                        <MudCardContent>
+                            <MudList T="AtendimentoViewModel" Dense="false">
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Data</MudText>
+                                        <MudText>@Atendimento.Data.ToString("dd/MM/yyyy HH:mm")</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Serviço</MudText>
+                                        <MudText>@Atendimento.Servico</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Cliente</MudText>
+                                        <MudText>@(Atendimento.Cliente?.Nome ?? "-")</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Veículo</MudText>
+                                        <MudText>@(Atendimento.Veiculo != null ? $"{Atendimento.Veiculo.Modelo} - {Atendimento.Veiculo.Placa}" : "-")</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Forma de Pagamento</MudText>
+                                        <MudText>@Atendimento.FormaPagamento</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Status</MudText>
+                                        <MudChip Color="@GetStatusColor(Atendimento.Status)"
+                                                 Size="Size.Small" Style="width: 8em">
+                                            @Atendimento.Status
+                                        </MudChip>
+                                    </div>
+                                </MudListItem>
+                            </MudList>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudCard Elevation="0">
+                        <MudCardContent>
+                            <MudList T="AtendimentoViewModel" Dense="false">
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Valor Entrada</MudText>
+                                        <MudText>@Atendimento.ValorEntrada.ToString("C")</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Valor Saída</MudText>
+                                        <MudText>@Atendimento.ValorSaida.ToString("C")</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Lucro</MudText>
+                                        <MudText>@Atendimento.Lucro.ToString("C")</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Pagamento</MudText>
+                                        <MudChip Color="@(Atendimento.EstaPago ? Color.Success : Color.Error)"
+                                                 Size="Size.Small" Style="width: 8em">
+                                            @(Atendimento.EstaPago ? "Pago" : "Pendente")
+                                        </MudChip>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Número ATPV</MudText>
+                                        <MudText>@(string.IsNullOrEmpty(Atendimento.NumeroATPV) ? "-" : Atendimento.NumeroATPV)</MudText>
+                                    </div>
+                                </MudListItem>
+
+                                <MudListItem>
+                                    <div class="d-flex flex-column">
+                                        <MudText Typo="Typo.subtitle2">Número CRLV</MudText>
+                                        <MudText>@(string.IsNullOrEmpty(Atendimento.NumeroCRLV) ? "-" : Atendimento.NumeroCRLV)</MudText>
+                                    </div>
+                                </MudListItem>
+                            </MudList>
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            </MudGrid>
+
+            @if (!string.IsNullOrEmpty(Atendimento.Observacoes))
+            {
+                <MudPaper Class="pa-4 my-4" Elevation="0">
+                    <MudText Typo="Typo.subtitle2">Observações</MudText>
+                    <MudText>@Atendimento.Observacoes</MudText>
+                </MudPaper>
+            }
+
+            <MudCard Elevation="0" Class="mt-4">
+                <MudCardHeader>
+                    <MudText Typo="Typo.h6">Informações de Registro</MudText>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudList T="AtendimentoViewModel" Dense="true">
+                        <MudListItem>
+                            <div class="d-flex flex-column">
+                                <MudText Typo="Typo.subtitle2">Criado por</MudText>
+                                <MudText>@Atendimento.CriadoPor</MudText>
+                            </div>
+                        </MudListItem>
+
+                        <MudListItem>
+                            <div class="d-flex flex-column">
+                                <MudText Typo="Typo.subtitle2">Data criação</MudText>
+                                <MudText>@Atendimento.Criado.ToString("dd/MM/yyyy HH:mm")</MudText>
+                            </div>
+                        </MudListItem>
+
+                        <MudListItem>
+                            <div class="d-flex flex-column">
+                                <MudText Typo="Typo.subtitle2">Modificado por</MudText>
+                                <MudText>@Atendimento.ModificadoPor</MudText>
+                            </div>
+                        </MudListItem>
+
+                        <MudListItem>
+                            <div class="d-flex flex-column">
+                                <MudText Typo="Typo.subtitle2">Data modificação</MudText>
+                                <MudText>@Atendimento.Modificado.ToString("dd/MM/yyyy HH:mm")</MudText>
+                            </div>
+                        </MudListItem>
+                    </MudList>
+                </MudCardContent>
+            </MudCard>
+
+            <MudDivider Class="my-6" />
+
+            <MudGrid>
+                <MudItem>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Default"
+                               Href="/atendimentos">
+                        Cancelar
+                    </MudButton>
+                    <MudButton Class="ml-3" Variant="Variant.Filled"
+                               Color="Color.Error"
+                               StartIcon="@Icons.Material.Filled.Delete"
+                               OnClick="@(async () => await DeleteAtendimento())">
+                        Confirmar Exclusão
+                    </MudButton>
+                </MudItem>
+            </MudGrid>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private AtendimentoViewModel Atendimento { get; set; }
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAtendimento();
+    }
+
+    private async Task LoadAtendimento()
+    {
+        try
+        {
+            _isLoading = true;
+            Atendimento = await AtendimentoAppService.GetById(Id);
+
+            if (Atendimento == null)
+            {
+                Snackbar.Add("Atendimento não encontrado.", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+                NavigationManager.NavigateTo("/atendimentos");
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Erro ao carregar o atendimento.", Severity.Error, c => c.SnackbarVariant = Variant.Filled);
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteAtendimento()
+    {
+        var result = await AtendimentoAppService.Delete(Id);
+
+        if (!result.IsValid)
+        {
+            result.Errors.ToList()
+                .ForEach(erro => Snackbar.Add(erro.ErrorMessage, Severity.Error, c => c.SnackbarVariant = Variant.Filled));
+            return;
+        }
+
+        Snackbar.Add("Atendimento removido com sucesso!", Severity.Success, c => c.SnackbarVariant = Variant.Filled);
+        NavigationManager.NavigateTo("/atendimentos");
+    }
+
+    private Color GetStatusColor(StatusAtendimentoEnum status)
+    {
+        return status switch
+        {
+            StatusAtendimentoEnum.Pendente => Color.Warning,
+            StatusAtendimentoEnum.Pago => Color.Info,
+            StatusAtendimentoEnum.Concluido => Color.Success,
+            _ => Color.Default
+        };
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
+}
