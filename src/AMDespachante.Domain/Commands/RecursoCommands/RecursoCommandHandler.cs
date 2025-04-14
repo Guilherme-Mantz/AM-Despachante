@@ -1,4 +1,5 @@
 ﻿using AMDespachante.Domain.Core.Message;
+using AMDespachante.Domain.Core.User;
 using AMDespachante.Domain.Events.RecursoEvents;
 using AMDespachante.Domain.Interfaces;
 using AMDespachante.Domain.Models;
@@ -14,10 +15,12 @@ public class RecursoCommandHandler : CommandHandler,
         IRequestHandler<DesativarPrimeiroAcessoRecursoCommand, ValidationResult>
 {
     private readonly IRecursoRepository _recursoRepository;
+    private readonly IAppUser _user;
 
-    public RecursoCommandHandler(IRecursoRepository recursoRepository)
+    public RecursoCommandHandler(IRecursoRepository recursoRepository, IAppUser user)
     {
         _recursoRepository = recursoRepository;
+        _user = user;
     }
 
     public async Task<ValidationResult> Handle(NovoRecursoCommand message, CancellationToken cancellationToken)
@@ -89,6 +92,12 @@ public class RecursoCommandHandler : CommandHandler,
         if (recurso is null)
         {
             AddError("Recurso não encontrado");
+            return _validationResult;
+        }
+
+        if (recurso.Email == _user.GetUserEmail())
+        {
+            AddError("Você não pode se excluir");
             return _validationResult;
         }
 
