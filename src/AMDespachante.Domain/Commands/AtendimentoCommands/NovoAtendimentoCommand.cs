@@ -11,7 +11,7 @@ namespace AMDespachante.Domain.Commands.AtendimentoCommands
         }
 
         public DateTime Data { get; set; }
-        public TipoServico Servico { get; set; }
+        public TipoServicoEnum Servico { get; set; }
         public decimal ValorEntrada { get; set; }
         public decimal ValorSaida { get; set; }
         public FormaPagamento FormaPagamento { get; set; }

@@ -12,7 +12,7 @@ namespace AMDespachante.Domain.Commands.AtendimentoCommands
 
         public Guid Id { get; set; }
         public DateTime Data { get; set; }
-        public TipoServico Servico { get; set; }
+        public TipoServicoEnum Servico { get; set; }
         public decimal ValorEntrada { get; set; }
         public decimal ValorSaida { get; set; }
         public FormaPagamento FormaPagamento { get; set; }

@@ -1,4 +1,6 @@
 ﻿using AMDespachante.Domain.Core.Data;
+using AMDespachante.Domain.Enums;
+using AMDespachante.Domain.Extensions;
 using AMDespachante.Domain.Interfaces;
 using AMDespachante.Domain.Models;
 using AMDespachante.Infra.Data.Context;
@@ -21,24 +23,64 @@ namespace AMDespachante.Infra.Data.Repository
 
         public IUnitOfWork UnitOfWork => _db;
 
-        public async Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null)
+        public async Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder = "asc", string searchTerm = null, string sortField = "data")
         {
+            page = Math.Max(0, page);
+            pageSize = Math.Clamp(pageSize, 1, 100);
+            sortOrder = string.IsNullOrWhiteSpace(sortOrder) ? "asc" : (sortOrder.Equals("desc", StringComparison.CurrentCultureIgnoreCase) ? "desc" : "asc");
+            sortField = string.IsNullOrWhiteSpace(sortField) ? "data" : sortField.ToLower();
+
             var query = _db.Atendimentos.AsNoTracking().Include(c => c.Cliente).Include(v => v.Veiculo).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
+                var sanitizedTerm = searchTerm.Replace("%", "\\%").Replace("_", "\\_");
+
+                var matchingStatus = Enum.GetValues<StatusAtendimentoEnum>()
+                    .Where(c => c.GetEnumDisplayName()
+                        .Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                var matchingServicos = Enum.GetValues<TipoServicoEnum>()
+                    .Where(c => c.GetEnumDisplayName()
+                        .Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                bool isDecimal = decimal.TryParse(searchTerm, out decimal decimalValue);
+                bool isDate = DateTime.TryParse(searchTerm, out DateTime dateValue);
+
                 query = query.Where(r =>
-                    EF.Functions.Like(r.Cliente.Nome, $"%{searchTerm}%") ||
-                    EF.Functions.Like(r.Veiculo.Placa, $"%{searchTerm}%")
+                    (isDate && r.Data.Date == dateValue.Date) ||
+
+                    EF.Functions.Like(r.Cliente.Nome ?? string.Empty, $"%{sanitizedTerm}%") ||
+                    EF.Functions.Like(r.Veiculo.Placa ?? string.Empty, $"%{sanitizedTerm}%") ||
+
+                    (matchingServicos.Count != 0 && matchingServicos.Contains(r.Servico)) ||
+                    (matchingStatus.Count != 0 && matchingStatus.Contains(r.Status)) ||
+
+                    (isDecimal && (r.ValorEntrada == decimalValue || r.ValorSaida == decimalValue))
                 );
             }
 
-            query = sortOrder == "asc"
-                ? query.OrderBy(GetSortProperty(sortField))
-                : query.OrderByDescending(GetSortProperty(sortField));
+            var sortExpressions = new Dictionary<string, Expression<Func<Atendimento, object>>>
+            {
+                ["data"] = x => x.Data,
+                ["cliente"] = x => x.Cliente.Nome ?? string.Empty,
+                ["servico"] = x => x.Servico,
+                ["placa"] = x => x.Veiculo.Placa ?? string.Empty,
+                ["valorEntrada"] = x => x.ValorEntrada,
+                ["valorSaida"] = x => x.ValorSaida,
+                ["status"] = x => x.Status
+            };
+
+            var sortExpression = sortExpressions.TryGetValue(sortField, out Expression<Func<Atendimento, object>> value)
+                ? value : sortExpressions["data"];
+
+            query = sortOrder == "desc"
+                ? query.OrderByDescending(sortExpression)
+                : query.OrderBy(sortExpression);
 
             var totalCount = await query.CountAsync();
-
             var data = await query
                 .Skip(page * pageSize)
                 .Take(pageSize)
@@ -85,14 +127,5 @@ namespace AMDespachante.Infra.Data.Repository
 
         public void Dispose() => GC.SuppressFinalize(this);
 
-        private Expression<Func<Atendimento, object>> GetSortProperty(string sortField)
-        {
-            return sortField?.ToLower() switch
-            {
-                "clienteNome" => x => x.Cliente.Nome,
-                "placa" => x => x.Veiculo.Placa,
-                _ => x => x.Cliente.Nome
-            };
-        }
     }
 }

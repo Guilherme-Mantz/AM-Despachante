@@ -10,7 +10,7 @@ namespace AMDespachante.Domain.Models
 
         public Atendimento(
             DateTime data, 
-            TipoServico servico, 
+            TipoServicoEnum servico, 
             decimal valorEntrada,
             decimal valorSaida, 
             FormaPagamento formaPagamento, 
@@ -37,7 +37,7 @@ namespace AMDespachante.Domain.Models
         }
 
         public DateTime Data { get; set; }
-        public TipoServico Servico { get; set; }
+        public TipoServicoEnum Servico { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal ValorEntrada { get; set; }

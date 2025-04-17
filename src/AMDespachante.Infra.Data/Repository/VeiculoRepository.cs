@@ -21,29 +21,47 @@ namespace AMDespachante.Infra.Data.Repository
 
         public IUnitOfWork UnitOfWork => _db;
 
-        public async Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null)
+        public async Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder = "asc", string searchTerm = null, string sortField = "clienteNome")
         {
+            page = Math.Max(0, page);
+            pageSize = Math.Clamp(pageSize, 1, 100);
+            sortOrder = string.IsNullOrWhiteSpace(sortOrder) ? "asc" : (sortOrder.Equals("desc", StringComparison.CurrentCultureIgnoreCase) ? "desc" : "asc");
+            sortField = string.IsNullOrWhiteSpace(sortField) ? "clienteNome" : sortField.ToLower();
+
             var query = _db.Veiculos.Include(c => c.Cliente).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
+                var sanitizedTerm = searchTerm.Replace("%", "\\%").Replace("_", "\\_");
 
                 query = query.Where(r =>
-                    EF.Functions.Like(r.Cliente.Nome, $"%{searchTerm}%") ||
-                    EF.Functions.Like(r.Placa, $"%{searchTerm}%") ||
-                    EF.Functions.Like(r.Renavam, $"%{searchTerm}%") ||
-                    EF.Functions.Like(r.Modelo, $"%{searchTerm}%") ||
-                    EF.Functions.Like(r.AnoFabricacao, $"%{searchTerm}%") ||
-                    EF.Functions.Like(r.AnoModelo, $"%{searchTerm}%")
+                    EF.Functions.Like(r.Cliente.Nome ?? string.Empty, $"%{sanitizedTerm}%") ||
+                    EF.Functions.Like(r.Placa ?? string.Empty, $"%{sanitizedTerm}%") ||
+                    EF.Functions.Like(r.Renavam ?? string.Empty, $"%{sanitizedTerm}%") ||
+                    EF.Functions.Like(r.Modelo ?? string.Empty, $"%{sanitizedTerm}%") ||
+                    EF.Functions.Like(r.AnoFabricacao ?? string.Empty, $"%{sanitizedTerm}%") ||
+                    EF.Functions.Like(r.AnoModelo ?? string.Empty, $"%{sanitizedTerm}%")
                 );
             }
 
-            query = sortOrder == "asc"
-                ? query.OrderBy(GetSortProperty(sortField))
-                : query.OrderByDescending(GetSortProperty(sortField));
+            var sortExpressions = new Dictionary<string, Expression<Func<Veiculo, object>>>
+            {
+                ["clienteNome"] = x => x.Cliente.Nome ?? string.Empty,
+                ["placa"] = x => x.Placa ?? string.Empty,
+                ["renavam"] = x => x.Renavam ?? string.Empty,
+                ["modelo"] = x => x.Modelo ?? string.Empty,
+                ["anoFabricacao"] = x => x.AnoFabricacao ?? string.Empty,
+                ["anoModelo"] = x => x.AnoModelo ?? string.Empty,
+            };
+
+            var sortExpression = sortExpressions.TryGetValue(sortField, out Expression<Func<Veiculo, object>> value)
+                    ? value : sortExpressions["clienteNome"];
+
+            query = sortOrder == "desc"
+                ? query.OrderByDescending(sortExpression)
+                : query.OrderBy(sortExpression);
 
             var totalCount = await query.CountAsync();
-
             var data = await query
                 .Skip(page * pageSize)
                 .Take(pageSize)
@@ -87,20 +105,6 @@ namespace AMDespachante.Infra.Data.Repository
         }
 
         public void Dispose() => GC.SuppressFinalize(this);
-
-        private Expression<Func<Veiculo, object>> GetSortProperty(string sortField)
-        {
-            return sortField?.ToLower() switch
-            {
-                "clienteNome" => x => x.Cliente.Nome,
-                "placa" => x => x.Placa,
-                "renavam" => x => x.Renavam,
-                "modelo" => x => x.Modelo,
-                "anoFabricacao" => x => x.AnoFabricacao,
-                "anoModelo" => x => x.AnoModelo,
-                _ => x => x.Modelo
-            };
-        }
 
         public async Task<bool> PlacaExists(Guid id, string placa)
         {

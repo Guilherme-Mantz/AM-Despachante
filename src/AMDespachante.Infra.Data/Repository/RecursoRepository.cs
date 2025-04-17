@@ -23,30 +23,49 @@ namespace AMDespachante.Infra.Data.Repository
 
         public IUnitOfWork UnitOfWork => _db;
 
-        public async Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null)
+        public async Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder = "asc", string searchTerm = null, string sortField = "nome")
         {
+            page = Math.Max(0, page);
+            pageSize = Math.Clamp(pageSize, 1, 100);
+            sortOrder = string.IsNullOrWhiteSpace(sortOrder) ? "asc" : (sortOrder.Equals("desc", StringComparison.CurrentCultureIgnoreCase) ? "desc" : "asc");
+            sortField = string.IsNullOrWhiteSpace(sortField) ? "nome" : sortField.ToLower();
+
             var query = _db.Recursos.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                var cargoEnum = Enum.GetValues<CargoEnum>()
-                    .FirstOrDefault(c => c.GetEnumDisplayName()
-                    .Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                var sanitizedTerm = searchTerm.Replace("%", "\\%").Replace("_", "\\_");
+
+                var matchingCargos = Enum.GetValues<CargoEnum>()
+                    .Where(c => c.GetEnumDisplayName()
+                        .Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
 
                 query = query.Where(r =>
-                    EF.Functions.Like(r.Nome, $"%{searchTerm}%") ||
-                    EF.Functions.Like(r.Email, $"%{searchTerm}%") ||
-                    EF.Functions.Like(r.Cpf, $"%{searchTerm}%") ||
-                    (r.Cargo == cargoEnum)
+                    EF.Functions.Like(r.Nome ?? string.Empty, $"%{sanitizedTerm}%") ||
+                    EF.Functions.Like(r.Email ?? string.Empty, $"%{sanitizedTerm}%") ||
+                    EF.Functions.Like(r.Cpf ?? string.Empty, $"%{sanitizedTerm}%") ||
+                    (matchingCargos.Count != 0 && matchingCargos.Contains(r.Cargo))
                 );
             }
 
-            query = sortOrder == "asc"
-                ? query.OrderBy(GetSortProperty(sortField))
-                : query.OrderByDescending(GetSortProperty(sortField));
+            var sortExpressions = new Dictionary<string, Expression<Func<Recurso, object>>>
+            {
+                ["nome"] = x => x.Nome ?? string.Empty,
+                ["email"] = x => x.Email ?? string.Empty,
+                ["cpf"] = x => x.Cpf ?? string.Empty,
+                ["cargo"] = x => x.Cargo.GetEnumDisplayName(),
+                ["ativo"] = x => x.Ativo
+            };
+
+            var sortExpression = sortExpressions.TryGetValue(sortField, out Expression<Func<Recurso, object>> value)
+                ? value : sortExpressions["nome"];
+
+            query = sortOrder == "desc"
+                ? query.OrderByDescending(sortExpression)
+                : query.OrderBy(sortExpression);
 
             var totalCount = await query.CountAsync();
-
             var data = await query
                 .Skip(page * pageSize)
                 .Take(pageSize)
@@ -104,18 +123,5 @@ namespace AMDespachante.Infra.Data.Repository
         }
 
         public void Dispose() => GC.SuppressFinalize(this);
-
-        private Expression<Func<Recurso, object>> GetSortProperty(string sortField)
-        {
-            return sortField?.ToLower() switch
-            {
-                "nome" => x => x.Nome,
-                "email" => x => x.Email,
-                "cpf" => x => x.Cpf,
-                "cargo" => x => x.Cargo,
-                "ativo" => x => x.Ativo,
-                _ => x => x.Nome
-            };
-        }
     }
 }

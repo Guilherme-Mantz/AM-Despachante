@@ -38,14 +38,14 @@
         <MudTh><MudTableSortLabel SortLabel="placa" T="AtendimentoViewModel">Placa</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="valorEntrada" T="AtendimentoViewModel">Valor Entrada</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="valorSaida" T="AtendimentoViewModel">Valor Saída</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="lucro" T="AtendimentoViewModel">Lucro</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="AtendimentoViewModel">Lucro</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="status" T="AtendimentoViewModel">Status</MudTableSortLabel></MudTh>
         <MudTh Style="text-align: center">Ações</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd>@context.Data.ToString("dd/MM/yyyy")</MudTd>
         <MudTd>@context.Cliente?.Nome</MudTd>
-        <MudTd>@context.Servico</MudTd>
+        <MudTd>@context.Servico.GetEnumDisplayName()</MudTd>
         <MudTd>@(context.Veiculo?.Placa ?? "-")</MudTd>
         <MudTd>@context.ValorEntrada.ToString("C")</MudTd>
         <MudTd>@context.ValorSaida.ToString("C")</MudTd>

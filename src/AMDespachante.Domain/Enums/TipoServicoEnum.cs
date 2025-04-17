@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace AMDespachante.Domain.Enums;
 
-public enum TipoServico
+public enum TipoServicoEnum
 {
     [Description("Transferência")]
     [Display(Name = "Transferência")]
