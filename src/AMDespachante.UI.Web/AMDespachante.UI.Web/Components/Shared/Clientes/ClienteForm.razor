@@ -71,12 +71,14 @@
                         <MudTable Items="@Cliente.Veiculos.ToList()" Hover="true" Dense="true" Class="mb-3">
                             <HeaderContent>
                                 <MudTh>Placa</MudTh>
+                                <MudTh>Tipo</MudTh>
                                 <MudTh>Modelo</MudTh>
                                 <MudTh>Ano</MudTh>
                                 <MudTh>Ações</MudTh>
                             </HeaderContent>
                             <RowTemplate Context="veiculo">
                                 <MudTd>@veiculo.Placa</MudTd>
+                                <MudTd>@veiculo.TipoVeiculo.GetEnumDisplayName()</MudTd>
                                 <MudTd>@veiculo.Modelo</MudTd>
                                 <MudTd>@veiculo.AnoFabricacao/@veiculo.AnoModelo</MudTd>
                                 <MudTd>
@@ -183,6 +185,7 @@
                 Id = veiculo.Id,
                 Placa = veiculo.Placa,
                 Renavam = veiculo.Renavam,
+                TipoVeiculo = veiculo.TipoVeiculo,
                 Modelo = veiculo.Modelo,
                 AnoFabricacao = veiculo.AnoFabricacao,
                 AnoModelo = veiculo.AnoModelo,

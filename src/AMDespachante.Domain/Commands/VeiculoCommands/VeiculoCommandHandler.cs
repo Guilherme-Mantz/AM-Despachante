@@ -7,18 +7,13 @@ using MediatR;
 
 namespace AMDespachante.Domain.Commands.VeiculoCommands
 {
-    public class VeiculoCommandHandler : CommandHandler,
+    public class VeiculoCommandHandler(IVeiculoRepository veiculoRepository) : CommandHandler,
         IRequestHandler<NovoVeiculoCommand, ValidationResult>,
         IRequestHandler<AtualizarVeiculoCommand, ValidationResult>,
         IRequestHandler<GerenciarVeiculosClienteCommand, ValidationResult>,
         IRequestHandler<RemoverVeiculoCommand, ValidationResult>
     {
-        private readonly IVeiculoRepository _veiculoRepository;
-
-        public VeiculoCommandHandler(IVeiculoRepository veiculoRepository)
-        {
-            _veiculoRepository = veiculoRepository;
-        }
+        private readonly IVeiculoRepository _veiculoRepository = veiculoRepository;
 
         public async Task<ValidationResult> Handle(NovoVeiculoCommand message, CancellationToken cancellationToken)
         {
@@ -30,6 +25,7 @@ namespace AMDespachante.Domain.Commands.VeiculoCommands
 
                 var veiculo = new Veiculo(message.Placa,
                     message.Renavam,
+                    message.TipoVeiculo,
                     message.Modelo,
                     message.AnoFabricacao,
                     message.AnoModelo,
@@ -78,10 +74,11 @@ namespace AMDespachante.Domain.Commands.VeiculoCommands
 
                 veiculo.Placa = message.Placa;
                 veiculo.Renavam = message.Renavam;
+                veiculo.TipoVeiculo = message.TipoVeiculo;
                 veiculo.Modelo = message.Modelo;
                 veiculo.AnoFabricacao = message.AnoFabricacao;
                 veiculo.AnoModelo = message.AnoModelo;
-                veiculo.ClienteId = (Guid)message.ClienteId;
+                veiculo.ClienteId = message.ClienteId;
 
                 _veiculoRepository.Update(veiculo);
 
@@ -151,6 +148,7 @@ namespace AMDespachante.Domain.Commands.VeiculoCommands
         private void AtualizarVeiculo(Veiculo veiculoExistente, AtualizarVeiculoCommand veiculoNovo)
         {
             veiculoExistente.Renavam = veiculoNovo.Renavam;
+            veiculoExistente.TipoVeiculo = veiculoNovo.TipoVeiculo;
             veiculoExistente.Modelo = veiculoNovo.Modelo;
             veiculoExistente.AnoFabricacao = veiculoNovo.AnoFabricacao;
             veiculoExistente.AnoModelo = veiculoNovo.AnoModelo;
@@ -163,11 +161,13 @@ namespace AMDespachante.Domain.Commands.VeiculoCommands
             {
                 Placa = veiculo.Placa,
                 Renavam = veiculo.Renavam,
+                TipoVeiculo = veiculo.TipoVeiculo,
                 Modelo = veiculo.Modelo,
                 AnoFabricacao = veiculo.AnoFabricacao,
                 AnoModelo = veiculo.AnoModelo,
                 ClienteId = clienteId
             };
+
             _veiculoRepository.Add(novoVeiculo);
         }
 

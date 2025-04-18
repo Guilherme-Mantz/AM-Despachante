@@ -36,7 +36,7 @@ namespace AMDespachante.Domain.Commands.ClienteCommands
                     message.ValorMensalidade,
                     message.DataProximoVencimento,
                     message.Veiculos.Select(v =>
-                        new Veiculo(v.Placa, v.Renavam, v.Modelo, v.AnoFabricacao, v.AnoModelo)).ToList());
+                        new Veiculo(v.Placa, v.Renavam, v.TipoVeiculo, v.Modelo, v.AnoFabricacao, v.AnoModelo)).ToList());
 
                 _clienteRepository.Add(cliente);
 

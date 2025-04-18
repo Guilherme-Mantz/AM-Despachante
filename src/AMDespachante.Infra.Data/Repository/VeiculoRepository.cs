@@ -1,4 +1,6 @@
 ﻿using AMDespachante.Domain.Core.Data;
+using AMDespachante.Domain.Enums;
+using AMDespachante.Domain.Extensions;
 using AMDespachante.Domain.Interfaces;
 using AMDespachante.Domain.Models;
 using AMDespachante.Infra.Data.Context;
@@ -33,6 +35,10 @@ namespace AMDespachante.Infra.Data.Repository
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 var sanitizedTerm = searchTerm.Replace("%", "\\%").Replace("_", "\\_");
+                var matchingTipos = Enum.GetValues<TipoVeiculoEnum>()
+                    .Where(c => c.GetEnumDisplayName()
+                        .Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
 
                 query = query.Where(r =>
                     EF.Functions.Like(r.Cliente.Nome ?? string.Empty, $"%{sanitizedTerm}%") ||
@@ -40,7 +46,8 @@ namespace AMDespachante.Infra.Data.Repository
                     EF.Functions.Like(r.Renavam ?? string.Empty, $"%{sanitizedTerm}%") ||
                     EF.Functions.Like(r.Modelo ?? string.Empty, $"%{sanitizedTerm}%") ||
                     EF.Functions.Like(r.AnoFabricacao ?? string.Empty, $"%{sanitizedTerm}%") ||
-                    EF.Functions.Like(r.AnoModelo ?? string.Empty, $"%{sanitizedTerm}%")
+                    EF.Functions.Like(r.AnoModelo ?? string.Empty, $"%{sanitizedTerm}%") ||
+                    (matchingTipos.Count != 0 && matchingTipos.Contains(r.TipoVeiculo))
                 );
             }
 
@@ -52,6 +59,7 @@ namespace AMDespachante.Infra.Data.Repository
                 ["modelo"] = x => x.Modelo ?? string.Empty,
                 ["anoFabricacao"] = x => x.AnoFabricacao ?? string.Empty,
                 ["anoModelo"] = x => x.AnoModelo ?? string.Empty,
+                ["tipoVeiculo"] = x => x.TipoVeiculo
             };
 
             var sortExpression = sortExpressions.TryGetValue(sortField, out Expression<Func<Veiculo, object>> value)

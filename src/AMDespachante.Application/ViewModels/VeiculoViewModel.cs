@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AMDespachante.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace AMDespachante.Application.ViewModels
 {
@@ -16,6 +17,10 @@ namespace AMDespachante.Application.ViewModels
         [StringLength(11, MinimumLength = 11, ErrorMessage = "O Renavam deve ter 11 dígitos")]
         [RegularExpression(@"^[0-9]{11}$", ErrorMessage = "O Renavam deve conter apenas números")]
         public string Renavam { get; set; }
+
+        [Required(ErrorMessage = "O tipo do veículo é obrigatório")]
+        [Display(Name = "Tipo do veículo")]
+        public TipoVeiculoEnum TipoVeiculo { get; set; }
 
         [Required(ErrorMessage = "O modelo é obrigatório")]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "O modelo deve ter entre 2 e 50 caracteres")]

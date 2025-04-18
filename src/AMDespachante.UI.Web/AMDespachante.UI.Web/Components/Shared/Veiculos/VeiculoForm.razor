@@ -19,6 +19,22 @@
                                   @bind-Value="Veiculo.Renavam"
                                   For="@(() => Veiculo.Renavam)" />
 
+                    <MudSelect T="TipoVeiculoEnum"
+                               Label="Tipo de veículo"
+                               Class="mt-6"
+                               @bind-Value="@Veiculo.TipoVeiculo"
+                               For="@(()=> Veiculo.TipoVeiculo)"
+                               Required="true">
+                        <MudSelectItem Value="default(TipoVeiculoEnum)" Disabled="true">Selecione o tipo do veículo</MudSelectItem>
+
+                        @foreach (var servico in Enum.GetValues<TipoVeiculoEnum>())
+                        {
+                            <MudSelectItem Value="@servico">
+                                @servico.GetEnumDisplayName()
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+
                     <MudTextField Label="Modelo"
                                   Class="mt-3"
                                   @bind-Value="Veiculo.Modelo"

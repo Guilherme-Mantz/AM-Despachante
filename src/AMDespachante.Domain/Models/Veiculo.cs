@@ -1,4 +1,5 @@
 ﻿using AMDespachante.Domain.Core.DomainObjects;
+using AMDespachante.Domain.Enums;
 
 namespace AMDespachante.Domain.Models
 {
@@ -6,22 +7,24 @@ namespace AMDespachante.Domain.Models
     {
         public Veiculo() { }
 
-        public Veiculo(string placa, string renavam, string modelo, string anoFabricacao, string anoModelo)
+        public Veiculo(string placa, string renavam, TipoVeiculoEnum tipoVeiculo, string modelo, string anoFabricacao, string anoModelo)
         {
             Placa = placa;
             Renavam = renavam;
+            TipoVeiculo = tipoVeiculo;
             Modelo = modelo;
             AnoFabricacao = anoFabricacao;
             AnoModelo = anoModelo;
         }
 
-        public Veiculo(string placa, string renavam, string modelo, string anoFabricacao, string anoModelo, Guid clienteId) : this(placa, renavam, modelo, anoFabricacao, anoModelo)
+        public Veiculo(string placa, string renavam, TipoVeiculoEnum tipoVeiculo, string modelo, string anoFabricacao, string anoModelo, Guid clienteId) : this(placa, renavam, tipoVeiculo, modelo, anoFabricacao, anoModelo)
         {
             ClienteId = clienteId;
         }
 
         public string Placa { get; set; }
         public string Renavam { get; set; }
+        public TipoVeiculoEnum TipoVeiculo { get; set; }
         public string Modelo { get; set; }
         public string AnoFabricacao { get; set; }
         public string AnoModelo { get; set; }

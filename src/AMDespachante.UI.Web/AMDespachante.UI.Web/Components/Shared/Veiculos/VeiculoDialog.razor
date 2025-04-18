@@ -1,6 +1,7 @@
 ﻿@using AMDespachante.Application.ViewModels
 @using AMDespachante.Application.Services
 @using AMDespachante.Domain.Extensions
+@using AMDespachante.Domain.Enums
 @using global::MudBlazor
 @using System.ComponentModel.DataAnnotations
 @using AMDespachante.UI.Web.Services.Interfaces
@@ -8,10 +9,10 @@
 @inject IVeiculoService VeiculoService
 @inject ISnackbar Snackbar
 
-<MudDialog Class="px-4 py-2" Style="min-width: 500px; max-width: 500px;">
+<MudDialog Class="px-4 py-2" Style="min-width: 520px; max-width: 520px;">
     <DialogContent>
-        <div class="d-flex flex-column" style="min-height: 21rem; max-height: 25rem; overflow-y: auto;">
-            <EditForm Model="@Veiculo" OnValidSubmit="Submit">
+        <div class="d-flex flex-column" style="min-height: 22rem; max-height: 28rem; overflow-y: auto;">
+            <EditForm Model="@Veiculo" OnValidSubmit="Submit" style="overflow: hidden">
                 <DataAnnotationsValidator />
 
                 <MudTextField Label="Placa"
@@ -30,6 +31,23 @@
                               Immediate="true"
                               InputType="InputType.Number"
                               MaxLength="11" />
+
+
+                <MudSelect T="TipoVeiculoEnum"
+                           Label="Tipo de veículo"
+                           Class="mt-6"
+                           @bind-Value="@Veiculo.TipoVeiculo"
+                           For="@(()=> Veiculo.TipoVeiculo)"
+                           Required="true">
+                    <MudSelectItem Value="default(TipoVeiculoEnum)" Disabled="true">Selecione o tipo do veículo</MudSelectItem>
+
+                    @foreach (var servico in Enum.GetValues<TipoVeiculoEnum>())
+                    {
+                        <MudSelectItem Value="@servico">
+                            @servico.GetEnumDisplayName()
+                        </MudSelectItem>
+                    }
+                </MudSelect>
 
                 <MudTextField Label="Modelo"
                               Class="mt-3"
