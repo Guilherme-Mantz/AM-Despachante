@@ -28,7 +28,7 @@ namespace AMDespachante.Domain.Commands.ClienteCommands
                 if (!message.IsValid()) return message.ValidationResult;
 
                 var cliente = new Cliente(message.Nome,
-                    message.Cpf,
+                    message.DocumentoFiscal,
                     message.Telefone,
                     message.Email,
                     message.EhEstacionamento,
@@ -67,7 +67,7 @@ namespace AMDespachante.Domain.Commands.ClienteCommands
                 }
 
                 cliente.Nome = message.Nome;
-                cliente.Cpf = message.Cpf;
+                cliente.DocumentoFiscal = message.DocumentoFiscal;
                 cliente.Telefone = message.Telefone;
                 cliente.Email = message.Email;
                 cliente.EhEstacionamento = message.EhEstacionamento;

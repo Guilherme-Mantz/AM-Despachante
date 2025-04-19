@@ -19,7 +19,7 @@
                             <MudDatePicker Label="Data"
                                            Date="@Atendimento.Data"
                                            DateChanged="@((DateTime? date) => { if (date.HasValue) Atendimento.Data = date.Value; })"
-                                           Required="true" />
+                                           DateFormat="dd/MM/yyyy"/>
                         </MudItem>
 
                         <MudItem xs="12" md="6">

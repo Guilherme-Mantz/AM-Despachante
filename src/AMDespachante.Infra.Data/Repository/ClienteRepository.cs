@@ -37,7 +37,7 @@ namespace AMDespachante.Infra.Data.Repository
                 query = query.Where(r =>
                     EF.Functions.Like(r.Nome ?? string.Empty, $"%{sanitizedTerm}%") ||
                     EF.Functions.Like(r.Email ?? string.Empty, $"%{sanitizedTerm}%") ||
-                    EF.Functions.Like(r.Cpf ?? string.Empty, $"%{sanitizedTerm}%")
+                    EF.Functions.Like(r.DocumentoFiscal ?? string.Empty, $"%{sanitizedTerm}%")
                 );
             }
 
@@ -45,7 +45,7 @@ namespace AMDespachante.Infra.Data.Repository
             {
                 ["nome"] = x => x.Nome ?? string.Empty,
                 ["email"] = x => x.Email ?? string.Empty,
-                ["cpf"] = x => x.Cpf ?? string.Empty
+                ["documentoFiscal"] = x => x.DocumentoFiscal ?? string.Empty
             };
 
             var sortExpression = sortExpressions.TryGetValue(sortField, out Expression<Func<Cliente, object>> value)

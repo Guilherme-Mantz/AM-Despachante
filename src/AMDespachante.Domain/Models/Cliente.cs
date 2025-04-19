@@ -8,7 +8,7 @@ namespace AMDespachante.Domain.Models
 
         public Cliente(
             string nome, 
-            string cpf,
+            string documentoFiscal,
             string telefone,
             string email, 
             bool ehEstacionamento, 
@@ -18,7 +18,7 @@ namespace AMDespachante.Domain.Models
             ICollection<Veiculo> veiculos)
         {
             Nome = nome;
-            Cpf = cpf;
+            DocumentoFiscal = documentoFiscal;
             Telefone = telefone;
             Email = email;
             EhEstacionamento = ehEstacionamento;
@@ -29,7 +29,7 @@ namespace AMDespachante.Domain.Models
         }
 
         public string Nome { get; set; }
-        public string Cpf { get; set; }
+        public string DocumentoFiscal { get; set; }
         public string Telefone { get; set; }
         public string Email { get; set; }
         public bool EhEstacionamento { get; set; }

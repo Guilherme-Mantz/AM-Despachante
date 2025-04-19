@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AMDespachante.Domain.Validations;
+using System.ComponentModel.DataAnnotations;
 
 namespace AMDespachante.Application.ViewModels
 {
@@ -10,9 +11,10 @@ namespace AMDespachante.Application.ViewModels
         [StringLength(255, ErrorMessage = "O nome deve ter no máximo 255 caracteres")]
         public string Nome { get; set; }
 
-        [Required(ErrorMessage = "Informe o CPF")]
-        [RegularExpression(@"^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$", ErrorMessage = "CPF inválido")]
-        public string Cpf { get; set; }
+        [Required(ErrorMessage = "Informe o (CPF/CNPJ)")]
+        [Display(Name = "CPF/CNPJ")]
+        [DocumentoFiscal]
+        public string DocumentoFiscal { get; set; }
 
         [Required(ErrorMessage = "Informe o Telefone")]
         [RegularExpression(@"^\(?[1-9]{2}\)? ?(?:[2-8]|9[1-9])[0-9]{3}\-?[0-9]{4}$", ErrorMessage = "Telefone inválido")]

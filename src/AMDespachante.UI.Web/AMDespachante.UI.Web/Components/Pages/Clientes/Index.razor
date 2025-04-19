@@ -34,7 +34,7 @@
     <HeaderContent>
         <MudTh><MudTableSortLabel SortLabel="nome" T="ClienteViewModel">Nome</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="email" T="ClienteViewModel">E-mail</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortLabel="cpf" T="ClienteViewModel">CPF</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="documentoFiscal" T="ClienteViewModel">CPF/CNPJ</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="telefone" T="ClienteViewModel">Telefone</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="ehEstacionamento" T="ClienteViewModel">Estacionamento</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="pagaMensalidade" T="ClienteViewModel">Paga Mensalidade</MudTableSortLabel></MudTh>
@@ -43,7 +43,7 @@
     <RowTemplate>
         <MudTd>@context.Nome</MudTd>
         <MudTd>@context.Email</MudTd>
-        <MudTd>@context.Cpf</MudTd>
+        <MudTd>@context.DocumentoFiscal</MudTd>
         <MudTd>@context.Telefone</MudTd>
         <MudTd>@(context.EhEstacionamento ? "Sim" : "Não")</MudTd>
         <MudTd>@(context.PagaMensalidade ? "Sim" : "Não")</MudTd>

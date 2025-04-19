@@ -19,12 +19,20 @@
                                   Class="mt-3"
                                   @bind-Value="Cliente.Email"
                                   For="@(() => Cliente.Email)" />
-                    <MudTextField Label="CPF"
-                                  Class="mt-3"
-                                  @bind-Value="Cliente.Cpf"
-                                  For="@(() => Cliente.Cpf)"
-                                  Mask="@(new PatternMask("000.000.000-00"))"
-                                  Immediate="true" />
+
+                    <MudPaper Elevation="0" Class="mt-4">
+                        <MudTabs Elevation="0" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-0" Class="mt-1">
+                            <MudTabPanel Text="CPF" Icon="@Icons.Material.Filled.Person" OnClick="@(() => TipoDocumento = "CPF")" Selected="@(TipoDocumento == "CPF")" />
+                            <MudTabPanel Text="CNPJ" Icon="@Icons.Material.Filled.Business" OnClick="@(() => TipoDocumento = "CNPJ")" Selected="@(TipoDocumento == "CNPJ")" />
+                        </MudTabs>
+
+                        <MudTextField @bind-Value="Cliente.DocumentoFiscal"
+                                      For="@(() => Cliente.DocumentoFiscal)"
+                                      Mask="@(GetDocumentoMask())"
+                                      Placeholder="@($"Digite o {TipoDocumento}...")"
+                                      Immediate="true"
+                                      Class="mt-2" />
+                    </MudPaper>
                     <MudTextField Label="Telefone"
                                   Class="mt-3"
                                   @bind-Value="Cliente.Telefone"
@@ -126,11 +134,19 @@
     [Inject]
     private IDialogService DialogService { get; set; }
 
+    private string TipoDocumento { get; set; } = "CPF";
+
+    private PatternMask GetDocumentoMask()
+    {
+        return TipoDocumento == "CPF"
+            ? new PatternMask("000.000.000-00")
+            : new PatternMask("00.000.000/0000-00");
+    }
+
     private async Task HandleValidSubmit()
     {
         if (OnSubmit.HasDelegate)
         {
-            Cliente.Cpf = System.Text.RegularExpressions.Regex.Replace(Cliente.Cpf, @"\D", "");
             await OnSubmit.InvokeAsync(Cliente);
         }
     }
@@ -145,6 +161,12 @@
         if (Cliente.Veiculos == null)
         {
             Cliente.Veiculos = new List<VeiculoViewModel>();
+        }
+
+        if (!string.IsNullOrEmpty(Cliente.DocumentoFiscal))
+        {
+            var doc = System.Text.RegularExpressions.Regex.Replace(Cliente.DocumentoFiscal, @"\D", "");
+            TipoDocumento = doc.Length <= 11 ? "CPF" : "CNPJ";
         }
     }
 

@@ -8,7 +8,7 @@ namespace AMDespachante.Domain.Commands.ClienteCommands
         public NovoClienteCommand() { }
 
         public string Nome { get; set; }
-        public string Cpf { get; set; }
+        public string DocumentoFiscal { get; set; }
         public string Telefone { get; set; }
         public string Email { get; set; }
         public bool EhEstacionamento { get; set; }
