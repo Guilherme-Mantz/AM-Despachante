@@ -48,7 +48,5 @@ namespace AMDespachante.Domain.Models
         // 1:N com Atendimento
         public virtual ICollection<Atendimento> Atendimentos { get; set; }
 
-        // 1:N com Mensalidade
-        public virtual ICollection<Mensalidade> Mensalidades { get; set; }
     }
 }

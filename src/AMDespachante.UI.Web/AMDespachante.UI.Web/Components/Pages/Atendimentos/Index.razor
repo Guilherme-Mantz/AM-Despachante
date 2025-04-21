@@ -5,6 +5,7 @@
 @using AMDespachante.Application.Interfaces
 @using AMDespachante.Application.ViewModels
 @using AMDespachante.Domain.Extensions
+@using AMDespachante.Domain.Enums
 @using Microsoft.AspNetCore.Authorization
 
 @inject IDialogService DialogService
@@ -50,7 +51,31 @@
         <MudTd>@context.ValorEntrada.ToString("C")</MudTd>
         <MudTd>@context.ValorSaida.ToString("C")</MudTd>
         <MudTd>@context.Lucro.ToString("C")</MudTd>
-        <MudTd>@context.Status</MudTd>
+        <MudTd>
+            @{
+                Color chipColor = Color.Default;
+                string icon = "";
+
+                switch (context.Status)
+                {
+                    case StatusAtendimentoEnum.Pendente:
+                        chipColor = Color.Warning;
+                        icon = Icons.Material.Filled.HourglassEmpty;
+                        break;
+                    case StatusAtendimentoEnum.Pago:
+                        chipColor = Color.Info;
+                        icon = Icons.Material.Filled.AttachMoney;
+                        break;
+                    case StatusAtendimentoEnum.Concluido:
+                        chipColor = Color.Success;
+                        icon = Icons.Material.Filled.CheckCircle;
+                        break;
+                }
+            }
+            <MudChip T="StatusAtendimentoEnum" Color="@chipColor" Size="Size.Small" Icon="@icon">
+                @context.Status.GetEnumDisplayName()
+            </MudChip>
+        </MudTd>
         <MudTd class="d-flex justify-center">
             <MudLink Href="@($"/atendimentos/edit/{context.Id}")" class="mr-1 pt-1"
                      Color="Color.Primary">

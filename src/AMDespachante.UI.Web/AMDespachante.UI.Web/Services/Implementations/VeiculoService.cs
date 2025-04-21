@@ -5,14 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace AMDespachante.UI.Web.Services.Implementations
 {
-    public class VeiculoService : IVeiculoService
+    public class VeiculoService(IVeiculoRepository veiculoRepository) : IVeiculoService
     {
-        private readonly IVeiculoRepository _veiculoRepository;
-
-        public VeiculoService(IVeiculoRepository veiculoRepository = null)
-        {
-            _veiculoRepository = veiculoRepository;
-        }
+        private readonly IVeiculoRepository _veiculoRepository = veiculoRepository;
 
         public async Task<(bool isValid, string message, string formattedPlaca)> ValidarPlaca(Guid id, string placa)
         {

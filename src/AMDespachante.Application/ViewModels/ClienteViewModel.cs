@@ -35,7 +35,6 @@ namespace AMDespachante.Application.ViewModels
         public DateTime Modificado { get; set; }
 
         public IList<VeiculoViewModel>Veiculos { get; set; }
-        public IEnumerable<MensalidadeViewModel> Mensalidades { get; set; }
         public IEnumerable<AtendimentoViewModel> Atendimentos { get; set; }
     }
 }
