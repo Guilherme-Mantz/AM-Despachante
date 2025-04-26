@@ -8,6 +8,7 @@ public interface IClienteRepository : IRepository<Cliente>
 {
     Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null);
     Task<IEnumerable<Cliente>> GetAll();
+    Task<IEnumerable<Cliente>> ObterTodosComAtendimentosAsync();
     Task<Cliente?> GetById(Guid Id);
     Task<Cliente> GetByIdWithVeiculos(Guid id);
     void Add(Cliente recurso);

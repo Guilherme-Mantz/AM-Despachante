@@ -8,6 +8,7 @@ namespace AMDespachante.Domain.Interfaces
     {
         Task<PagedResult> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null);
         Task<IEnumerable<Atendimento>> GetAll();
+        Task<IEnumerable<Atendimento>> ObterPorPeriodoAsync(DateTime dataInicio, DateTime dataFim);
         Task<Atendimento?> GetById(Guid Id);
         Task<Atendimento?> GetByIdWithIncludes(Guid Id);
 

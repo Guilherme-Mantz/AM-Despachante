@@ -1,0 +1,162 @@
+﻿@page "/relatorios/lucros"
+@rendermode InteractiveServer
+
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+
+@inject IRelatorioAppService RelatorioService
+
+<MudContainer Class="mt-2 mb-4">
+    <MudText Typo="Typo.h5" Class="mb-4">Relatório de Lucros</MudText>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudDateRangePicker Label="Período" @bind-DateRange="_dateRange" />
+            </MudItem>
+            <MudItem xs="12" md="2">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                           OnClick="CarregarRelatorio" Class="mt-4">
+                    Gerar Relatório
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    @if (_viewModel != null)
+    {
+        <MudCard Class="mb-4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Resumo Financeiro</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="12" md="4">
+                        <MudPaper Elevation="0" Class="pa-4 text-center">
+                            <MudText Typo="Typo.subtitle1">Entradas Totais</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Success">
+                                @_viewModel.TotalEntradas.ToString("C")
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudPaper Elevation="0" Class="pa-4 text-center">
+                            <MudText Typo="Typo.subtitle1">Saídas Totais</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Error">
+                                @_viewModel.TotalSaidas.ToString("C")
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudPaper Elevation="0" Class="pa-4 text-center">
+                            <MudText Typo="Typo.subtitle1">Lucro Total</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Primary">
+                                @_viewModel.LucroTotal.ToString("C") (@_viewModel.PercentualLucro.ToString("0.0")%)
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Lucro por Período</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudTable Items="@_viewModel.LucrosPorPeriodo" Hover="true" Striped="true">
+                            <HeaderContent>
+                                <MudTh>Período</MudTh>
+                                <MudTh>Entradas</MudTh>
+                                <MudTh>Saídas</MudTh>
+                                <MudTh>Lucro</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@context.Periodo</MudTd>
+                                <MudTd>@context.ValorEntradas.ToString("C")</MudTd>
+                                <MudTd>@context.ValorSaidas.ToString("C")</MudTd>
+                                <MudTd>@context.Lucro.ToString("C")</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Serviços Mais Lucrativos</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudTable Items="@_viewModel.LucrosPorTipoServico" Hover="true" Striped="true">
+                            <HeaderContent>
+                                <MudTh>Tipo de Serviço</MudTh>
+                                <MudTh>Qtd</MudTh>
+                                <MudTh>Entradas</MudTh>
+                                <MudTh>Saídas</MudTh>
+                                <MudTh>Lucro</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@context.DescricaoServico</MudTd>
+                                <MudTd>@context.Quantidade</MudTd>
+                                <MudTd>@context.ValorEntradas.ToString("C")</MudTd>
+                                <MudTd>@context.ValorSaidas.ToString("C")</MudTd>
+                                <MudTd>@context.Lucro.ToString("C")</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Entradas por Forma de Pagamento</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudTable Items="@_viewModel.LucrosPorFormaPagamento" Hover="true" Striped="true">
+                            <HeaderContent>
+                                <MudTh>Forma de Pagamento</MudTh>
+                                <MudTh>Qtd</MudTh>
+                                <MudTh>Valor Total</MudTh>
+                                <MudTh>Percentual</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@context.DescricaoFormaPagamento</MudTd>
+                                <MudTd>@context.Quantidade</MudTd>
+                                <MudTd>@context.ValorTotal.ToString("C")</MudTd>
+                                <MudTd>@context.Percentual.ToString("0.0")%</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    }
+</MudContainer>
+
+@code {
+    private DateRange _dateRange = new DateRange(DateTime.Now.AddMonths(-1), DateTime.Now);
+    private RelatorioLucrosViewModel _viewModel;
+
+    private async Task CarregarRelatorio()
+    {
+        var filtro = new FiltroRelatorioViewModel
+            {
+                DataInicio = _dateRange.Start.GetValueOrDefault(),
+                DataFim = _dateRange.End.GetValueOrDefault()
+            };
+
+        _viewModel = await RelatorioService.RelatorioLucros(filtro);
+    }
+}

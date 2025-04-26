@@ -98,6 +98,13 @@ namespace AMDespachante.Infra.Data.Repository
             return await _dbSet.AsNoTracking().Include(c => c.Cliente).Include(v => v.Veiculo).ToListAsync();
         }
 
+        public async Task<IEnumerable<Atendimento>> ObterPorPeriodoAsync(DateTime dataInicio, DateTime dataFim)
+        {
+            return await _dbSet.AsNoTracking()
+                .Where(a => a.Data >= dataInicio && a.Data <= dataFim)
+                .ToListAsync();
+        }
+
         public async Task<Atendimento> GetById(Guid Id)
         {
             return await _dbSet.FindAsync(Id);
@@ -126,6 +133,5 @@ namespace AMDespachante.Infra.Data.Repository
         }
 
         public void Dispose() => GC.SuppressFinalize(this);
-
     }
 }

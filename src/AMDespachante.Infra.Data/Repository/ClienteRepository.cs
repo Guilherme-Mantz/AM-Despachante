@@ -100,5 +100,9 @@ namespace AMDespachante.Infra.Data.Repository
 
         public void Dispose() => GC.SuppressFinalize(this);
 
+        public Task<IEnumerable<Cliente>> ObterTodosComAtendimentosAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

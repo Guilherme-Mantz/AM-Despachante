@@ -47,6 +47,7 @@ namespace AMDespachante.UI.Web.Configuraiton
             services.AddTransient<IRecursoAppService, RecursoAppService>();
             services.AddTransient<IClienteAppService, ClienteAppService>();
             services.AddTransient<IVeiculoAppService, VeiculoAppService>();
+            services.AddTransient<IRelatorioAppService, RelatorioAppService>();
 
             //Events
             services.AddTransient<INotificationHandler<AtendimentoCriadoEvent>, AtendimentoEventHandler>();

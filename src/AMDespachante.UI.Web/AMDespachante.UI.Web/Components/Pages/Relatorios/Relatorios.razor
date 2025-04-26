@@ -1,97 +1,86 @@
 ﻿@page "/relatorios"
+@attribute [Authorize(Roles = "ADMIN")]
 
-<MudContainer>
-    <MudText Typo="Typo.h4" Class="mb-4">Relatórios</MudText>
+@using Microsoft.AspNetCore.Authorization
 
-    <MudGrid>
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="2" Class="mb-4">
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">
-                            <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Class="mr-2" /> Lucros
-                        </MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudText>Relatórios de lucros, receitas e despesas.</MudText>
-                </MudCardContent>
-                <MudCardActions>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="relatorios/lucros">Ver Relatório</MudButton>
-                </MudCardActions>
-            </MudCard>
-        </MudItem>
+<MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
+    <MudText Typo="Typo.h4" Class="mb-6 px-2">Relatórios</MudText>
 
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="2" Class="mb-4">
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">
-                            <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Class="mr-2" /> Clientes
-                        </MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudText>Relatórios de clientes cadastrados e ativos.</MudText>
-                </MudCardContent>
-                <MudCardActions>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="relatorios/clientes">Ver Relatório</MudButton>
-                </MudCardActions>
-            </MudCard>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="2" Class="mb-4">
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">
-                            <MudIcon Icon="@Icons.Material.Filled.DirectionsCarFilled" Class="mr-2" /> Veículos
-                        </MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudText>Relatórios de veículos cadastrados e em atendimento.</MudText>
-                </MudCardContent>
-                <MudCardActions>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="relatorios/veiculos">Ver Relatório</MudButton>
-                </MudCardActions>
-            </MudCard>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="2" Class="mb-4">
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">
-                            <MudIcon Icon="@Icons.Material.Filled.AssignmentTurnedIn" Class="mr-2" /> Atendimentos
-                        </MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudText>Relatórios de atendimentos realizados e em andamento.</MudText>
-                </MudCardContent>
-                <MudCardActions>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="relatorios/atendimentos">Ver Relatório</MudButton>
-                </MudCardActions>
-            </MudCard>
-        </MudItem>
-
-        <MudItem xs="12" sm="6" md="4">
-            <MudCard Elevation="2" Class="mb-4">
-                <MudCardHeader>
-                    <CardHeaderContent>
-                        <MudText Typo="Typo.h6">
-                            <MudIcon Icon="@Icons.Material.Filled.Build" Class="mr-2" /> Serviços
-                        </MudText>
-                    </CardHeaderContent>
-                </MudCardHeader>
-                <MudCardContent>
-                    <MudText>Relatórios de serviços realizados por tipo.</MudText>
-                </MudCardContent>
-                <MudCardActions>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="relatorios/servicos">Ver Relatório</MudButton>
-                </MudCardActions>
-            </MudCard>
-        </MudItem>
+    <MudGrid Spacing="3" Justify="Justify.Center">
+        @foreach (var relatorio in _relatorios)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudCard Elevation="3" Class="h-100">
+                    <MudCardHeader>
+                        <CardHeaderAvatar>
+                            <MudIcon Icon="@relatorio.Icone" Color="Color.Primary" Size="Size.Large" />
+                        </CardHeaderAvatar>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">@relatorio.Titulo</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent Class="pb-0" Style="height: 80px;">
+                        <MudText>@relatorio.Descricao</MudText>
+                    </MudCardContent>
+                    <MudCardActions Class="d-flex justify-end pa-4">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   EndIcon="@Icons.Material.Filled.ChevronRight"
+                                   Href="@relatorio.Rota">
+                            Ver Relatório
+                        </MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
+        }
     </MudGrid>
 </MudContainer>
+
+@code {
+    private List<RelatorioItem> _relatorios = new List<RelatorioItem>
+    {
+        new RelatorioItem
+        {
+            Titulo = "Lucros",
+            Descricao = "Relatórios de lucros, receitas e despesas.",
+            Icone = Icons.Material.Filled.TrendingUp,
+            Rota = "relatorios/lucros"
+        },
+        new RelatorioItem
+        {
+            Titulo = "Clientes",
+            Descricao = "Relatórios de clientes cadastrados e ativos.",
+            Icone = Icons.Material.Filled.PersonAdd,
+            Rota = "relatorios/clientes"
+        },
+        new RelatorioItem
+        {
+            Titulo = "Veículos",
+            Descricao = "Relatórios de veículos cadastrados e em atendimento.",
+            Icone = Icons.Material.Filled.DirectionsCarFilled,
+            Rota = "relatorios/veiculos"
+        },
+        new RelatorioItem
+        {
+            Titulo = "Atendimentos",
+            Descricao = "Relatórios de atendimentos realizados e em andamento.",
+            Icone = Icons.Material.Filled.AssignmentTurnedIn,
+            Rota = "relatorios/atendimentos"
+        },
+        new RelatorioItem
+        {
+            Titulo = "Serviços",
+            Descricao = "Relatórios de serviços realizados por tipo.",
+            Icone = Icons.Material.Filled.Build,
+            Rota = "relatorios/servicos"
+        }
+    };
+
+    public class RelatorioItem
+    {
+        public string Titulo { get; set; }
+        public string Descricao { get; set; }
+        public string Icone { get; set; }
+        public string Rota { get; set; }
+    }
+}
