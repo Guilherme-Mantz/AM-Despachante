@@ -1,8 +1,11 @@
 ﻿@page "/relatorios/lucros"
+@attribute [Authorize(Roles = "ADMIN")]
+
 @rendermode InteractiveServer
 
 @using AMDespachante.Application.Interfaces
-@using AMDespachante.Application.ViewModels
+@using AMDespachante.Application.ViewModels.Relatorios
+@using Microsoft.AspNetCore.Authorization
 
 @inject IRelatorioAppService RelatorioService
 
@@ -12,7 +15,7 @@
     <MudPaper Class="pa-4 mb-4">
         <MudGrid>
             <MudItem xs="12" md="4">
-                <MudDateRangePicker Label="Período" @bind-DateRange="_dateRange" />
+                <MudDateRangePicker Label="Período" @bind-DateRange="dateRange" />
             </MudItem>
             <MudItem xs="12" md="2">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary"
@@ -23,7 +26,7 @@
         </MudGrid>
     </MudPaper>
 
-    @if (_viewModel != null)
+    @if (viewModel != null)
     {
         <MudCard Class="mb-4">
             <MudCardHeader>
@@ -37,7 +40,7 @@
                         <MudPaper Elevation="0" Class="pa-4 text-center">
                             <MudText Typo="Typo.subtitle1">Entradas Totais</MudText>
                             <MudText Typo="Typo.h5" Color="Color.Success">
-                                @_viewModel.TotalEntradas.ToString("C")
+                                @viewModel.TotalEntradas.ToString("C")
                             </MudText>
                         </MudPaper>
                     </MudItem>
@@ -45,7 +48,7 @@
                         <MudPaper Elevation="0" Class="pa-4 text-center">
                             <MudText Typo="Typo.subtitle1">Saídas Totais</MudText>
                             <MudText Typo="Typo.h5" Color="Color.Error">
-                                @_viewModel.TotalSaidas.ToString("C")
+                                @viewModel.TotalSaidas.ToString("C")
                             </MudText>
                         </MudPaper>
                     </MudItem>
@@ -53,7 +56,7 @@
                         <MudPaper Elevation="0" Class="pa-4 text-center">
                             <MudText Typo="Typo.subtitle1">Lucro Total</MudText>
                             <MudText Typo="Typo.h5" Color="Color.Primary">
-                                @_viewModel.LucroTotal.ToString("C") (@_viewModel.PercentualLucro.ToString("0.0")%)
+                                @viewModel.LucroTotal.ToString("C") (@viewModel.PercentualLucro.ToString("0.0")%)
                             </MudText>
                         </MudPaper>
                     </MudItem>
@@ -70,7 +73,7 @@
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
-                        <MudTable Items="@_viewModel.LucrosPorPeriodo" Hover="true" Striped="true">
+                        <MudTable Items="@viewModel.LucrosPorPeriodo" Hover="true" Striped="true">
                             <HeaderContent>
                                 <MudTh>Período</MudTh>
                                 <MudTh>Entradas</MudTh>
@@ -96,7 +99,7 @@
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
-                        <MudTable Items="@_viewModel.LucrosPorTipoServico" Hover="true" Striped="true">
+                        <MudTable Items="@viewModel.LucrosPorTipoServico" Hover="true" Striped="true">
                             <HeaderContent>
                                 <MudTh>Tipo de Serviço</MudTh>
                                 <MudTh>Qtd</MudTh>
@@ -124,7 +127,7 @@
                         </CardHeaderContent>
                     </MudCardHeader>
                     <MudCardContent>
-                        <MudTable Items="@_viewModel.LucrosPorFormaPagamento" Hover="true" Striped="true">
+                        <MudTable Items="@viewModel.LucrosPorFormaPagamento" Hover="true" Striped="true">
                             <HeaderContent>
                                 <MudTh>Forma de Pagamento</MudTh>
                                 <MudTh>Qtd</MudTh>
@@ -146,17 +149,17 @@
 </MudContainer>
 
 @code {
-    private DateRange _dateRange = new DateRange(DateTime.Now.AddMonths(-1), DateTime.Now);
-    private RelatorioLucrosViewModel _viewModel;
+    private DateRange dateRange = new DateRange(DateTime.Now.AddMonths(-1), DateTime.Now);
+    private RelatorioLucrosViewModel viewModel;
 
     private async Task CarregarRelatorio()
     {
         var filtro = new FiltroRelatorioViewModel
             {
-                DataInicio = _dateRange.Start.GetValueOrDefault(),
-                DataFim = _dateRange.End.GetValueOrDefault()
+                DataInicio = dateRange.Start.GetValueOrDefault(),
+                DataFim = dateRange.End.GetValueOrDefault()
             };
 
-        _viewModel = await RelatorioService.RelatorioLucros(filtro);
+        viewModel = await RelatorioService.RelatorioLucros(filtro);
     }
 }

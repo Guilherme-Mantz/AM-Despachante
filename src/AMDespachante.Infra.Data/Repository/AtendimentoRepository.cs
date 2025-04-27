@@ -101,6 +101,8 @@ namespace AMDespachante.Infra.Data.Repository
         public async Task<IEnumerable<Atendimento>> ObterPorPeriodoAsync(DateTime dataInicio, DateTime dataFim)
         {
             return await _dbSet.AsNoTracking()
+                .Include(c => c.Cliente)
+                .Include(v => v.Veiculo)
                 .Where(a => a.Data >= dataInicio && a.Data <= dataFim)
                 .ToListAsync();
         }

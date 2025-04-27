@@ -100,9 +100,9 @@ namespace AMDespachante.Infra.Data.Repository
 
         public void Dispose() => GC.SuppressFinalize(this);
 
-        public Task<IEnumerable<Cliente>> ObterTodosComAtendimentosAsync()
+        public async Task<IEnumerable<Cliente>> ObterTodosComAtendimentosAsync()
         {
-            throw new NotImplementedException();
+            return await _dbSet.Include(x => x.Atendimentos).ToListAsync();
         }
     }
 }

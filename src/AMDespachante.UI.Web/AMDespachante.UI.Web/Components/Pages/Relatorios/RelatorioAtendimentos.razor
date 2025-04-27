@@ -1,5 +1,219 @@
-﻿<h3>RelatorioAtendimentos</h3>
+﻿@page "/relatorios/atendimentos"
+@attribute [Authorize(Roles = "ADMIN")]
+
+@rendermode InteractiveServer
+
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels.Relatorios
+@using AMDespachante.Domain.Enums
+@using Microsoft.AspNetCore.Authorization
+
+@inject IRelatorioAppService RelatorioService
+
+<MudContainer Class="mt-2 mb-4">
+    <MudText Typo="Typo.h5" Class="mb-4">Relatório de Atendimentos</MudText>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudDateRangePicker Label="Período" @bind-DateRange="dateRange" />
+            </MudItem>
+            <MudItem xs="12" md="2">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                           OnClick="CarregarRelatorio" Class="mt-4">
+                    Gerar Relatório
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    @if (viewModel != null)
+    {
+        <MudCard Class="mb-4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Resumo de Atendimentos</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="12" md="3">
+                        <MudPaper Elevation="0" Class="pa-4 text-center">
+                            <MudText Typo="Typo.subtitle1">Total de Atendimentos</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Primary">
+                                @viewModel.TotalAtendimentos
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" md="3">
+                        <MudPaper Elevation="0" Class="pa-4 text-center">
+                            <MudText Typo="Typo.subtitle1">Finalizados</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Success">
+                                @viewModel.AtendimentosFinalizados
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" md="3">
+                        <MudPaper Elevation="0" Class="pa-4 text-center">
+                            <MudText Typo="Typo.subtitle1">Pendentes</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Warning">
+                                @viewModel.AtendimentosPendentes
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" md="3">
+                        <MudPaper Elevation="0" Class="pa-4 text-center">
+                            <MudText Typo="Typo.subtitle1">Valor Médio</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Info">
+                                @viewModel.ValorMedioAtendimento.ToString("C")
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Atendimentos por Status</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudTable Items="@viewModel.AtendimentosPorStatus" Hover="true" Striped="true">
+                            <HeaderContent>
+                                <MudTh>Status</MudTh>
+                                <MudTh>Quantidade</MudTh>
+                                <MudTh>Percentual</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@context.DescricaoStatus</MudTd>
+                                <MudTd>@context.Quantidade</MudTd>
+                                <MudTd>@context.Percentual.ToString("0.0")%</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Atendimentos por Período</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudTable Items="@viewModel.AtendimentosPorPeriodo" Hover="true" Striped="true">
+                            <HeaderContent>
+                                <MudTh>Período</MudTh>
+                                <MudTh>Quantidade</MudTh>
+                                <MudTh>Valor Total</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@context.Periodo</MudTd>
+                                <MudTd>@context.Quantidade</MudTd>
+                                <MudTd>@context.ValorEntradas.ToString("C")</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Atendimentos por Tipo de Serviço</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudTable Items="@viewModel.AtendimentosPorTipoServico" Hover="true" Striped="true">
+                            <HeaderContent>
+                                <MudTh>Tipo de Serviço</MudTh>
+                                <MudTh>Quantidade</MudTh>
+                                <MudTh>Valor Total</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@context.DescricaoServico</MudTd>
+                                <MudTd>@context.Quantidade</MudTd>
+                                <MudTd>@context.ValorTotal.ToString("C")</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Últimos Atendimentos</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudTable Items="@viewModel.UltimosAtendimentos" Hover="true" Striped="true">
+                            <HeaderContent>
+                                <MudTh>Data</MudTh>
+                                <MudTh>Cliente</MudTh>
+                                <MudTh>Veículo</MudTh>
+                                <MudTh>Serviço</MudTh>
+                                <MudTh>Status</MudTh>
+                                <MudTh>Valor</MudTh>
+                                <MudTh>ATPV</MudTh>
+                                <MudTh></MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@context.Data.ToString("dd/MM/yyyy")</MudTd>
+                                <MudTd>@context.Cliente</MudTd>
+                                <MudTd>@context.Veiculo</MudTd>
+                                <MudTd>@context.TipoServico</MudTd>
+                                <MudTd>
+                                    <MudChip T=StatusAtendimentoEnum Color="@GetStatusColor(context.Status)" Size="Size.Small">
+                                        @context.DescricaoStatus
+                                    </MudChip>
+                                </MudTd>
+                                <MudTd>@context.ValorEntrada.ToString("C")</MudTd>
+                                <MudTd>@context.NumeroATPV</MudTd>
+                                <MudTd>
+                                    <MudLink Href="@($"/atendimentos/edit/{context.Id}")" Target="_blank" class="mr-1 pt-1" Color="Color.Default">
+                                        <MudIcon Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" />
+                                    </MudLink>
+                                </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    }
+</MudContainer>
 
 @code {
+    private DateRange dateRange = new DateRange(DateTime.Now.AddMonths(-1), DateTime.Now);
+    private RelatorioAtendimentosViewModel viewModel;
 
+    private async Task CarregarRelatorio()
+    {
+        var filtro = new FiltroRelatorioViewModel
+        {
+            DataInicio = dateRange.Start.GetValueOrDefault(),
+            DataFim = dateRange.End.GetValueOrDefault()
+        };
+
+        viewModel = await RelatorioService.RelatorioAtendimentos(filtro);
+    }
+
+    private Color GetStatusColor(StatusAtendimentoEnum status)
+    {
+        return status switch
+        {
+            StatusAtendimentoEnum.Concluido => Color.Success,
+            StatusAtendimentoEnum.Pago => Color.Warning,
+            StatusAtendimentoEnum.Pendente => Color.Error,
+            _ => Color.Default
+        };
+    }
 }

@@ -1,5 +1,177 @@
-﻿<h3>RelatorioClientes</h3>
+﻿@page "/relatorios/clientes"
+@attribute [Authorize(Roles = "ADMIN")]
+
+@rendermode InteractiveServer
+
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels.Relatorios
+@using Microsoft.AspNetCore.Authorization
+
+@inject IRelatorioAppService RelatorioService
+
+<MudContainer Class="mt-2 mb-4">
+    <MudText Typo="Typo.h5" Class="mb-4">Relatório de Clientes</MudText>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudDateRangePicker Label="Período" @bind-DateRange="dateRange" />
+            </MudItem>
+            <MudItem xs="12" md="2">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                           OnClick="CarregarRelatorio" Class="mt-4">
+                    Gerar Relatório
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    @if (viewModel != null)
+    {
+        <MudCard Class="mb-4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Resumo de Clientes</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="12" md="3">
+                        <MudPaper Elevation="0" Class="pa-4 text-center">
+                            <MudText Typo="Typo.subtitle1">Total de Clientes</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Primary">
+                                @viewModel.TotalClientes
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" md="3">
+                        <MudPaper Elevation="0" Class="pa-4 text-center">
+                            <MudText Typo="Typo.subtitle1">Clientes Ativos</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Success">
+                                @viewModel.ClientesAtivos
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" md="3">
+                        <MudPaper Elevation="0" Class="pa-4 text-center">
+                            <MudText Typo="Typo.subtitle1">Clientes Novos</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Info">
+                                @viewModel.ClientesNovos
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" md="3">
+                        <MudPaper Elevation="0" Class="pa-4 text-center">
+                            <MudText Typo="Typo.subtitle1">Média de Atendimentos</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Warning">
+                                @viewModel.MediaAtendimentosPorCliente.ToString("F1")
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+
+        <MudGrid>
+            <MudItem xs="12" md="12">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Tipos de Cliente</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudSimpleTable>
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Quantidade</th>
+                                    <th>Percentual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (viewModel.TotalClientes > 0)
+                                {
+                                    <tr>
+                                        <td>Estacionamentos</td>
+                                        <td>@clientesEstacionamento</td>
+                                        <td>@((clientesEstacionamento * 100.0m / viewModel.TotalClientes).ToString("F1"))%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mensalistas</td>
+                                        <td>@clientesMensalistas</td>
+                                        <td>@((clientesMensalistas * 100.0m / viewModel.TotalClientes).ToString("F1"))%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Comuns</td>
+                                        <td>@(viewModel.TotalClientes - clientesEstacionamento - clientesMensalistas)</td>
+                                        <td>@(((viewModel.TotalClientes - clientesEstacionamento - clientesMensalistas) * 100.0m / viewModel.TotalClientes).ToString("F1"))%</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+
+        <MudCard Class="mt-4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Top 10 Clientes (por Valor Gasto)</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudTable Items="@viewModel.TopClientes" Hover="true" Striped="true">
+                    <HeaderContent>
+                        <MudTh>Nome</MudTh>
+                        <MudTh>Telefone</MudTh>
+                        <MudTh>Data Cadastro</MudTh>
+                        <MudTh>Qtd. Atendimentos</MudTh>
+                        <MudTh>Valor Total</MudTh>
+                        <MudTh>Último Atendimento</MudTh>
+                        <MudTh>Ações</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.Nome</MudTd>
+                        <MudTd>@context.Telefone</MudTd>
+                        <MudTd>@context.DataCadastro.ToString("dd/MM/yyyy")</MudTd>
+                        <MudTd>@context.QuantidadeAtendimentos</MudTd>
+                        <MudTd>@context.ValorTotalGasto.ToString("C")</MudTd>
+                        <MudTd>@context.UltimoAtendimento.ToString("dd/MM/yyyy")</MudTd>
+                        <MudTd>
+                            <MudLink Href="@($"/clientes/edit/{context.Id}")" Target="_blank" class="mr-1 pt-1" Color="Color.Default">
+                                <MudIcon Icon="@Icons.Material.Filled.Person" Size="Size.Small" />
+                            </MudLink>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudCardContent>
+        </MudCard>
+    }
+</MudContainer>
 
 @code {
+    private DateRange dateRange = new DateRange(DateTime.Now.AddMonths(-1), DateTime.Now);
+    private RelatorioClientesViewModel viewModel;
+    private int clientesEstacionamento;
+    private int clientesMensalistas;
 
+    private async Task CarregarRelatorio()
+    {
+        var filtro = new FiltroRelatorioViewModel
+            {
+                DataInicio = dateRange.Start.GetValueOrDefault(),
+                DataFim = dateRange.End.GetValueOrDefault()
+            };
+
+        viewModel = await RelatorioService.RelatorioClientes(filtro);
+
+        if (viewModel != null && viewModel.TotalClientes > 0)
+        {
+            var estatisticasClientes = await RelatorioService.ObterEstatisticasClientes(filtro);
+            clientesEstacionamento = estatisticasClientes.QtdEstacionamentos;
+            clientesMensalistas = estatisticasClientes.QtdMensalistas;
+        }
+    }
 }

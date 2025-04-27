@@ -1,12 +1,17 @@
 ﻿using AMDespachante.Application.Interfaces;
-using AMDespachante.Application.ViewModels;
+using AMDespachante.Application.ViewModels.Relatorios;
 using AMDespachante.Domain.Enums;
 using AMDespachante.Domain.Extensions;
 using AMDespachante.Domain.Interfaces;
+using System.Linq;
 
 namespace AMDespachante.Application.Services
 {
-    public class RelatorioAppService(IAtendimentoRepository atendimentoRepository, IClienteRepository clienteRepository, IVeiculoRepository veiculoRepository) : IRelatorioAppService
+    public class RelatorioAppService(
+        IAtendimentoRepository atendimentoRepository,
+        IClienteRepository clienteRepository, 
+        IVeiculoRepository veiculoRepository) 
+        : IRelatorioAppService
     {
         private readonly IAtendimentoRepository _atendimentoRepository = atendimentoRepository;
         private readonly IClienteRepository _clienteRepository = clienteRepository;
@@ -97,7 +102,7 @@ namespace AMDespachante.Application.Services
                 .Select(g => new AtendimentoPorTipoServicoViewModel
                 {
                     TipoServico = g.Key,
-                    DescricaoServico = g.Key.ToString(),
+                    DescricaoServico = g.FirstOrDefault().Servico.GetEnumDisplayName(),
                     Quantidade = g.Count(),
                     ValorTotal = g.Sum(a => a.ValorEntrada)
                 })
@@ -124,7 +129,7 @@ namespace AMDespachante.Application.Services
                     Data = a.Data,
                     Cliente = a.Cliente?.Nome ?? "N/A",
                     Veiculo = a.Veiculo != null ? $"{a.Veiculo.Modelo} ({a.Veiculo.Placa})" : "N/A",
-                    TipoServico = a.Servico.ToString(),
+                    TipoServico = a.Servico.GetEnumDisplayName(),
                     Status = a.Status,
                     DescricaoStatus = a.Status.ToString(),
                     ValorEntrada = a.ValorEntrada,
@@ -140,7 +145,62 @@ namespace AMDespachante.Application.Services
 
         public async Task<RelatorioClientesViewModel> RelatorioClientes(FiltroRelatorioViewModel filtro)
         {
-            return new RelatorioClientesViewModel();
+            var clientes = await _clienteRepository.ObterTodosComAtendimentosAsync();
+
+            foreach (var cliente in clientes)
+            {
+                cliente.Atendimentos = cliente.Atendimentos
+                    .Where(a => a.Data >= filtro.DataInicio && a.Data <= filtro.DataFim)
+                    .ToList();
+            }
+
+            // Clientes ativos são aqueles que tiveram pelo menos um atendimento no período
+            var clientesAtivos = clientes.Where(c => c.Atendimentos.Any()).ToList();
+
+            // Clientes novos são aqueles cadastrados dentro do período
+            var clientesNovos = clientes.Where(c => c.Criado >= filtro.DataInicio && c.Criado <= filtro.DataFim).ToList();
+
+            var viewModel = new RelatorioClientesViewModel
+            {
+                Filtro = filtro,
+                TotalClientes = clientes.Count(),
+                ClientesAtivos = clientesAtivos.Count,
+                ClientesNovos = clientesNovos.Count,
+                MediaAtendimentosPorCliente = clientesAtivos.Count != 0
+                    ? clientesAtivos.Average(c => c.Atendimentos.Count)
+                    : 0
+            };
+
+            // Top clientes (com mais atendimentos ou maior valor gasto no período)
+            viewModel.TopClientes = clientesAtivos
+                .OrderByDescending(c => c.Atendimentos.Sum(a => a.ValorEntrada))
+                .Take(10)
+                .Select(c => new ClienteDetalhadoViewModel
+                {
+                    Id = c.Id,
+                    Nome = c.Nome,
+                    Telefone = c.Telefone,
+                    DataCadastro = c.Criado,
+                    QuantidadeAtendimentos = c.Atendimentos.Count,
+                    ValorTotalGasto = c.Atendimentos.Sum(a => a.ValorEntrada),
+                    UltimoAtendimento = c.Atendimentos.Any()
+                        ? c.Atendimentos.Max(a => a.Data)
+                        : DateTime.MinValue
+                })
+                .ToList();
+
+            return viewModel;
+        }
+
+        public async Task<EstatisticasClientesViewModel> ObterEstatisticasClientes(FiltroRelatorioViewModel filtro)
+        {
+            var clientes = await _clienteRepository.GetAll();
+
+            return new EstatisticasClientesViewModel
+            {
+                QtdEstacionamentos = clientes.Count(c => c.EhEstacionamento),
+                QtdMensalistas = clientes.Count(c => c.PagaMensalidade)
+            };
         }
 
         public void Dispose()
