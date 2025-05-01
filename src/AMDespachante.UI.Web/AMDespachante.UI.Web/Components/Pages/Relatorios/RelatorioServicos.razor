@@ -1,5 +1,153 @@
-﻿<h3>RelatorioServicos</h3>
+﻿@page "/relatorios/servicos"
+@attribute [Authorize(Roles = "ADMIN")]
+
+@rendermode InteractiveServer
+
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels.Relatorios
+@using Microsoft.AspNetCore.Authorization
+
+@inject IRelatorioAppService RelatorioService
+
+<MudContainer Class="mt-2 mb-4">
+    <MudText Typo="Typo.h5" Class="mb-4">Relatório de Serviços</MudText>
+
+    <MudPaper Class="pa-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudDateRangePicker Label="Período" @bind-DateRange="dateRange" />
+            </MudItem>
+            <MudItem xs="12" md="2">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                           OnClick="CarregarRelatorio" Class="mt-4">
+                    Gerar Relatório
+                </MudButton>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    @if (viewModel != null)
+    {
+        <MudCard Class="mb-4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Resumo de Serviços</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudGrid>
+                    <MudItem xs="12" md="6">
+                        <MudPaper Elevation="0" Class="pa-4 text-center">
+                            <MudText Typo="Typo.subtitle1">Total de Serviços</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Primary">
+                                @viewModel.TotalServicos
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudPaper Elevation="0" Class="pa-4 text-center">
+                            <MudText Typo="Typo.subtitle1">Valor Total dos Serviços</MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Success">
+                                @viewModel.ValorTotalServicos.ToString("C")
+                            </MudText>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+        </MudCard>
+
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Serviços por Tipo</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudTable Items="@viewModel.ServicosPorTipo" Hover="true" Striped="true">
+                            <HeaderContent>
+                                <MudTh>Tipo de Serviço</MudTh>
+                                <MudTh>Quantidade</MudTh>
+                                <MudTh>Valor Total</MudTh>
+                                <MudTh>Percentual</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@context.Tipo</MudTd>
+                                <MudTd>@context.Quantidade</MudTd>
+                                <MudTd>@context.ValorTotal.ToString("C")</MudTd>
+                                <MudTd>@context.Percentual.ToString("0.0")%</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" md="6">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Serviços por Período</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudTable Items="@viewModel.ServicosPorPeriodo" Hover="true" Striped="true">
+                            <HeaderContent>
+                                <MudTh>Período</MudTh>
+                                <MudTh>Quantidade</MudTh>
+                                <MudTh>Valor Total</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@context.Periodo</MudTd>
+                                <MudTd>@context.Quantidade</MudTd>
+                                <MudTd>@context.ValorTotal.ToString("C")</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12">
+                <MudCard>
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">Serviços Mais Executados</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudTable Items="@viewModel.ServicosMaisExecutados" Hover="true" Striped="true">
+                            <HeaderContent>
+                                <MudTh>Serviço</MudTh>
+                                <MudTh>Quantidade</MudTh>
+                                <MudTh>Valor Unitário</MudTh>
+                                <MudTh>Valor Total</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd>@context.Descricao</MudTd>
+                                <MudTd>@context.Quantidade</MudTd>
+                                <MudTd>@context.ValorUnitario.ToString("C")</MudTd>
+                                <MudTd>@context.ValorTotal.ToString("C")</MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    }
+</MudContainer>
 
 @code {
+    private DateRange dateRange = new DateRange(DateTime.Now.AddMonths(-1), DateTime.Now);
+    private RelatorioServicosViewModel viewModel;
 
+    private async Task CarregarRelatorio()
+    {
+        var filtro = new FiltroRelatorioViewModel
+            {
+                DataInicio = dateRange.Start.GetValueOrDefault(),
+                DataFim = dateRange.End.GetValueOrDefault()
+            };
+
+        viewModel = await RelatorioService.RelatorioServicos(filtro);
+    }
 }

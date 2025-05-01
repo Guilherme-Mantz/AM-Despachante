@@ -87,6 +87,11 @@ namespace AMDespachante.Infra.Data.Repository
             return await _dbSet.ToListAsync();
         }
 
+        public async Task<IEnumerable<Veiculo>> ObterTodosComAtendimentosAsync()
+        {
+            return await _dbSet.Include(a => a.Atendimentos).ToListAsync();
+        }
+
         public async Task<Veiculo> GetById(Guid id)
         {
             return await _dbSet.FindAsync(id);

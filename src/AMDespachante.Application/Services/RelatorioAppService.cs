@@ -3,7 +3,7 @@ using AMDespachante.Application.ViewModels.Relatorios;
 using AMDespachante.Domain.Enums;
 using AMDespachante.Domain.Extensions;
 using AMDespachante.Domain.Interfaces;
-using System.Linq;
+using System.Globalization;
 
 namespace AMDespachante.Application.Services
 {
@@ -27,7 +27,6 @@ namespace AMDespachante.Application.Services
                 TotalEntradas = atendimentos.Sum(a => a.ValorEntrada),
                 TotalSaidas = atendimentos.Sum(a => a.ValorSaida),
 
-                // Agrupar por período (mês/ano)
                 LucrosPorPeriodo = [.. atendimentos
                 .GroupBy(a => new { Mes = a.Data.Month, Ano = a.Data.Year })
                 .Select(g => new LucroPorPeriodoViewModel
@@ -38,7 +37,6 @@ namespace AMDespachante.Application.Services
                 })
                 .OrderBy(l => l.Periodo)],
 
-                // Agrupar por tipo de serviço
                 LucrosPorTipoServico = [.. atendimentos
                 .GroupBy(a => a.Servico)
                 .Select(g => new LucroPorTipoServicoViewModel
@@ -52,7 +50,6 @@ namespace AMDespachante.Application.Services
                 .OrderByDescending(l => l.Lucro)]
             };
 
-            // Agrupar por forma de pagamento
             decimal totalValor = atendimentos.Sum(a => a.ValorEntrada);
             viewModel.LucrosPorFormaPagamento = [.. atendimentos
                 .GroupBy(a => a.FormaPagamento)
@@ -83,7 +80,6 @@ namespace AMDespachante.Application.Services
                 ValorMedioAtendimento = atendimentos.Any() ? atendimentos.Average(a => a.ValorEntrada) : 0
             };
 
-            // Agrupar por status
             int totalAtendimentos = atendimentos.Count();
             viewModel.AtendimentosPorStatus = [.. atendimentos
                 .GroupBy(a => a.Status)
@@ -96,7 +92,6 @@ namespace AMDespachante.Application.Services
                 })
                 .OrderByDescending(a => a.Quantidade)];
 
-            // Agrupar por tipo de serviço
             viewModel.AtendimentosPorTipoServico = [.. atendimentos
                 .GroupBy(a => a.Servico)
                 .Select(g => new AtendimentoPorTipoServicoViewModel
@@ -108,7 +103,6 @@ namespace AMDespachante.Application.Services
                 })
                 .OrderByDescending(a => a.Quantidade)];
 
-            // Agrupar por período (mês/ano)
             viewModel.AtendimentosPorPeriodo = [.. atendimentos
                 .GroupBy(a => new { Mes = a.Data.Month, Ano = a.Data.Year })
                 .Select(g => new AtendimentoPorPeriodoViewModel
@@ -119,7 +113,6 @@ namespace AMDespachante.Application.Services
                 })
                 .OrderBy(a => a.Periodo)];
 
-            // Últimos atendimentos
             viewModel.UltimosAtendimentos = atendimentos
                 .OrderByDescending(a => a.Data)
                 .Take(10)
@@ -154,10 +147,8 @@ namespace AMDespachante.Application.Services
                     .ToList();
             }
 
-            // Clientes ativos são aqueles que tiveram pelo menos um atendimento no período
-            var clientesAtivos = clientes.Where(c => c.Atendimentos.Any()).ToList();
+            var clientesAtivos = clientes.Where(c => c.Atendimentos.Count != 0).ToList();
 
-            // Clientes novos são aqueles cadastrados dentro do período
             var clientesNovos = clientes.Where(c => c.Criado >= filtro.DataInicio && c.Criado <= filtro.DataFim).ToList();
 
             var viewModel = new RelatorioClientesViewModel
@@ -168,11 +159,8 @@ namespace AMDespachante.Application.Services
                 ClientesNovos = clientesNovos.Count,
                 MediaAtendimentosPorCliente = clientesAtivos.Count != 0
                     ? clientesAtivos.Average(c => c.Atendimentos.Count)
-                    : 0
-            };
-
-            // Top clientes (com mais atendimentos ou maior valor gasto no período)
-            viewModel.TopClientes = clientesAtivos
+                    : 0,
+                TopClientes = clientesAtivos
                 .OrderByDescending(c => c.Atendimentos.Sum(a => a.ValorEntrada))
                 .Take(10)
                 .Select(c => new ClienteDetalhadoViewModel
@@ -183,11 +171,68 @@ namespace AMDespachante.Application.Services
                     DataCadastro = c.Criado,
                     QuantidadeAtendimentos = c.Atendimentos.Count,
                     ValorTotalGasto = c.Atendimentos.Sum(a => a.ValorEntrada),
-                    UltimoAtendimento = c.Atendimentos.Any()
+                    UltimoAtendimento = c.Atendimentos.Count != 0
                         ? c.Atendimentos.Max(a => a.Data)
                         : DateTime.MinValue
                 })
-                .ToList();
+                .ToList()
+            };
+
+            return viewModel;
+        }
+
+        public async Task<RelatorioVeiculosViewModel> RelatorioVeiculos(FiltroRelatorioViewModel filtro)
+        {
+            var veiculos = await _veiculoRepository.ObterTodosComAtendimentosAsync();
+
+            foreach (var veiculo in veiculos)
+            {
+                veiculo.Atendimentos = veiculo.Atendimentos
+                    .Where(a => a.Data >= filtro.DataInicio && a.Data <= filtro.DataFim)
+                    .ToList();
+            }
+
+            var veiculosEmAtendimento = veiculos.Where(v => v.Atendimentos.Count != 0).ToList();
+
+            var viewModel = new RelatorioVeiculosViewModel
+            {
+                Filtro = filtro,
+                TotalVeiculos = veiculos.Count(),
+                VeiculosEmAtendimento = veiculosEmAtendimento.Count,
+                VeiculosPorMarca = [.. veiculos
+                .GroupBy(v => ExtrairMarca(v.Modelo))
+                .Select(g => new VeiculoPorMarcaViewModel
+                {
+                    Marca = g.Key,
+                    Quantidade = g.Count(),
+                    Percentual = veiculos.Any() ? (decimal)g.Count() / veiculos.Count() * 100 : 0
+                })
+                .OrderByDescending(v => v.Quantidade)],
+
+                VeiculosPorAno = [.. veiculos
+                .GroupBy(v => int.Parse(v.AnoFabricacao))
+                .Select(g => new VeiculoPorAnoViewModel
+                {
+                    Ano = g.Key,
+                    Quantidade = g.Count()
+                })
+                .OrderByDescending(v => v.Ano)],
+
+                VeiculosMaisAtendidos = veiculosEmAtendimento
+                .OrderByDescending(v => v.Atendimentos.Count)
+                .Take(10)
+                .Select(v => new VeiculoDetalhadoViewModel
+                {
+                    Id = v.Id,
+                    Placa = v.Placa,
+                    Modelo = v.Modelo,
+                    Marca = ExtrairMarca(v.Modelo),
+                    Ano = int.Parse(v.AnoFabricacao),
+                    QuantidadeAtendimentos = v.Atendimentos.Count,
+                    ValorTotalServicos = v.Atendimentos.Sum(a => a.ValorEntrada)
+                })
+                .ToList()
+            };
 
             return viewModel;
         }
@@ -201,6 +246,90 @@ namespace AMDespachante.Application.Services
                 QtdEstacionamentos = clientes.Count(c => c.EhEstacionamento),
                 QtdMensalistas = clientes.Count(c => c.PagaMensalidade)
             };
+        }
+
+        public async Task<RelatorioServicosViewModel> RelatorioServicos(FiltroRelatorioViewModel filtro)
+        {
+            var atendimentos = await _atendimentoRepository.ObterPorPeriodoAsync(filtro.DataInicio, filtro.DataFim);
+
+            var totalServicos = atendimentos.Count();
+            var valorTotalServicos = atendimentos.Sum(a => a.ValorEntrada);
+
+            var servicosPorTipo = atendimentos
+                .GroupBy(a => a.Servico)
+                .Select(grupo => new ServicoPorTipoViewModel
+                {
+                    Tipo = grupo.Key.GetEnumDisplayName(),
+                    Quantidade = grupo.Count(),
+                    ValorTotal = grupo.Sum(a => a.ValorEntrada),
+                    Percentual = totalServicos > 0 ? (decimal)grupo.Count() / totalServicos * 100 : 0
+                })
+                .OrderByDescending(s => s.Quantidade)
+                .ToList();
+
+            var servicosPorPeriodo = new List<ServicoPorPeriodoViewModel>();
+
+            var diasNoPeriodo = (filtro.DataFim - filtro.DataInicio).TotalDays;
+
+            if (diasNoPeriodo <= 60)
+            {
+                servicosPorPeriodo = [.. atendimentos
+                    .GroupBy(a => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(
+                        a.Data, CalendarWeekRule.FirstDay, DayOfWeek.Sunday))
+                    .Select(grupo => new ServicoPorPeriodoViewModel
+                    {
+                        Periodo = $"Semana {grupo.Key}",
+                        Quantidade = grupo.Count(),
+                        ValorTotal = grupo.Sum(a => a.ValorEntrada)
+                    })
+                    .OrderBy(s => s.Periodo)];
+            }
+            else
+            {
+                servicosPorPeriodo = [.. atendimentos
+                    .GroupBy(a => new { a.Data.Year, a.Data.Month })
+                    .Select(grupo => new ServicoPorPeriodoViewModel
+                    {
+                        Periodo = $"{CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(grupo.Key.Month)}/{grupo.Key.Year}",
+                        Quantidade = grupo.Count(),
+                        ValorTotal = grupo.Sum(a => a.ValorEntrada)
+                    })
+                    .OrderBy(s => s.Periodo)];
+            }
+
+            var servicosMaisExecutados = atendimentos
+                .GroupBy(a => new { a.Servico, Valor = a.ValorEntrada })
+                .Select(grupo => new ServicoMaisExecutadoViewModel
+                {
+                    Descricao = grupo.Key.Servico.GetEnumDisplayName(),
+                    Quantidade = grupo.Count(),
+                    ValorUnitario = grupo.Key.Valor,
+                    ValorTotal = grupo.Count() * grupo.Key.Valor
+                })
+                .OrderByDescending(s => s.Quantidade)
+                .Take(10)
+                .ToList();
+
+            var viewModel = new RelatorioServicosViewModel
+            {
+                Filtro = filtro,
+                TotalServicos = totalServicos,
+                ValorTotalServicos = valorTotalServicos,
+                ServicosPorTipo = servicosPorTipo,
+                ServicosPorPeriodo = servicosPorPeriodo,
+                ServicosMaisExecutados = servicosMaisExecutados
+            };
+
+            return viewModel;
+        }
+
+        private string ExtrairMarca(string modelo)
+        {
+            if (string.IsNullOrEmpty(modelo))
+                return "Não informado";
+
+            string marca = modelo.Split(' ').FirstOrDefault() ?? "Não informado";
+            return marca;
         }
 
         public void Dispose()

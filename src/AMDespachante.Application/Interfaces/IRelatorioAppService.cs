@@ -7,6 +7,8 @@ namespace AMDespachante.Application.Interfaces
         Task<RelatorioLucrosViewModel> RelatorioLucros(FiltroRelatorioViewModel filtro);
         Task<RelatorioAtendimentosViewModel> RelatorioAtendimentos(FiltroRelatorioViewModel filtro);
         Task<RelatorioClientesViewModel> RelatorioClientes(FiltroRelatorioViewModel filtro);
+        Task<RelatorioVeiculosViewModel> RelatorioVeiculos(FiltroRelatorioViewModel filtro);
+        Task<RelatorioServicosViewModel> RelatorioServicos(FiltroRelatorioViewModel filtro);
         Task<EstatisticasClientesViewModel> ObterEstatisticasClientes(FiltroRelatorioViewModel filtro);
     }
 }
