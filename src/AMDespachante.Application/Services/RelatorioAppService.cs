@@ -138,14 +138,7 @@ namespace AMDespachante.Application.Services
 
         public async Task<RelatorioClientesViewModel> RelatorioClientes(FiltroRelatorioViewModel filtro)
         {
-            var clientes = await _clienteRepository.ObterTodosComAtendimentosAsync();
-
-            foreach (var cliente in clientes)
-            {
-                cliente.Atendimentos = cliente.Atendimentos
-                    .Where(a => a.Data >= filtro.DataInicio && a.Data <= filtro.DataFim)
-                    .ToList();
-            }
+            var clientes = await _clienteRepository.ObterTodosComAtendimentosPorPeriodoAsync(filtro.DataInicio, filtro.DataFim);
 
             var clientesAtivos = clientes.Where(c => c.Atendimentos.Count != 0).ToList();
 
@@ -183,14 +176,7 @@ namespace AMDespachante.Application.Services
 
         public async Task<RelatorioVeiculosViewModel> RelatorioVeiculos(FiltroRelatorioViewModel filtro)
         {
-            var veiculos = await _veiculoRepository.ObterTodosComAtendimentosAsync();
-
-            foreach (var veiculo in veiculos)
-            {
-                veiculo.Atendimentos = veiculo.Atendimentos
-                    .Where(a => a.Data >= filtro.DataInicio && a.Data <= filtro.DataFim)
-                    .ToList();
-            }
+            var veiculos = await _veiculoRepository.ObterTodosComAtendimentosPorPeriodoAsync(filtro.DataInicio, filtro.DataFim);
 
             var veiculosEmAtendimento = veiculos.Where(v => v.Atendimentos.Count != 0).ToList();
 
