@@ -221,8 +221,8 @@
         return status switch
         {
             StatusAtendimentoEnum.Concluido => Color.Success,
-            StatusAtendimentoEnum.Pago => Color.Warning,
-            StatusAtendimentoEnum.Pendente => Color.Error,
+            StatusAtendimentoEnum.Pago => Color.Info,
+            StatusAtendimentoEnum.Pendente => Color.Warning,
             _ => Color.Default
         };
     }
