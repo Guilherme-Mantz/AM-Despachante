@@ -38,6 +38,11 @@ namespace AMDespachante.Application.Services
             return _mapper.Map<IEnumerable<AtendimentoViewModel>>(await _repository.GetAll());
         }
 
+        public async Task<IEnumerable<AtendimentoViewModel>> ObterAtendimentosPorPeriodo(DateTime dataInicio, DateTime dataFim)
+        {
+            return _mapper.Map<IEnumerable<AtendimentoViewModel>>(await _repository.ObterPorPeriodoAsync(dataInicio, dataFim));
+        }
+
         public async Task<AtendimentoViewModel> GetById(Guid Id)
         {
             return _mapper.Map<AtendimentoViewModel>(await _repository.GetById(Id));

@@ -11,18 +11,11 @@ using System.Linq.Dynamic.Core;
 
 namespace AMDespachante.Application.Services
 {
-    public class ClienteAppService : IClienteAppService
+    public class ClienteAppService(IMediatorHandler mediatorHandler, IMapper mapper, IClienteRepository clienteRepository) : IClienteAppService
     {
-        private readonly IMediatorHandler _mediatorHandler;
-        private readonly IMapper _mapper;
-        private readonly IClienteRepository _clienteRepository;
-
-        public ClienteAppService(IMediatorHandler mediatorHandler, IMapper mapper, IClienteRepository clienteRepository)
-        {
-            _mediatorHandler = mediatorHandler;
-            _mapper = mapper;
-            _clienteRepository = clienteRepository;
-        }
+        private readonly IMediatorHandler _mediatorHandler = mediatorHandler;
+        private readonly IMapper _mapper = mapper;
+        private readonly IClienteRepository _clienteRepository = clienteRepository;
 
         public async Task<PagedResult<ClienteViewModel>> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null)
         {
@@ -38,6 +31,11 @@ namespace AMDespachante.Application.Services
         public async Task<IEnumerable<ClienteViewModel>> GetAll()
         {
             return _mapper.Map<IEnumerable<ClienteViewModel>>(await _clienteRepository.GetAll());
+        }
+
+        public async Task<IEnumerable<ClienteViewModel>> ObterClientesPorPeriodo(DateTime dataInicio, DateTime dataFim)
+        {
+            return _mapper.Map<IEnumerable<ClienteViewModel>>(await _clienteRepository.ObterClientesPorPeriodo(dataInicio, dataFim));
         }
 
         public async Task<ClienteViewModel> GetById(Guid Id)

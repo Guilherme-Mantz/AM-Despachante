@@ -8,6 +8,7 @@ namespace AMDespachante.Application.Interfaces
     {
         Task<PagedResult<ClienteViewModel>> GetPagedAsync(int page, int pageSize, string sortOrder, string searchTerm = null, string sortField = null);
         Task<IEnumerable<ClienteViewModel>> GetAll();
+        Task<IEnumerable<ClienteViewModel>> ObterClientesPorPeriodo(DateTime dataInicio, DateTime dataFim);
         Task<ClienteViewModel?> GetById(Guid Id);
         Task<ClienteViewModel> GetByIdWithVeiculos(Guid Id);
 

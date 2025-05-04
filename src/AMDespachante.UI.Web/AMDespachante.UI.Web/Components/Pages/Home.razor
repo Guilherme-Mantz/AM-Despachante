@@ -1,7 +1,229 @@
 ﻿@page "/"
 
-<CustomPageTitle Titulo="Home"/>
+@using System.Linq
+@using System.Globalization
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Application.ViewModels
+@using AMDespachante.Domain.Enums
+@using AMDespachante.Domain.Extensions
 
-<h1>Hello, world!</h1>
+@inject IAtendimentoAppService AtendimentoService
+@inject IClienteAppService ClienteService
+@inject IDialogService DialogService
 
-Welcome to your new app.
+<CustomPageTitle Titulo="Dashboard" />
+
+<MudContainer Class="mt-4 mb-5">
+    <MudPaper Elevation="0" Class="pa-2 mb-6">
+        <MudText Typo="Typo.h4" Class="mb-2 primary-text font-weight-bold">Dashboard de Atendimentos</MudText>
+        <MudDivider Class="mb-4" />
+    </MudPaper>
+
+    <MudGrid Spacing="4">
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Elevation="2" Class="pa-4 rounded-lg mud-height-full dashboard-card">
+                <MudStack>
+                    <div class="d-flex align-center mb-2">
+                        <MudIcon Icon="@Icons.Material.Filled.Assignment" Color="Color.Primary" Class="mr-2" />
+                        <MudText Typo="Typo.subtitle1" Class="font-weight-medium">Total de Atendimentos</MudText>
+                    </div>
+                    <MudText Typo="Typo.h3" Class="font-weight-bold py-2">@TotalAtendimentos</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Últimos 30 dias</MudText>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Elevation="2" Class="pa-4 rounded-lg mud-height-full dashboard-card">
+                <MudStack>
+                    <div class="d-flex align-center mb-2">
+                        <MudIcon Icon="@Icons.Material.Filled.PendingActions" Color="Color.Error" Class="mr-2" />
+                        <MudText Typo="Typo.subtitle1" Class="font-weight-medium">Atendimentos Pendentes</MudText>
+                    </div>
+                    <MudText Typo="Typo.h3" Class="font-weight-bold py-2">@AtendimentosPendentes</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Aguardando finalização</MudText>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Elevation="2" Class="pa-4 rounded-lg mud-height-full dashboard-card">
+                <MudStack>
+                    <div class="d-flex align-center mb-2">
+                        <MudIcon Icon="@Icons.Material.Filled.Payments" Color="Color.Success" Class="mr-2" />
+                        <MudText Typo="Typo.subtitle1" Class="font-weight-medium">Faturamento Total</MudText>
+                    </div>
+                    <MudText Typo="Typo.h3" Class="font-weight-bold py-2">@FaturamentoTotal.ToString("C", new CultureInfo("pt-BR"))</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Últimos 30 dias</MudText>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Elevation="2" Class="pa-4 rounded-lg mud-height-full dashboard-card">
+                <MudStack>
+                    <div class="d-flex align-center mb-2">
+                        <MudIcon Icon="@Icons.Material.Filled.PersonAdd" Color="Color.Info" Class="mr-2" />
+                        <MudText Typo="Typo.subtitle1" Class="font-weight-medium">Novos Clientes</MudText>
+                    </div>
+                    <MudText Typo="Typo.h3" Class="font-weight-bold py-2">@NovosClientes</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Últimos 30 dias</MudText>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+
+        <!-- Gráfico de atendimentos por status -->
+        <MudItem xs="12">
+            <MudPaper Elevation="2" Class="pa-6 rounded-lg">
+                <div class="d-flex align-center mb-4">
+                    <MudIcon Icon="@Icons.Material.Filled.PieChart" Color="Color.Primary" Class="mr-2" />
+                    <MudText Typo="Typo.h6" Class="font-weight-medium">Atendimentos por Status</MudText>
+                </div>
+                <MudChart ChartType="ChartType.Pie"
+                          InputData="@statusData"
+                          InputLabels="@statusLabels"
+                          Width="200px"
+                          Height="200px"
+                          LegendPosition="Position.Bottom" />
+            </MudPaper>
+        </MudItem>
+
+        <!-- Últimos atendimentos -->
+        <MudItem xs="12">
+            <MudPaper Elevation="2" Class="pa-6 rounded-lg">
+                <div class="d-flex justify-space-between align-center mb-4">
+                    <div class="d-flex align-center">
+                        <MudIcon Icon="@Icons.Material.Filled.ListAlt" Color="Color.Primary" Class="mr-2" />
+                        <MudText Typo="Typo.h6" Class="font-weight-medium">Últimos Atendimentos</MudText>
+                    </div>
+                    <MudButton Variant="Variant.Text"
+                               EndIcon="@Icons.Material.Filled.ArrowForward"
+                               Color="Color.Primary"
+                               Href="/atendimentos">
+                        Ver Todos
+                    </MudButton>
+                </div>
+                <MudTable Items="@ultimosAtendimentos"
+                          Hover="true"
+                          Striped="false"
+                          Dense="true"
+                          Bordered="false"
+                          Elevation="0"
+                          Class="rounded">
+                    <HeaderContent>
+                        <MudTh>Data</MudTh>
+                        <MudTh>Cliente</MudTh>
+                        <MudTh>Serviço</MudTh>
+                        <MudTh>Valor</MudTh>
+                        <MudTh>Status</MudTh>
+                        <MudTh></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Data">@context.Data.ToString("dd/MM/yyyy")</MudTd>
+                        <MudTd DataLabel="Cliente">@context.Cliente.Nome</MudTd>
+                        <MudTd DataLabel="Serviço">@context.Servico.GetEnumDisplayName()</MudTd>
+                        <MudTd DataLabel="Valor">@context.ValorSaida.ToString("C", new CultureInfo("pt-BR"))</MudTd>
+                        <MudTd DataLabel="Status">
+                            <MudChip T=StatusAtendimentoEnum
+                                     Color="@GetStatusColor(context.Status)"
+                                     Size="Size.Small"
+                                     Variant="Variant.Filled">
+                                @context.Status.GetEnumDisplayName()
+                            </MudChip>
+                        </MudTd>
+                        <MudTd>
+                            <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                           Size="Size.Small"
+                                           Color="Color.Primary"
+                                           Href="@($"/atendimentos/edit/{context.Id}")" />
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+<style>
+    .dashboard-card {
+        transition: all 0.3s ease;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--mud-elevation-5);
+        }
+
+    .primary-text {
+        color: var(--mud-palette-primary);
+    }
+</style>
+
+@code {
+    private int TotalAtendimentos { get; set; }
+    private int AtendimentosPendentes { get; set; }
+    private decimal FaturamentoTotal { get; set; }
+    private int NovosClientes { get; set; }
+
+    private double[] statusData { get; set; }
+    private string[] statusLabels { get; set; }
+
+
+    private List<AtendimentoViewModel> ultimosAtendimentos { get; set; } = new List<AtendimentoViewModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarDados();
+    }
+
+    private async Task CarregarDados()
+    {
+        try
+        {
+            var dataInicio = DateTime.Now.AddDays(-30);
+            var dataFim = DateTime.Now;
+
+            var atendimentos = await AtendimentoService.ObterAtendimentosPorPeriodo(dataInicio, dataFim);
+
+            TotalAtendimentos = atendimentos.Count();
+            AtendimentosPendentes = atendimentos.Count(a => a.Status != StatusAtendimentoEnum.Concluido);
+            FaturamentoTotal = atendimentos.Sum(a => a.ValorSaida);
+
+            var clientes = await ClienteService.ObterClientesPorPeriodo(dataInicio, dataFim);
+            NovosClientes = clientes.Count();
+
+            var statusGroup = atendimentos
+                .GroupBy(a => a.Status)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToList();
+
+            statusData = statusGroup.Select(g => (double)g.Count).ToArray();
+            statusLabels = statusGroup.Select(g => g.Status.GetEnumDisplayName()).ToArray();
+
+
+            ultimosAtendimentos = atendimentos
+                .OrderByDescending(a => a.Data)
+                .Take(5)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            await DialogService.ShowMessageBox(
+                "Erro",
+                $"Erro ao carregar dados: {ex.Message}",
+                yesText: "OK");
+        }
+    }
+
+    private Color GetStatusColor(StatusAtendimentoEnum status)
+    {
+        return status switch
+        {
+            StatusAtendimentoEnum.Concluido => Color.Success,
+            StatusAtendimentoEnum.Pago => Color.Warning,
+            StatusAtendimentoEnum.Pendente => Color.Error,
+            _ => Color.Default
+        };
+    }
+}

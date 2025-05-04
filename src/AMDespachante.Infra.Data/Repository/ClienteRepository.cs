@@ -73,6 +73,11 @@ namespace AMDespachante.Infra.Data.Repository
             return await _dbSet.ToListAsync();
         }
 
+        public async Task<IEnumerable<Cliente>> ObterClientesPorPeriodo(DateTime dataInicio, DateTime dataFim)
+        {
+            return await _dbSet.Where(c => c.Criado >= dataInicio && c.Criado <= dataFim).ToListAsync();
+        }
+
         public async Task<Cliente> GetById(Guid id)
         {
             return await _dbSet.FindAsync(id);
