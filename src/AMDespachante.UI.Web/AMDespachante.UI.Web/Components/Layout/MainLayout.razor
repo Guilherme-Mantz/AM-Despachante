@@ -59,3 +59,33 @@
         StateHasChanged();
     }
 }
+
+<style>
+    .mud-button-filled.mud-button-filled-primary {
+        color: #000000;
+        --mud-ripple-color: #000000;
+        background-color: #FFD700;
+    }
+
+        .mud-button-filled.mud-button-filled-primary:hover {
+            background-color: #cca700;
+        }
+
+    .mud-link.mud-button.mud-button-filled.mud-button-primary {
+        color: #000000 !important;
+        background-color: #FFD700 !important;
+        text-decoration: none;
+    }
+
+        .mud-link.mud-button.mud-button-filled.mud-button-primary:hover {
+            background-color: #cca700 !important;
+        }
+
+    .mud-icon-root.mud-primary-text:not(.mud-icon-size-inherit):not(.mud-icon-button) {
+        color: #FFD700 !important;
+    }
+
+    .mud-ripple-primary {
+        --mud-ripple-color: #000000;
+    }
+</style>

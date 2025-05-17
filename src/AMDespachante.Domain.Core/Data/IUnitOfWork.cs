@@ -2,7 +2,7 @@
 {
     public interface IUnitOfWork
     {
-        Task<bool> Commit();
+        Task<bool> Commit(bool isAutomatedJob = false);
         void Reset();
     }
 }

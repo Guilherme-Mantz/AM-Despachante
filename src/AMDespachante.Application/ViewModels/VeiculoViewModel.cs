@@ -36,6 +36,7 @@ namespace AMDespachante.Application.ViewModels
 
         public Guid ClienteId { get; set; }
         public string ClienteNome { get; set; }
+        public bool? AlertaLicenciamento { get; set; }
 
         public string CriadoPor { get; set; }
         public DateTime Criado { get; set; }

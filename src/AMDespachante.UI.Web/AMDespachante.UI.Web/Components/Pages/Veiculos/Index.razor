@@ -2,6 +2,7 @@
 
 @rendermode InteractiveServer
 
+@using AMDespachante.UI.Web.Components.Shared.Clientes
 @using AMDespachante.Application.Interfaces
 @using AMDespachante.Application.ViewModels
 @using AMDespachante.Domain.Extensions
@@ -34,6 +35,7 @@
     <HeaderContent>
         <MudTh><MudTableSortLabel SortLabel="clienteNome" T="VeiculoViewModel">Cliente</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="placa" T="VeiculoViewModel">Placa</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortLabel="alertaLicenciamento" T="VeiculoViewModel">Status</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="renavam" T="VeiculoViewModel">Renavam</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="tipoVeiculo" T="VeiculoViewModel">Tipo de veículo</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortLabel="modelo" T="VeiculoViewModel">Modelo</MudTableSortLabel></MudTh>
@@ -44,6 +46,17 @@
     <RowTemplate>
         <MudTd>@context.ClienteNome</MudTd>
         <MudTd>@context.Placa</MudTd>
+        <MudTd>
+            @if (context.AlertaLicenciamento == true)
+            {
+                <MudTooltip Text="Licenciamento necessário">
+                    <MudIconButton Icon="@Icons.Material.Filled.Warning"
+                                   Color="Color.Warning"
+                                   Size="Size.Small"
+                                   OnClick="() => AbrirDialogCliente(context.ClienteId)" />
+                </MudTooltip>
+            }
+        </MudTd>
         <MudTd>@context.Renavam</MudTd>
         <MudTd>@context.TipoVeiculo.GetEnumDisplayName()</MudTd>
         <MudTd>@context.Modelo</MudTd>
@@ -111,6 +124,23 @@
     {
         searchString = text;
         table.ReloadServerData();
+    }
+
+    private async Task AbrirDialogCliente(Guid clienteId)
+    {
+        var parameters = new DialogParameters
+            {
+                ["ClienteId"] = clienteId
+            };
+
+        var options = new DialogOptions
+            {
+                CloseOnEscapeKey = true,
+                MaxWidth = MaxWidth.Medium,
+                FullWidth = true
+            };
+
+        await DialogService.ShowAsync<ClienteDialog>("Detalhes do Cliente", parameters, options);
     }
 
     public void Dispose()

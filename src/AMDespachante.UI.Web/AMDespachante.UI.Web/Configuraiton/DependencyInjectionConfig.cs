@@ -23,6 +23,8 @@ using AMDespachante.UI.Web.Services.Implementations;
 using AMDespachante.UI.Web.Services.Interfaces;
 using AMDespachante.Domain.Events.AtendimentoEvents;
 using AMDespachante.Domain.Commands.AtendimentoCommands;
+using AMDespachante.Domain.Interfaces.Services;
+using AMDespachante.Domain.Services;
 
 namespace AMDespachante.UI.Web.Configuraiton
 {
@@ -84,6 +86,9 @@ namespace AMDespachante.UI.Web.Configuraiton
             services.AddTransient<IRequestHandler<AtualizarVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
             services.AddTransient<IRequestHandler<GerenciarVeiculosClienteCommand, ValidationResult>, VeiculoCommandHandler>();
             services.AddTransient<IRequestHandler<RemoverVeiculoCommand, ValidationResult>, VeiculoCommandHandler>();
+
+            // Domain - Services
+            services.AddTransient<ILicencaValidacaoService, LicencaValidacaoService>();
 
             //Repostories
             services.AddTransient<AmDespachanteContext>();

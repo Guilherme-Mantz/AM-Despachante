@@ -1,0 +1,125 @@
+﻿@using AMDespachante.Application.ViewModels
+@using AMDespachante.Application.Interfaces
+@using AMDespachante.Domain.Extensions
+@using AMDespachante.Domain.Enums
+@using System.ComponentModel.DataAnnotations
+@using AMDespachante.UI.Web.Services.Interfaces
+@using global::MudBlazor
+
+@inject IClienteAppService ClienteAppService
+
+<MudDialog Class="px-4 py-2" Style="min-width: 520px; max-width: 520px;">
+    <DialogContent>
+        <div class="d-flex flex-column" style="min-height: 22rem; max-height: 28rem; overflow-y: auto;">
+            <MudText Typo="Typo.h5" Class="mb-4">Dados do Cliente</MudText>
+            
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle1">Nome</MudText>
+                    <MudText Class="mb-1">@Cliente.Nome</MudText>
+                </MudItem>
+                
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle1">Email</MudText>
+                    <MudText Class="mb-1">@Cliente.Email</MudText>
+                </MudItem>
+                
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle1">@(Cliente.DocumentoFiscal?.Length <= 14 ? "CPF" : "CNPJ")</MudText>
+                    <MudText Class="mb-1">@FormatarDocumento(Cliente.DocumentoFiscal)</MudText>
+                </MudItem>
+                
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle1">Telefone</MudText>
+                    <MudText Class="mb-1">@FormatarTelefone(Cliente.Telefone)</MudText>
+                </MudItem>
+                
+                <MudItem xs="12">
+                    <MudDivider Class="my-3" />
+                </MudItem>
+                
+                <MudItem xs="12" sm="6">
+                    <MudCheckBox T="bool" ReadOnly="true"
+                                 @bind-value="@Cliente.EhEstacionamento"
+                               Label="É Estacionamento"
+                               Color="Color.Primary" />
+                </MudItem>
+                
+                <MudItem xs="12" sm="6">
+                    <MudCheckBox T="bool" ReadOnly="true"
+                               @bind-value="@Cliente.PagaMensalidade"
+                               Label="Paga Mensalidade"
+                               Color="Color.Primary" />
+                </MudItem>
+                
+                @if (Cliente.PagaMensalidade)
+                {
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.subtitle1">Valor da Mensalidade</MudText>
+                        <MudText Class="mb-1">@string.Format("R$ {0:N2}", Cliente.ValorMensalidade)</MudText>
+                    </MudItem>
+                    
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.subtitle1">Data do Próximo Vencimento</MudText>
+                        <MudText Class="mb-1">@(Cliente.DataProximoVencimento?.ToString("dd/MM/yyyy") ?? "-")</MudText>
+                    </MudItem>
+                }
+            </MudGrid>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="(() => MudDialog.Close())"
+                   Variant="Variant.Outlined"
+                   Color="Color.Secondary">
+            Fechar
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    
+    [Parameter]
+    public Guid ClienteId { get; set; }
+    
+    public ClienteViewModel Cliente { get; set; } = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        Cliente = await ClienteAppService.GetById(ClienteId);
+    }
+    
+    private string FormatarDocumento(string documento)
+    {
+        if (string.IsNullOrEmpty(documento))
+            return "-";
+            
+        var doc = System.Text.RegularExpressions.Regex.Replace(documento, @"\D", "");
+        
+        if (doc.Length <= 11)
+        {
+            if (doc.Length == 11)
+                return $"{doc.Substring(0, 3)}.{doc.Substring(3, 3)}.{doc.Substring(6, 3)}-{doc.Substring(9, 2)}";
+        }
+        else
+        {
+            if (doc.Length == 14)
+                return $"{doc.Substring(0, 2)}.{doc.Substring(2, 3)}.{doc.Substring(5, 3)}/{doc.Substring(8, 4)}-{doc.Substring(12, 2)}";
+        }
+        
+        return documento;
+    }
+    
+    private string FormatarTelefone(string telefone)
+    {
+        if (string.IsNullOrEmpty(telefone))
+            return "-";
+            
+        var tel = System.Text.RegularExpressions.Regex.Replace(telefone, @"\D", "");
+        
+        if (tel.Length == 11)
+            return $"({tel.Substring(0, 2)}) {tel.Substring(2, 5)}-{tel.Substring(7, 4)}";
+            
+        return telefone;
+    }
+}

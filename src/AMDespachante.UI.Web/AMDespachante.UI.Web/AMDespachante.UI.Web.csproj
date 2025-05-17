@@ -25,6 +25,13 @@
     <PackageReference Include="MudBlazor" Version="8.2.0" />
   </ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Hangfire.Core" Version="1.8.*" />
+		<PackageReference Include="Hangfire.SqlServer" Version="1.8.*" />
+		<PackageReference Include="Hangfire.AspNetCore" Version="1.8.*" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="*" />
+	</ItemGroup>
+
   <ItemGroup>
     <None Include="bundleconfig.json" />
   </ItemGroup>

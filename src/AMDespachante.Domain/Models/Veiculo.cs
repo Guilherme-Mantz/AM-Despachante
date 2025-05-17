@@ -32,6 +32,10 @@ namespace AMDespachante.Domain.Models
         public Guid ClienteId { get; set; }
         public virtual Cliente Cliente { get; set; }
 
+        public DateTime? DataUltimaValidacao { get; set; }
+        public ValidacaoStatusEnum? Status { get; set; }
+        public bool? AlertaLicenciamento { get; set; }
+
         public string CriadoPor { get; set; }
         public DateTime Criado { get; set; }
         public string ModificadoPor { get; set; }
@@ -39,5 +43,17 @@ namespace AMDespachante.Domain.Models
 
         // 1:N com Atendimento
         public virtual ICollection<Atendimento> Atendimentos { get; set; }
+
+        public int ObterFinalPlaca()
+        {
+            if (string.IsNullOrEmpty(Placa) || Placa.Length < 1)
+                return -1;
+
+            char ultimoDigito = Placa[^1];
+            if (char.IsDigit(ultimoDigito))
+                return int.Parse(ultimoDigito.ToString());
+
+            return -1;
+        }
     }
 }

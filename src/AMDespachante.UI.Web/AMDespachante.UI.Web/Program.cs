@@ -1,5 +1,8 @@
+using AMDespachante.Domain.Interfaces.Services;
 using AMDespachante.UI.Web.Components;
 using AMDespachante.UI.Web.Configuraiton;
+using Hangfire;
+using Hangfire.SqlServer;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,7 +26,11 @@ builder.Services.AddMediatR(c => c.RegisterServicesFromAssemblyContaining<Progra
 builder.Services.AddMudServices();
 
 builder.Services.AddRazorPages();
+
 builder.Services.AddServerSideBlazor();
+
+// Add Hangfire services.
+builder.Services.AddHangfire(builder.Configuration);
 
 builder.Services.AddHttpClient();
 
@@ -46,6 +53,8 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
+app.UseHangfireDashboard();
+
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
@@ -54,5 +63,8 @@ app.MapRazorComponents<App>()
     .AddAdditionalAssemblies(typeof(AMDespachante.UI.Web.Client._Imports).Assembly);
 
 app.MapAdditionalIdentityEndpoints();
+
+// Add Hangfire Jobs.
+app.AddHangfireJobs();
 
 app.Run();

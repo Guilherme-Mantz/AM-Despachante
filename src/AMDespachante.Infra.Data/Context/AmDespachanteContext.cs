@@ -26,8 +26,10 @@ public class AmDespachanteContext : DbContext, IUnitOfWork
     public DbSet<Cliente> Clientes { get; set; }
     public DbSet<Veiculo> Veiculos { get; set; }
 
-    public async Task<bool> Commit()
+    public async Task<bool> Commit(bool isAutomatedJob = false)
     {
+        string systemUserName = isAutomatedJob ? "Sistema - Job Automatizado" : _user?.Name;
+
         foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("Criado") != null))
         {
             if (entry.State == EntityState.Added)
@@ -40,7 +42,7 @@ public class AmDespachanteContext : DbContext, IUnitOfWork
         foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("CriadoPor") != null))
         {
             if (entry.State == EntityState.Added)
-                entry.Property("CriadoPor").CurrentValue = _user?.Name;
+                entry.Property("CriadoPor").CurrentValue = systemUserName;
 
             if (entry.State == EntityState.Modified)
                 entry.Property("CriadoPor").IsModified = false;
@@ -55,7 +57,7 @@ public class AmDespachanteContext : DbContext, IUnitOfWork
         foreach (var entry in ChangeTracker.Entries().Where(entry => entry.Entity.GetType().GetProperty("ModificadoPor") != null))
         {
             if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
-                entry.Property("ModificadoPor").CurrentValue = _user?.Name;
+                entry.Property("ModificadoPor").CurrentValue = systemUserName;
         }
 
         await _mediatorHandler.PublishDomainEvents(this).ConfigureAwait(false);
