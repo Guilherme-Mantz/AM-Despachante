@@ -1,0 +1,55 @@
+﻿@page "/404"
+@page "/not-found"
+
+<PageTitle>Página não encontrada</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex flex-column justify-center align-center" Style="min-height: 80vh;">
+
+    <MudPaper Elevation="0" Class="mb-6 pa-8 text-center" Style="background: transparent;">
+        <MudIcon Icon="@Icons.Material.Filled.SearchOff"
+                 Size="Size.Large"
+                 Style="font-size: 8rem; color: var(--mud-palette-primary);"
+                 Class="mb-4" />
+    </MudPaper>
+
+    <MudText Typo="Typo.h1"
+             Class="mb-4 text-center"
+             Style="font-weight: 700; font-size: 6rem; color: var(--mud-palette-primary);">
+        404
+    </MudText>
+
+    <MudText Typo="Typo.h4"
+             Class="mb-4 text-center"
+             Color="Color.Secondary">
+        Página não encontrada
+    </MudText>
+
+    <MudText Typo="Typo.body1"
+             Class="mb-6 text-center"
+             Color="Color.Primary"
+             Style="max-width: 500px;">
+        Ops! A página que você está procurando não existe ou foi removida.
+        Verifique o endereço digitado.
+    </MudText>
+
+    <MudStack Row="true" Spacing="3" Class="mb-6" Justify="Justify.Center">
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Size="Size.Large"
+                   StartIcon="@Icons.Material.Filled.Home"
+                   Href="/"
+                   Class="px-6">
+            Página Inicial
+        </MudButton>
+    </MudStack>
+
+</MudContainer>
+
+@code {
+    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+
+    private async Task GoBack()
+    {
+        await JSRuntime.InvokeVoidAsync("history.back");
+    }
+}

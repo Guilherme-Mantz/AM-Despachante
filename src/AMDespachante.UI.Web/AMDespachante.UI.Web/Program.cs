@@ -49,6 +49,8 @@ else
     app.UseHsts();
 }
 
+app.UseStatusCodePagesWithReExecute("/404");
+
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
