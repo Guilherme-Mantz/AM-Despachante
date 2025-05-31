@@ -1,11 +1,24 @@
-using AMDespachante.Domain.Interfaces.Services;
 using AMDespachante.UI.Web.Components;
 using AMDespachante.UI.Web.Configuraiton;
 using Hangfire;
-using Hangfire.SqlServer;
+using Microsoft.AspNetCore.Localization;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { "pt-BR" };
+    options.SetDefaultCulture(supportedCultures[0])
+           .AddSupportedCultures(supportedCultures)
+           .AddSupportedUICultures(supportedCultures);
+
+    options.RequestCultureProviders.Clear();
+    options.RequestCultureProviders.Add(new CustomRequestCultureProvider(context =>
+    {
+        return Task.FromResult(new ProviderCultureResult("pt-BR"));
+    }));
+});
 
 builder.Configuration
     .SetBasePath(builder.Environment.ContentRootPath)
@@ -37,6 +50,8 @@ builder.Services.AddHttpClient();
 builder.Services.ResolveDependencies();
 
 var app = builder.Build();
+
+app.UseRequestLocalization();
 
 if (app.Environment.IsDevelopment())
 {
